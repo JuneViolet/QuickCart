@@ -15,10 +15,12 @@ const OrderSummary = () => {
     cartItems,
     setCartItems,
   } = useAppContext();
+
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   const [userAddresses, setUserAddresses] = useState([]);
+  const [promoCode, setPromoCode] = useState(""); // State cho mã giảm giá
+  const [discount, setDiscount] = useState(0); // State cho giá trị giảm giá
 
   const fetchUserAddresses = async () => {
     try {
@@ -29,7 +31,7 @@ const OrderSummary = () => {
       if (data.success) {
         setUserAddresses(data.addresses);
         if (data.addresses.length > 0) {
-          setSelectedAddress(data.addresses [0]);
+          setSelectedAddress(data.addresses[0]);
         }
       } else {
         toast.error(data.message);
@@ -44,7 +46,81 @@ const OrderSummary = () => {
     setIsDropdownOpen(false);
   };
 
-  const createOrder = async () => {};
+  // Hàm xử lý áp dụng mã giảm giá
+  const applyPromoCode = async () => {
+    try {
+      if (!promoCode) {
+        toast.error("Please enter a promo code");
+        return;
+      }
+
+      const token = await getToken();
+      const { data } = await axios.post(
+        "/api/promo/validate",
+        { code: promoCode },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (data.success) {
+        // Tính số tiền giảm dựa trên discountPercentage
+        const discountValue =
+          data.discountPercentage < 1
+            ? getCartAmount() * data.discountPercentage // Nếu là phần trăm
+            : data.discountPercentage; // Nếu là số tiền cố định
+        setDiscount(Math.floor(discountValue)); // Làm tròn số
+        toast.success("Promo code applied successfully!");
+      } else {
+        setDiscount(0);
+        toast.error(data.message);
+      }
+    } catch (error) {
+      setDiscount(0);
+      toast.error("Invalid promo code");
+    }
+  };
+
+  const createOrder = async () => {
+    try {
+      if (!selectedAddress) {
+        return toast.error("please select an address");
+      }
+
+      let cartItemsArray = Object.keys(cartItems).map((key) => ({
+        product: key,
+        quantity: cartItems[key],
+      }));
+      cartItemsArray = cartItemsArray.filter((item) => item.quantity > 0);
+
+      if (cartItemsArray.length === 0) {
+        return toast.error("Cart is empty");
+      }
+
+      const token = await getToken();
+
+      const { data } = await axios.post(
+        "/api/order/create",
+        {
+          address: selectedAddress._id,
+          items: cartItemsArray,
+          promoCode: promoCode || null,
+          discount: discount,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        setCartItems({});
+        router.push("/order-placed");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -52,16 +128,23 @@ const OrderSummary = () => {
     }
   }, [user]);
 
+  // Tính tổng tiền cuối cùng
+  const calculateFinalTotal = () => {
+    const subtotal = getCartAmount();
+    const tax = Math.floor(subtotal * 0.02);
+    return subtotal + tax - discount;
+  };
+
   return (
     <div className="w-full md:w-96 bg-gray-500/5 p-5">
       <h2 className="text-xl md:text-2xl font-medium text-gray-700">
-        Order Summary
+        Chi Tiết Mua Hàng
       </h2>
       <hr className="border-gray-500/30 my-5" />
       <div className="space-y-6">
         <div>
           <label className="text-base font-medium uppercase text-gray-600 block mb-2">
-            Select Address
+            CHỌN ĐỊA CHỈ
           </label>
           <div className="relative inline-block w-full text-sm border">
             <button
@@ -107,7 +190,7 @@ const OrderSummary = () => {
                   onClick={() => router.push("/add-address")}
                   className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer text-center"
                 >
-                  + Add New Address
+                  + Thêm địa chỉ mới
                 </li>
               </ul>
             )}
@@ -116,16 +199,21 @@ const OrderSummary = () => {
 
         <div>
           <label className="text-base font-medium uppercase text-gray-600 block mb-2">
-            Promo Code
+            MÃ GIẢM GIÁ
           </label>
           <div className="flex flex-col items-start gap-3">
             <input
               type="text"
-              placeholder="Enter promo code"
+              placeholder="Nhập mã giảm giá"
               className="flex-grow w-full outline-none p-2.5 text-gray-600 border"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
             />
-            <button className="bg-orange-600 text-white px-9 py-2 hover:bg-orange-700">
-              Apply
+            <button
+              onClick={applyPromoCode}
+              className="bg-orange-600 text-white px-9 py-2 hover:bg-orange-700"
+            >
+              Áp Dụng
             </button>
           </div>
         </div>
@@ -134,28 +222,37 @@ const OrderSummary = () => {
 
         <div className="space-y-4">
           <div className="flex justify-between text-base font-medium">
-            <p className="uppercase text-gray-600">Items {getCartCount()}</p>
+            <p className="uppercase text-gray-600">Mặt hàng {getCartCount()}</p>
             <p className="text-gray-800">
               {currency}
               {getCartAmount()}
             </p>
           </div>
           <div className="flex justify-between">
-            <p className="text-gray-600">Shipping Fee</p>
+            <p className="text-gray-600">Phí vận chuyển</p>
             <p className="font-medium text-gray-800">Free</p>
           </div>
           <div className="flex justify-between">
-            <p className="text-gray-600">Tax (2%)</p>
+            <p className="text-gray-600">Thuế (2%)</p>
             <p className="font-medium text-gray-800">
               {currency}
               {Math.floor(getCartAmount() * 0.02)}
             </p>
           </div>
+          {discount > 0 && (
+            <div className="flex justify-between">
+              <p className="text-gray-600">Giảm Giá</p>
+              <p className="font-medium text-green-600">
+                -{currency}
+                {discount}
+              </p>
+            </div>
+          )}
           <div className="flex justify-between text-lg md:text-xl font-medium border-t pt-3">
-            <p>Total</p>
+            <p>Tổng</p>
             <p>
               {currency}
-              {getCartAmount() + Math.floor(getCartAmount() * 0.02)}
+              {calculateFinalTotal()}
             </p>
           </div>
         </div>
@@ -165,7 +262,7 @@ const OrderSummary = () => {
         onClick={createOrder}
         className="w-full bg-orange-600 text-white py-3 mt-5 hover:bg-orange-700"
       >
-        Place Order
+        ĐẶT HÀNG
       </button>
     </div>
   );

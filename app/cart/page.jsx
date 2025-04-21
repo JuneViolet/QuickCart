@@ -17,25 +17,25 @@ const Cart = () => {
         <div className="flex-1">
           <div className="flex items-center justify-between mb-8 border-b border-gray-500/30 pb-6">
             <p className="text-2xl md:text-3xl text-gray-500">
-              Your <span className="font-medium text-orange-600">Cart</span>
+              Giỏ <span className="font-medium text-orange-600">Hàng</span>
             </p>
-            <p className="text-lg md:text-xl text-gray-500/80">{getCartCount()} Items</p>
+            <p className="text-lg md:text-xl text-gray-500/80">{getCartCount()} Sản Phẩm</p>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full table-auto">
               <thead className="text-left">
                 <tr>
                   <th className="text-nowrap pb-6 md:px-4 px-1 text-gray-600 font-medium">
-                    Product Details
+                    Chi Tiết Sản Phẩm
                   </th>
                   <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium">
-                    Price
+                    Giá
                   </th>
                   <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium">
-                    Quantity
+                    Số Lượng
                   </th>
                   <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium">
-                    Subtotal
+                    Tổng Cộng
                   </th>
                 </tr>
               </thead>
@@ -108,7 +108,7 @@ const Cart = () => {
               src={assets.arrow_right_icon_colored}
               alt="arrow_right_icon_colored"
             />
-            Continue Shopping
+            Tiếp Tục Shopping
           </button>
         </div>
         <OrderSummary />

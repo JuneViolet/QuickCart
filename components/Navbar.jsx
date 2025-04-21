@@ -24,10 +24,10 @@ const Navbar = () => {
         <Link href="/all-products" className="hover:text-gray-900 transition">
           Shop
         </Link>
-        <Link href="/" className="hover:text-gray-900 transition">
+        <Link href="/about-us" className="hover:text-gray-900 transition">
           About Us
         </Link>
-        <Link href="/" className="hover:text-gray-900 transition">
+        <Link href="/contact" className="hover:text-gray-900 transition">
           Contact
         </Link>
 
@@ -36,7 +36,7 @@ const Navbar = () => {
             onClick={() => router.push("/seller")}
             className="text-xs border px-4 py-1.5 rounded-full"
           >
-            Seller Dashboard
+            Admin Dashboard
           </button>
         )}
       </div>
@@ -48,14 +48,14 @@ const Navbar = () => {
             <UserButton>
               <UserButton.MenuItems>
                 <UserButton.Action
-                  label="Cart"
+                  label="Giỏ Hàng"
                   labelIcon={<CartIcon />}
                   onClick={() => router.push("/cart")}
                 />
               </UserButton.MenuItems>
               <UserButton.MenuItems>
                 <UserButton.Action
-                  label="My Orders"
+                  label="Đơn Đặt Hàng"
                   labelIcon={<BagIcon />}
                   onClick={() => router.push("/my-orders")}
                 />
@@ -94,21 +94,21 @@ const Navbar = () => {
               </UserButton.MenuItems>
               <UserButton.MenuItems>
                 <UserButton.Action
-                  label="Products"
+                  label="Sản Phẩm"
                   labelIcon={<BoxIcon />}
                   onClick={() => router.push("/all-products")}
                 />
               </UserButton.MenuItems>
               <UserButton.MenuItems>
                 <UserButton.Action
-                  label="Cart"
+                  label="Giỏ Hàng"
                   labelIcon={<CartIcon />}
                   onClick={() => router.push("/cart")}
                 />
               </UserButton.MenuItems>
               <UserButton.MenuItems>
                 <UserButton.Action
-                  label="My Orders"
+                  label="Đơn Đặt Hàng"
                   labelIcon={<BagIcon />}
                   onClick={() => router.push("/my-orders")}
                 />

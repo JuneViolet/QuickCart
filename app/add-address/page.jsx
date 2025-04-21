@@ -48,14 +48,14 @@ const AddAddress = () => {
       <div className="px-6 md:px-16 lg:px-32 py-16 flex flex-col md:flex-row justify-between">
         <form onSubmit={onSubmitHandler} className="w-full">
           <p className="text-2xl md:text-3xl text-gray-500">
-            Add Shipping{" "}
-            <span className="font-semibold text-orange-600">Address</span>
+            Thêm Vận chuyển{" "}
+            <span className="font-semibold text-orange-600">Địa Chỉ</span>
           </p>
           <div className="space-y-3 max-w-sm mt-10">
             <input
               className="px-2 py-2.5 focus:border-orange-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
               type="text"
-              placeholder="Full name"
+              placeholder="Tên đầy đủ"
               onChange={(e) =>
                 setAddress({ ...address, fullName: e.target.value })
               }
@@ -64,7 +64,7 @@ const AddAddress = () => {
             <input
               className="px-2 py-2.5 focus:border-orange-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
               type="text"
-              placeholder="Phone number"
+              placeholder="Số điện thoại"
               onChange={(e) =>
                 setAddress({ ...address, phoneNumber: e.target.value })
               }
@@ -73,7 +73,7 @@ const AddAddress = () => {
             <input
               className="px-2 py-2.5 focus:border-orange-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
               type="text"
-              placeholder="Pin code"
+              placeholder="Mã bưu điện"
               onChange={(e) =>
                 setAddress({ ...address, pincode: e.target.value })
               }
@@ -83,7 +83,7 @@ const AddAddress = () => {
               className="px-2 py-2.5 focus:border-orange-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500 resize-none"
               type="text"
               rows={4}
-              placeholder="Address (Area and Street)"
+              placeholder="Địa chỉ (Khu vực và Đường phố)"
               onChange={(e) => setAddress({ ...address, area: e.target.value })}
               value={address.area}
             ></textarea>
@@ -91,30 +91,40 @@ const AddAddress = () => {
               <input
                 className="px-2 py-2.5 focus:border-orange-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
                 type="text"
-                placeholder="City/District/Town"
+                placeholder="Thành phố/Quận/Huyện"
                 onChange={(e) =>
                   setAddress({ ...address, city: e.target.value })
                 }
                 value={address.city}
               />
-              <input
+              {/* <input
                 className="px-2 py-2.5 focus:border-orange-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
                 type="text"
-                placeholder="State"
+                placeholder="Tiểu bang"
                 onChange={(e) =>
                   setAddress({ ...address, state: e.target.value })
                 }
                 value={address.state}
-              />
+              /> */}
             </div>
           </div>
-          <button
-            type="submit"
-            className="max-w-sm w-full mt-6 bg-orange-600 text-white py-3 hover:bg-orange-700 uppercase"
-          >
-            Save address
-          </button>
+          <div className="max-w-sm w-full flex flex-col mt-6 space-y-3">
+            <button
+              type="submit"
+              className="bg-orange-600 text-white py-3 hover:bg-orange-700 uppercase"
+            >
+              Lưu Địa Chỉ
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push("/cart")}
+              className="border border-orange-600 text-orange-600 py-3 hover:bg-orange-50 uppercase"
+            >
+              Quay lại giỏ hàng
+            </button>
+          </div>
         </form>
+
         <Image
           className="md:mr-16 mt-16 md:mt-0"
           src={assets.my_location_image}

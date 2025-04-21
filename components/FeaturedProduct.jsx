@@ -1,6 +1,8 @@
+
 import React from "react";
 import { assets } from "@/assets/assets";
 import Image from "next/image";
+import { useAppContext } from "@/context/AppContext"; // Import useAppContext
 
 const products = [
   {
@@ -24,10 +26,16 @@ const products = [
 ];
 
 const FeaturedProduct = () => {
+  const { router } = useAppContext(); // Lấy router từ context
+
+  const handleBuyNow = () => {
+    router.push("/all-products"); // Chuyển hướng đến trang /all-products
+  };
+
   return (
     <div className="mt-14">
       <div className="flex flex-col items-center">
-        <p className="text-3xl font-medium">Featured Products</p>
+        <p className="text-3xl font-medium">Sản Phẩm Nổi Bật</p>
         <div className="w-28 h-0.5 bg-orange-600 mt-2"></div>
       </div>
 
@@ -44,8 +52,16 @@ const FeaturedProduct = () => {
               <p className="text-sm lg:text-base leading-5 max-w-60">
                 {description}
               </p>
-              <button className="flex items-center gap-1.5 bg-orange-600 px-4 py-2 rounded">
-                Buy now <Image className="h-3 w-3" src={assets.redirect_icon} alt="Redirect Icon" />
+              <button
+                onClick={handleBuyNow} // Thêm sự kiện onClick
+                className="flex items-center gap-1.5 bg-orange-600 px-4 py-2 rounded"
+              >
+                Buy now{" "}
+                <Image
+                  className="h-3 w-3"
+                  src={assets.redirect_icon}
+                  alt="Redirect Icon"
+                />
               </button>
             </div>
           </div>
