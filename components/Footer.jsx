@@ -25,7 +25,7 @@ const Footer = () => {
             <ul className="text-sm space-y-2">
               <li>
                 <a className="hover:underline transition" href="#">
-                  Home
+                  Trang Chủ
                 </a>
               </li>
               <li>
@@ -35,7 +35,7 @@ const Footer = () => {
               </li>
               <li>
                 <a className="hover:underline transition" href="#">
-                  Contact us
+                  Liên Hệ
                 </a>
               </li>
               <li>

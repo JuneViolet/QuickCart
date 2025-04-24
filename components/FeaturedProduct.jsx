@@ -56,7 +56,7 @@ const FeaturedProduct = () => {
                 onClick={handleBuyNow} // Thêm sự kiện onClick
                 className="flex items-center gap-1.5 bg-orange-600 px-4 py-2 rounded"
               >
-                Buy now{" "}
+                Mua Ngay{" "}
                 <Image
                   className="h-3 w-3"
                   src={assets.redirect_icon}

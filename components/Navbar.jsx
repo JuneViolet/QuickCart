@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { assets, BagIcon, BoxIcon, CartIcon, HomeIcon } from "@/assets/assets";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
@@ -9,6 +9,53 @@ import { useClerk, UserButton } from "@clerk/nextjs";
 const Navbar = () => {
   const { isSeller, router, user } = useAppContext();
   const { openSignIn } = useClerk();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [noResults, setNoResults] = useState(false);
+
+  const isValidQuery = (query) => {
+    return /[a-zA-Z0-9]/.test(query);
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setNoResults(false);
+
+      if (searchQuery.trim() && isValidQuery(searchQuery)) {
+        fetch(`/api/search?query=${encodeURIComponent(searchQuery)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.error || data.length === 0) {
+              setSuggestions([]);
+              setNoResults(true);
+            } else {
+              setSuggestions(data.slice(0, 5));
+            }
+          })
+          .catch((err) => {
+            console.error("Error fetching suggestions:", err);
+            setSuggestions([]);
+            setNoResults(true);
+          });
+      } else {
+        setSuggestions([]);
+        if (searchQuery.trim()) {
+          setNoResults(true);
+        }
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) {
+      setSuggestions([]);
+      setNoResults(false);
+    }
+  };
+
   return (
     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-3 border-b border-gray-300 text-gray-700">
       <Image
@@ -19,7 +66,7 @@ const Navbar = () => {
       />
       <div className="flex items-center gap-4 lg:gap-8 max-md:hidden">
         <Link href="/" className="hover:text-gray-900 transition">
-          Home
+          Trang Chủ
         </Link>
         <Link href="/all-products" className="hover:text-gray-900 transition">
           Shop
@@ -28,7 +75,7 @@ const Navbar = () => {
           About Us
         </Link>
         <Link href="/contact" className="hover:text-gray-900 transition">
-          Contact
+          Liên Hệ
         </Link>
 
         {isSeller && (
@@ -41,19 +88,85 @@ const Navbar = () => {
         )}
       </div>
 
-      <ul className="hidden md:flex items-center gap-4 ">
-        <Image className="w-4 h-4" src={assets.search_icon} alt="search icon" />
+      {/* Ô tìm kiếm cho màn hình lớn */}
+      <ul className="hidden md:flex items-center gap-4">
+        <div className="relative">
+          <form onSubmit={handleSearch} className="flex items-center gap-2">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm kiếm sản phẩm..."
+                className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              >
+                <Image
+                  className="w-4 h-4"
+                  src={assets.search_icon}
+                  alt="search icon"
+                />
+              </button>
+            </div>
+          </form>
+          {suggestions.length > 0 && (
+            <ul className="absolute top-10 left-0 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10">
+              {suggestions.map((item) => (
+                <li key={item._id} className="px-3 py-2 hover:bg-gray-100">
+                  <Link
+                    href={`/product/${item._id}`}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSuggestions([]);
+                      setNoResults(false);
+                    }}
+                    className="flex items-center gap-3"
+                  >
+                    <Image
+                      src={item.image[0]} // Lấy hình ảnh đầu tiên từ mảng image
+                      alt={item.name}
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 object-cover rounded"
+                    />
+                    <span>{item.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+          {noResults && (
+            <div className="absolute top-10 left-0 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 px-3 py-2 text-gray-500">
+              Không tìm thấy sản phẩm
+            </div>
+          )}
+        </div>
+
         {user ? (
           <>
-            <UserButton>
+            <UserButton
+              appearance={{
+                elements: {
+                  userButtonFooter: { display: "none" },
+                  menuFooter: { display: "none" },
+                  userButtonPopoverFooter: { display: "none" },
+                  branding: { display: "none" },
+                  clerkBranding: { display: "none" },
+                  footerBrandingLogo: { display: "none" },
+                  clerkFooter: { display: "none" },
+                  userButtonBranding: { display: "none" },
+                },
+              }}
+            >
               <UserButton.MenuItems>
                 <UserButton.Action
                   label="Giỏ Hàng"
                   labelIcon={<CartIcon />}
                   onClick={() => router.push("/cart")}
                 />
-              </UserButton.MenuItems>
-              <UserButton.MenuItems>
                 <UserButton.Action
                   label="Đơn Đặt Hàng"
                   labelIcon={<BagIcon />}
@@ -73,40 +186,102 @@ const Navbar = () => {
         )}
       </ul>
 
+      {/* Ô tìm kiếm và menu cho màn hình nhỏ */}
       <div className="flex items-center md:hidden gap-3">
         {isSeller && (
           <button
             onClick={() => router.push("/seller")}
             className="text-xs border px-4 py-1.5 rounded-full"
           >
-            Seller Dashboard
+            Admin Dashboard
           </button>
         )}
+        <div className="relative">
+          <form onSubmit={handleSearch} className="flex items-center gap-2">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm kiếm..."
+                className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              >
+                <Image
+                  className="w-4 h-4"
+                  src={assets.search_icon}
+                  alt="search icon"
+                />
+              </button>
+            </div>
+          </form>
+          {suggestions.length > 0 && (
+            <ul className="absolute top-10 right-0 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+              {suggestions.map((item) => (
+                <li key={item._id} className="px-3 py-2 hover:bg-gray-100">
+                  <Link
+                    href={`/product/${item._id}`}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSuggestions([]);
+                      setNoResults(false);
+                    }}
+                    className="flex items-center gap-3"
+                  >
+                    <Image
+                      src={item.image[0]}
+                      alt={item.name}
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 object-cover rounded"
+                    />
+                    <span>{item.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+          {noResults && (
+            <div className="absolute top-10 right-0 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10 px-3 py-2 text-gray-500">
+              Không tìm thấy sản phẩm
+            </div>
+          )}
+        </div>
         {user ? (
           <>
-            <UserButton>
+            <UserButton
+              appearance={{
+                elements: {
+                  userButtonFooter: { display: "none" },
+                  menuFooter: { display: "none" },
+                  userButtonPopoverFooter: { display: "none" },
+                  branding: { display: "none" },
+                  clerkBranding: { display: "none" },
+                  footerBrandingLogo: { display: "none" },
+                  clerkFooter: { display: "none" },
+                  userButtonBranding: { display: "none" },
+                },
+              }}
+            >
               <UserButton.MenuItems>
                 <UserButton.Action
                   label="Home"
                   labelIcon={<HomeIcon />}
                   onClick={() => router.push("/")}
                 />
-              </UserButton.MenuItems>
-              <UserButton.MenuItems>
                 <UserButton.Action
                   label="Sản Phẩm"
                   labelIcon={<BoxIcon />}
                   onClick={() => router.push("/all-products")}
                 />
-              </UserButton.MenuItems>
-              <UserButton.MenuItems>
                 <UserButton.Action
                   label="Giỏ Hàng"
                   labelIcon={<CartIcon />}
                   onClick={() => router.push("/cart")}
                 />
-              </UserButton.MenuItems>
-              <UserButton.MenuItems>
                 <UserButton.Action
                   label="Đơn Đặt Hàng"
                   labelIcon={<BagIcon />}
