@@ -1,33 +1,10 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
+import connectDB from "@/config/db";
 import Product from "@/models/Product";
-
-let searchConnection;
-
-async function connectSearchDB() {
-  if (searchConnection) {
-    return searchConnection;
-  }
-
-  const opts = {
-    bufferCommands: false,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  };
-
-  const uri = process.env.MONGODB_URI.includes("quickcart")
-    ? process.env.MONGODB_URI
-    : `${process.env.MONGODB_URI}/quickcart`;
-
-  searchConnection = await mongoose.createConnection(uri, opts);
-  console.log("Search connection created");
-  return searchConnection;
-}
 
 export async function GET(request) {
   try {
-    const conn = await connectSearchDB();
-    const ProductModel = conn.model("Product", Product.schema); // Tạo model từ connection riêng
+    await connectDB();
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("query");
@@ -41,10 +18,11 @@ export async function GET(request) {
     }
 
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const results = await ProductModel.find({
+    const results = await Product.find({
       name: { $regex: escapedQuery, $options: "i" },
     });
 
+    console.log("Search results:", results); // Log để debug
     return NextResponse.json(results);
   } catch (error) {
     console.error("Error in search API:", error);
