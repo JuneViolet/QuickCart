@@ -2,17 +2,33 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import Product from "@/models/Product";
 
-const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) return;
-  return mongoose.connect(process.env.MONGODB_URI, {
+let searchConnection;
+
+async function connectSearchDB() {
+  if (searchConnection) {
+    return searchConnection;
+  }
+
+  const opts = {
+    bufferCommands: false,
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  });
-};
+  };
+
+  const uri = process.env.MONGODB_URI.includes("quickcart")
+    ? process.env.MONGODB_URI
+    : `${process.env.MONGODB_URI}/quickcart`;
+
+  searchConnection = await mongoose.createConnection(uri, opts);
+  console.log("Search connection created");
+  return searchConnection;
+}
 
 export async function GET(request) {
   try {
-    await connectDB();
+    const conn = await connectSearchDB();
+    const ProductModel = conn.model("Product", Product.schema); // Tạo model từ connection riêng
+
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("query");
 
@@ -20,14 +36,12 @@ export async function GET(request) {
       return NextResponse.json({ error: "Query is required" }, { status: 400 });
     }
 
-    // Kiểm tra xem query có chứa ít nhất một chữ cái hoặc số không
     if (!/[a-zA-Z0-9]/.test(query)) {
-      return NextResponse.json([]); // Trả về mảng rỗng nếu query không hợp lệ
+      return NextResponse.json([]);
     }
 
-    // Thoát các ký tự đặc biệt trong query để tránh lỗi regex
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const results = await Product.find({
+    const results = await ProductModel.find({
       name: { $regex: escapedQuery, $options: "i" },
     });
 
