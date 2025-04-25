@@ -74,7 +74,12 @@ const Navbar = () => {
         <Link href="/about-us" className="hover:text-gray-900 transition">
           About Us
         </Link>
-        <Link href="/contact" className="hover:text-gray-900 transition">
+        <Link
+          href="https://www.facebook.com/techtrend.62980/"
+          className="hover:text-gray-900 transition"
+          target="_blank" // Mở link trong tab mới
+          rel="noopener noreferrer" // Bảo mật khi mở link bên ngoài
+        >
           Liên Hệ
         </Link>
 
