@@ -1,5 +1,7 @@
 import logo from "./logo2.png";
-import placeholder_image from "./aboutus.jpg"
+import arrow_right1 from "./arrow-right1.png";
+import arrow_left1 from "./left-arrow.png";
+import placeholder_image from "./aboutus.jpg";
 import search_icon from "./search_icon.svg";
 import user_icon from "./user_icon.svg";
 import cart_icon from "./cart_icon.svg";
@@ -98,6 +100,8 @@ export const assets = {
   product_details_page_apple_earphone_image4,
   product_details_page_apple_earphone_image5,
   checkmark,
+  arrow_right1,
+  arrow_left1,
 };
 
 export const BagIcon = () => {

@@ -63,21 +63,50 @@
 // };
 
 // export default ProductCard;
-import React from "react";
-import { assets } from "@/assets/assets";
 import Image from "next/image";
+import { assets } from "@/assets/assets";
+import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/AppContext";
 
 const ProductCard = ({ product }) => {
-  const { currency, router, formatCurrency } = useAppContext(); // Thêm formatCurrency
+  const router = useRouter();
+  const { currency, formatCurrency } = useAppContext();
+
+  // Hàm renderStars để hiển thị sao
+  const renderStars = (ratingValue) => {
+    const numericRating = parseFloat(ratingValue) || 0;
+    return (
+      <div className="flex items-center gap-0.5">
+        {[...Array(5)].map((_, index) => (
+          <Image
+            key={index}
+            className="h-3 w-3"
+            src={
+              index < Math.floor(numericRating)
+                ? assets.star_icon
+                : assets.star_dull_icon
+            }
+            alt="star_icon"
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // Xử lý khi nhấn "Mua Ngay"
+  const handleBuyNow = (e) => {
+    e.stopPropagation(); // Ngăn sự kiện click trên card
+    router.push("/product/" + product._id); // Chuyển hướng đến trang chi tiết
+    window.scrollTo(0, 0); // Sửa scrollTo thành window.scrollTo để đảm bảo hoạt động
+  };
 
   return (
     <div
       onClick={() => {
         router.push("/product/" + product._id);
-        scrollTo(0, 0);
+        window.scrollTo(0, 0);
       }}
-      className="flex flex-col items-start gap-0.5 max-w-[220px] w-full cursor-pointer"
+      className="flex flex-col items-start gap-0.5 max-w-[280px] w-full cursor-pointer" // Tăng max-w từ 250px lên 280px
     >
       <div className="cursor-pointer group relative bg-gray-500/10 rounded-lg w-full h-52 flex items-center justify-center">
         <Image
@@ -99,26 +128,23 @@ const ProductCard = ({ product }) => {
         {product.description}
       </p>
       <div className="flex items-center gap-2">
-        <p className="text-xs">{4.5}</p>
+        <p className="text-xs">{product.averageRating}</p>
         <div className="flex items-center gap-0.5">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Image
-              key={index}
-              className="h-3 w-3"
-              src={
-                index < Math.floor(4) ? assets.star_icon : assets.star_dull_icon
-              }
-              alt="star_icon"
-            />
-          ))}
+          {renderStars(product.averageRating)}
         </div>
       </div>
 
       <div className="flex items-end justify-between w-full mt-1">
-        <p className="text-base font-medium whitespace-nowrap">
-          {formatCurrency(product.offerPrice)} {/* Sử dụng formatCurrency */}
+        <p className="text-lg font-medium truncate max-w-[60%]">
+          {" "}
+          {/* Thêm truncate và giới hạn chiều rộng */}
+          {formatCurrency(product.offerPrice)}
         </p>
-        <button className=" max-sm:hidden px-4 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-xs hover:bg-slate-50 transition whitespace-nowrap">
+        <button
+          onClick={handleBuyNow}
+          className="max-sm:hidden px-3 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-sm hover:bg-slate-50 transition" // Giảm px-4 xuống px-3
+          disabled={product.stock <= 0}
+        >
           Mua Ngay
         </button>
       </div>

@@ -119,7 +119,7 @@
 
 // export default Cart;
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react"; // Thêm useEffect, useState
 import { assets } from "@/assets/assets";
 import OrderSummary from "@/components/OrderSummary";
 import Image from "next/image";
@@ -128,7 +128,6 @@ import { useAppContext } from "@/context/AppContext";
 
 const Cart = () => {
   const {
-    products,
     router,
     cartItems,
     addToCart,
@@ -136,6 +135,41 @@ const Cart = () => {
     getCartCount,
     formatCurrency,
   } = useAppContext();
+  const [cartProducts, setCartProducts] = useState([]); // State để lưu danh sách sản phẩm trong giỏ
+
+  // Lấy thông tin sản phẩm trong giỏ từ API
+  useEffect(() => {
+    const fetchCartProducts = async () => {
+      try {
+        const itemIds = Object.keys(cartItems).filter(
+          (itemId) => cartItems[itemId] > 0
+        ); // Lấy danh sách ID sản phẩm có số lượng > 0
+        if (itemIds.length === 0) {
+          setCartProducts([]);
+          return;
+        }
+
+        const response = await fetch("/api/product/list", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: itemIds }),
+        });
+        const data = await response.json();
+        console.log("Cart Products API Response:", data); // Log dữ liệu trả về
+        if (data.success) {
+          setCartProducts(data.products || []);
+        } else {
+          console.error("Fetch Cart Products Error:", data.message);
+          setCartProducts([]);
+        }
+      } catch (error) {
+        console.error("Fetch Cart Products Error:", error.message);
+        setCartProducts([]);
+      }
+    };
+
+    fetchCartProducts();
+  }, [cartItems]); // Gọi lại khi cartItems thay đổi
 
   return (
     <>
@@ -170,7 +204,7 @@ const Cart = () => {
               </thead>
               <tbody>
                 {Object.keys(cartItems).map((itemId) => {
-                  const product = products.find(
+                  const product = cartProducts.find(
                     (product) => product._id === itemId
                   );
 
