@@ -100,18 +100,23 @@ const ProductCard = ({ product }) => {
     window.scrollTo(0, 0); // Sửa scrollTo thành window.scrollTo để đảm bảo hoạt động
   };
 
+  // Kiểm tra nếu product không tồn tại
+  if (!product || !product._id) {
+    return <div>Product data is missing</div>; // Fallback nếu dữ liệu không hợp lệ
+  }
+
   return (
     <div
       onClick={() => {
         router.push("/product/" + product._id);
         window.scrollTo(0, 0);
       }}
-      className="flex flex-col items-start gap-0.5 max-w-[280px] w-full cursor-pointer" // Tăng max-w từ 250px lên 280px
+      className="flex flex-col items-start gap-0.5 max-w-[280px] w-full cursor-pointer"
     >
       <div className="cursor-pointer group relative bg-gray-500/10 rounded-lg w-full h-52 flex items-center justify-center">
         <Image
-          src={product.image[0]}
-          alt={product.name}
+          src={product.images?.[0] || assets.placeholder_image} // Sửa từ product.image[0] sang product.images?.[0]
+          alt={product.name || "Product Image"}
           className="group-hover:scale-105 transition object-cover w-4/5 h-4/5 md:w-full md:h-full"
           width={800}
           height={800}
@@ -136,13 +141,11 @@ const ProductCard = ({ product }) => {
 
       <div className="flex items-end justify-between w-full mt-1">
         <p className="text-lg font-medium truncate max-w-[60%]">
-          {" "}
-          {/* Thêm truncate và giới hạn chiều rộng */}
           {formatCurrency(product.offerPrice)}
         </p>
         <button
           onClick={handleBuyNow}
-          className="max-sm:hidden px-3 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-sm hover:bg-slate-50 transition" // Giảm px-4 xuống px-3
+          className="max-sm:hidden px-3 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-sm hover:bg-slate-50 transition"
           disabled={product.stock <= 0}
         >
           Mua Ngay

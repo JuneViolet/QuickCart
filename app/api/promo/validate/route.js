@@ -1,16 +1,11 @@
-// app/api/promo/validate/route.js
+import connectDB from "@/config/db";
+import Promo from "@/models/Promo";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// Danh sách mã giảm giá giả lập 
-const promoCodes = {
-  DISCOUNT10: 0.1, // Giảm 10%
-  SAVE20: 20, // Giảm $20
-};
-
 export async function POST(req) {
   try {
-    // Kiểm tra authentication (dùng Clerk)
+    await connectDB();
     const { userId } = getAuth(req);
     if (!userId) {
       return NextResponse.json(
@@ -19,7 +14,6 @@ export async function POST(req) {
       );
     }
 
-    // Lấy body từ request
     const { code } = await req.json();
 
     if (!code) {
@@ -29,21 +23,47 @@ export async function POST(req) {
       );
     }
 
-    const discount = promoCodes[code.toUpperCase()];
-    if (discount) {
-      return NextResponse.json({
-        success: true,
-        discountPercentage: discount,
-        message: "Mã khuyến mại đã được áp dụng thành công",
-      });
-    } else {
+    const promo = await Promo.findOne({
+      code: code.toUpperCase(),
+      isActive: true,
+    });
+    if (!promo) {
       return NextResponse.json(
         { success: false, message: "Mã khuyến mại không hợp lệ" },
         { status: 400 }
       );
     }
+
+    // Kiểm tra ngày hết hạn (nếu có)
+    if (promo.expiresAt && new Date() > promo.expiresAt) {
+      return NextResponse.json(
+        { success: false, message: "Mã khuyến mại đã hết hạn" },
+        { status: 400 }
+      );
+    }
+
+    // Kiểm tra giới hạn sử dụng (nếu có)
+    if (promo.maxUses && promo.usedCount >= promo.maxUses) {
+      return NextResponse.json(
+        { success: false, message: "Mã khuyến mại đã hết lượt sử dụng" },
+        { status: 400 }
+      );
+    }
+
+    // Tăng số lần sử dụng (nếu cần)
+    await Promo.findOneAndUpdate(
+      { code: code.toUpperCase() },
+      { $inc: { usedCount: 1 } },
+      { new: true }
+    );
+
+    return NextResponse.json({
+      success: true,
+      discountPercentage: promo.discount,
+      message: "Mã khuyến mại đã được áp dụng thành công",
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Error validating promo:", error);
     return NextResponse.json(
       { success: false, message: error.message },
       { status: 500 }

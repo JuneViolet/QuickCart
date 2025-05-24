@@ -1,77 +1,314 @@
+// import connectDB from "@/config/db";
 // import { inngest } from "@/config/inngest";
 // import Product from "@/models/Product";
 // import User from "@/models/User";
 // import { getAuth } from "@clerk/nextjs/server";
 // import { NextResponse } from "next/server";
+// import mongoose from "mongoose";
 
 // export async function POST(request) {
 //   try {
+//     await connectDB();
+
 //     const { userId } = getAuth(request);
 //     const { address, items, promoCode, discount } = await request.json();
 
-//     // Kiểm tra dữ liệu đầu vào
-//     if (!address || items.length === 0) {
-//       return NextResponse.json({ success: false, message: "Invalid data" });
+//     console.log(`Received order request for user ${userId} at ${Date.now()}`);
+
+//     if (!userId) {
+//       return NextResponse.json(
+//         { success: false, message: "User not authenticated" },
+//         { status: 401 }
+//       );
 //     }
 
-//     // Tính tổng tiền sản phẩm (subtotal)
-//     const subtotal = await items.reduce(async (acc, item) => {
+//     if (!address || !items || items.length === 0) {
+//       return NextResponse.json(
+//         { success: false, message: "Invalid data" },
+//         { status: 400 }
+//       );
+//     }
+
+//     if (!mongoose.Types.ObjectId.isValid(address)) {
+//       return NextResponse.json(
+//         { success: false, message: `Invalid address ID: ${address}` },
+//         { status: 400 }
+//       );
+//     }
+
+//     let subtotal = 0;
+//     const updatedItems = [];
+
+//     for (const item of items) {
+//       if (!mongoose.Types.ObjectId.isValid(item.product)) {
+//         return NextResponse.json(
+//           { success: false, message: `Invalid product ID: ${item.product}` },
+//           { status: 400 }
+//         );
+//       }
+
 //       const product = await Product.findById(item.product);
-//       const accumulator = await acc; // Giải quyết promise từ accumulator
-//       return accumulator + product.offerPrice * item.quantity;
-//     }, 0);
+//       if (!product) {
+//         return NextResponse.json(
+//           {
+//             success: false,
+//             message: `Product with ID ${item.product} not found`,
+//           },
+//           { status: 404 }
+//         );
+//       }
 
-//     // Tính thuế (2%)
+//       if (product.stock < item.quantity) {
+//         return NextResponse.json({
+//           success: false,
+//           message: `Not enough stock for product ${product.name}. Available: ${product.stock}`,
+//         });
+//       }
+
+//       subtotal += product.offerPrice * item.quantity;
+
+//       updatedItems.push({
+//         product: new mongoose.Types.ObjectId(item.product),
+//         quantity: item.quantity,
+//         brand: product.brand,
+//       });
+//     }
+
+//     // Sắp xếp updatedItems để so sánh chính xác
+//     updatedItems.sort((a, b) =>
+//       a.product.toString().localeCompare(b.product.toString())
+//     );
+
+//     const orderDate = Date.now();
 //     const tax = Math.floor(subtotal * 0.02);
-
-//     // Tính tổng tiền cuối cùng (bao gồm thuế và giảm giá)
 //     const finalAmount = subtotal + tax - (discount || 0);
 
-//     // Gửi sự kiện tới Inngest
+//     // Tạo orderId duy nhất
+//     const orderId = new mongoose.Types.ObjectId();
+
+//     // Gửi sự kiện Inngest
 //     await inngest.send({
 //       name: "order/created",
+//       id: `order-created-${orderId.toString()}`, // Đảm bảo id duy nhất
 //       data: {
+//         orderId,
 //         userId,
-//         address,
-//         items,
-//         subtotal, // Thêm subtotal để theo dõi
-//         tax, // Thêm thuế để theo dõi
-//         discount: discount || 0, // Thêm discount (mặc định là 0 nếu không có)
-//         promoCode: promoCode || null, // Thêm promoCode (mặc định là null nếu không có)
-//         amount: finalAmount, // Tổng tiền cuối cùng
-//         date: Date.now(),
+//         address: new mongoose.Types.ObjectId(address),
+//         items: updatedItems,
+//         subtotal,
+//         tax,
+//         discount: discount || 0,
+//         promoCode: promoCode || null,
+//         amount: finalAmount,
+//         date: orderDate,
 //       },
 //     });
 
-//     // Xóa giỏ hàng của người dùng
 //     const user = await User.findById(userId);
+//     if (!user) {
+//       return NextResponse.json(
+//         { success: false, message: "User not found" },
+//         { status: 404 }
+//       );
+//     }
 //     user.cartItems = {};
 //     await user.save();
 
-//     return NextResponse.json({ success: true, message: "Order Placed" });
+//     return NextResponse.json({
+//       success: true,
+//       message: "Đặt Hàng",
+//       order: {
+//         id: orderId,
+//         amount: finalAmount,
+//       },
+//     });
 //   } catch (error) {
-//     console.log(error);
-//     return NextResponse.json({ success: false, message: error.message });
+//     console.error("Error in /api/order/create:", error.message, error.stack);
+//     return NextResponse.json(
+//       { success: false, message: error.message },
+//       { status: 500 }
+//     );
 //   }
 // }
-import connectDB from "@/config/db"; // Thêm kết nối database
-import { inngest } from "@/config/inngest";
-import Order from "@/models/Order"; // Thêm model Order
+
+// import connectDB from "@/config/db";
+// import { inngest } from "@/config/inngest";
+// import Product from "@/models/Product";
+// import User from "@/models/User";
+// import { getAuth } from "@clerk/nextjs/server";
+// import { NextResponse } from "next/server";
+// import mongoose from "mongoose";
+
+// export async function POST(request) {
+//   try {
+//     await connectDB();
+
+//     const { userId } = getAuth(request);
+//     const { address, items, promoCode, discount } = await request.json();
+
+//     console.log(`Received order request for user ${userId} at ${Date.now()}`);
+
+//     if (!userId) {
+//       return NextResponse.json(
+//         { success: false, message: "User not authenticated" },
+//         { status: 401 }
+//       );
+//     }
+
+//     if (!address || !items || items.length === 0) {
+//       return NextResponse.json(
+//         { success: false, message: "Invalid data" },
+//         { status: 400 }
+//       );
+//     }
+
+//     if (!mongoose.Types.ObjectId.isValid(address)) {
+//       return NextResponse.json(
+//         { success: false, message: `Invalid address ID: ${address}` },
+//         { status: 400 }
+//       );
+//     }
+
+//     let subtotal = 0;
+//     const updatedItems = [];
+
+//     // Lấy thông tin người dùng
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return NextResponse.json(
+//         { success: false, message: "User not found" },
+//         { status: 404 }
+//       );
+//     }
+
+//     // So sánh và cập nhật cartItems nếu cần
+//     const cartItemIds = user.cartItems.map((item) => item.productId.toString());
+//     const requestItemIds = items.map((item) => item.product);
+//     if (
+//       JSON.stringify(cartItemIds.sort()) !==
+//       JSON.stringify(requestItemIds.sort())
+//     ) {
+//       user.cartItems = items.map((item) => ({
+//         productId: new mongoose.Types.ObjectId(item.product),
+//         quantity: item.quantity,
+//       }));
+//       await user.save();
+//     }
+
+//     for (const item of items) {
+//       if (!mongoose.Types.ObjectId.isValid(item.product)) {
+//         return NextResponse.json(
+//           { success: false, message: `Invalid product ID: ${item.product}` },
+//           { status: 400 }
+//         );
+//       }
+
+//       const product = await Product.findById(item.product);
+//       if (!product) {
+//         return NextResponse.json(
+//           {
+//             success: false,
+//             message: `Product with ID ${item.product} not found`,
+//           },
+//           { status: 404 }
+//         );
+//       }
+
+//       if (product.stock < item.quantity) {
+//         return NextResponse.json({
+//           success: false,
+//           message: `Not enough stock for product ${product.name}. Available: ${product.stock}`,
+//         });
+//       }
+
+//       subtotal += product.offerPrice * item.quantity;
+
+//       updatedItems.push({
+//         product: new mongoose.Types.ObjectId(item.product),
+//         quantity: item.quantity,
+//         brand: product.brand,
+//       });
+//     }
+
+//     // Sắp xếp updatedItems để so sánh chính xác
+//     updatedItems.sort((a, b) =>
+//       a.product.toString().localeCompare(b.product.toString())
+//     );
+
+//     const orderDate = Date.now();
+//     const tax = Math.floor(subtotal * 0.02);
+//     const finalAmount = subtotal + tax - (discount || 0);
+
+//     // Tạo orderId duy nhất
+//     const orderId = new mongoose.Types.ObjectId();
+
+//     // Gửi sự kiện Inngest
+//     await inngest.send({
+//       name: "order/created",
+//       id: `order-created-${orderId.toString()}`,
+//       data: {
+//         orderId,
+//         userId,
+//         address: new mongoose.Types.ObjectId(address),
+//         items: updatedItems,
+//         subtotal,
+//         tax,
+//         discount: discount || 0,
+//         promoCode: promoCode || null,
+//         amount: finalAmount,
+//         date: orderDate,
+//       },
+//     });
+
+//     // Làm rỗng cartItems sau khi tạo đơn hàng
+//     user.cartItems = [];
+//     await user.save();
+
+//     return NextResponse.json({
+//       success: true,
+//       message: "Đặt Hàng",
+//       order: {
+//         id: orderId,
+//         amount: finalAmount,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error in /api/order/create:", error.message, error.stack);
+//     return NextResponse.json(
+//       { success: false, message: error.message },
+//       { status: 500 }
+//     );
+//   }
+// }
+import connectDB from "@/config/db";
 import Product from "@/models/Product";
 import User from "@/models/User";
+import Promo from "@/models/Promo";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import mongoose from "mongoose"; // Thêm mongoose để kiểm tra ObjectId
+import mongoose from "mongoose";
+import { inngest } from "@/config/inngest";
 
 export async function POST(request) {
   try {
-    // Kết nối database
     await connectDB();
 
     const { userId } = getAuth(request);
-    const { address, items, promoCode, discount } = await request.json();
+    const {
+      address,
+      items,
+      promoCode,
+      discount: frontendDiscount,
+    } = await request.json();
 
-    // Kiểm tra userId
+    console.log(`Received order request for user ${userId} at ${Date.now()}`);
+    console.log("Request data:", {
+      address,
+      items,
+      promoCode,
+      frontendDiscount,
+    });
+
     if (!userId) {
       return NextResponse.json(
         { success: false, message: "User not authenticated" },
@@ -79,7 +316,6 @@ export async function POST(request) {
       );
     }
 
-    // Kiểm tra dữ liệu đầu vào
     if (!address || !items || items.length === 0) {
       return NextResponse.json(
         { success: false, message: "Invalid data" },
@@ -87,12 +323,17 @@ export async function POST(request) {
       );
     }
 
-    // Kiểm tra và tính tổng tiền sản phẩm (subtotal)
+    if (!mongoose.Types.ObjectId.isValid(address)) {
+      return NextResponse.json(
+        { success: false, message: `Invalid address ID: ${address}` },
+        { status: 400 }
+      );
+    }
+
     let subtotal = 0;
     const updatedItems = [];
 
     for (const item of items) {
-      // Kiểm tra item.product có phải ObjectId hợp lệ không
       if (!mongoose.Types.ObjectId.isValid(item.product)) {
         return NextResponse.json(
           { success: false, message: `Invalid product ID: ${item.product}` },
@@ -111,7 +352,6 @@ export async function POST(request) {
         );
       }
 
-      // Kiểm tra stock
       if (product.stock < item.quantity) {
         return NextResponse.json({
           success: false,
@@ -120,57 +360,72 @@ export async function POST(request) {
       }
 
       subtotal += product.offerPrice * item.quantity;
+      console.log(`Subtotal for ${product.name}: ${subtotal}`); // Debug subtotal
 
-      // Lưu thêm thông tin brand vào items (tùy chọn)
       updatedItems.push({
-        product: item.product, // Đảm bảo là ObjectId
+        product: new mongoose.Types.ObjectId(item.product),
         quantity: item.quantity,
         brand: product.brand,
       });
     }
 
-    // Giảm stock cho từng sản phẩm
-    for (const item of items) {
-      const product = await Product.findById(item.product);
-      product.stock -= item.quantity;
-      await product.save();
+    // Tra cứu và tính toán discount
+    let calculatedDiscount = 0;
+    if (promoCode) {
+      console.log(`Looking up promo code: ${promoCode}`);
+      const promo = await Promo.findOne({
+        code: promoCode.toUpperCase(),
+        isActive: true,
+      });
+      if (!promo) {
+        console.log("Promo not found or inactive");
+        return NextResponse.json(
+          { success: false, message: "Promo code not found or inactive" },
+          { status: 400 }
+        );
+      }
+      if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) {
+        console.log("Promo code expired");
+        return NextResponse.json(
+          { success: false, message: "Promo code has expired" },
+          { status: 400 }
+        );
+      }
+      console.log(`Promo found:`, promo);
+      calculatedDiscount =
+        promo.discountType === "percentage"
+          ? (subtotal * promo.discount) / 100
+          : promo.discount;
+      calculatedDiscount = Math.min(calculatedDiscount, subtotal);
+      console.log(`Calculated discount: ${calculatedDiscount}`);
+    } else if (frontendDiscount && !promoCode) {
+      // Chỉ dùng frontendDiscount nếu không có promoCode
+      console.log(`Using frontend discount: ${frontendDiscount}`);
+      calculatedDiscount = frontendDiscount;
     }
 
-    // Tính thuế (2%)
+    const orderDate = Date.now();
     const tax = Math.floor(subtotal * 0.02);
+    const finalAmount = subtotal + tax - calculatedDiscount;
 
-    // Tính tổng tiền cuối cùng (bao gồm thuế và giảm giá)
-    const finalAmount = subtotal + tax - (discount || 0);
+    const orderId = new mongoose.Types.ObjectId();
 
-    // Lưu đơn hàng vào database
-    const order = new Order({
-      userId,
-      items: updatedItems,
-      amount: finalAmount,
-      address,
-      status: "Order Placed",
-      date: Date.now(),
-    });
-    await order.save();
-
-    // Gửi sự kiện tới Inngest
     await inngest.send({
       name: "order/created",
+      id: `order-created-${orderId.toString()}`,
       data: {
+        orderId,
         userId,
-        address,
+        address: new mongoose.Types.ObjectId(address),
         items: updatedItems,
         subtotal,
         tax,
-        discount: discount || 0,
-        promoCode: promoCode || null,
+        discount: calculatedDiscount,
         amount: finalAmount,
-        date: Date.now(),
-        orderId: order._id, // Thêm orderId vào sự kiện
+        date: orderDate,
       },
     });
 
-    // Xóa giỏ hàng của người dùng
     const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json(
@@ -178,14 +433,14 @@ export async function POST(request) {
         { status: 404 }
       );
     }
-    user.cartItems = {};
+    user.cartItems = [];
     await user.save();
 
     return NextResponse.json({
       success: true,
-      message: "Order Placed",
+      message: "Đặt Hàng",
       order: {
-        id: order._id,
+        id: orderId,
         amount: finalAmount,
       },
     });

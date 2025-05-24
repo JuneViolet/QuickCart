@@ -14,13 +14,15 @@
 //     user,
 //     cartItems,
 //     setCartItems,
+//     formatCurrency,
 //   } = useAppContext();
 
 //   const [selectedAddress, setSelectedAddress] = useState(null);
 //   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 //   const [userAddresses, setUserAddresses] = useState([]);
-//   const [promoCode, setPromoCode] = useState(""); // State cho mã giảm giá
-//   const [discount, setDiscount] = useState(0); // State cho giá trị giảm giá
+//   const [promoCode, setPromoCode] = useState("");
+//   const [discount, setDiscount] = useState(0);
+//   const [isSubmitting, setIsSubmitting] = useState(false); // Thêm state isSubmitting
 
 //   const fetchUserAddresses = async () => {
 //     try {
@@ -46,7 +48,6 @@
 //     setIsDropdownOpen(false);
 //   };
 
-//   // Hàm xử lý áp dụng mã giảm giá
 //   const applyPromoCode = async () => {
 //     try {
 //       if (!promoCode) {
@@ -62,12 +63,11 @@
 //       );
 
 //       if (data.success) {
-//         // Tính số tiền giảm dựa trên discountPercentage
 //         const discountValue =
 //           data.discountPercentage < 1
-//             ? getCartAmount() * data.discountPercentage // Nếu là phần trăm
-//             : data.discountPercentage; // Nếu là số tiền cố định
-//         setDiscount(Math.floor(discountValue)); // Làm tròn số
+//             ? getCartAmount() * data.discountPercentage
+//             : data.discountPercentage;
+//         setDiscount(Math.floor(discountValue));
 //         toast.success("Promo code applied successfully!");
 //       } else {
 //         setDiscount(0);
@@ -80,9 +80,13 @@
 //   };
 
 //   const createOrder = async () => {
+//     if (isSubmitting) return; // Ngăn gửi nhiều yêu cầu
+//     setIsSubmitting(true); // Vô hiệu hóa nút
 //     try {
 //       if (!selectedAddress) {
-//         return toast.error("please select an address");
+//         toast.error("Please select an address");
+//         setIsSubmitting(false); // Bật lại nút nếu có lỗi
+//         return;
 //       }
 
 //       let cartItemsArray = Object.keys(cartItems).map((key) => ({
@@ -92,7 +96,9 @@
 //       cartItemsArray = cartItemsArray.filter((item) => item.quantity > 0);
 
 //       if (cartItemsArray.length === 0) {
-//         return toast.error("Cart is empty");
+//         toast.error("Cart is empty");
+//         setIsSubmitting(false); // Bật lại nút nếu có lỗi
+//         return;
 //       }
 
 //       const token = await getToken();
@@ -119,6 +125,8 @@
 //       }
 //     } catch (error) {
 //       toast.error(error.message);
+//     } finally {
+//       setIsSubmitting(false); // Bật lại nút sau khi hoàn tất
 //     }
 //   };
 
@@ -128,7 +136,6 @@
 //     }
 //   }, [user]);
 
-//   // Tính tổng tiền cuối cùng
 //   const calculateFinalTotal = () => {
 //     const subtotal = getCartAmount();
 //     const tax = Math.floor(subtotal * 0.02);
@@ -223,10 +230,7 @@
 //         <div className="space-y-4">
 //           <div className="flex justify-between text-base font-medium">
 //             <p className="uppercase text-gray-600">Mặt hàng {getCartCount()}</p>
-//             <p className="text-gray-800">
-//               {getCartAmount()}
-//               {currency}
-//             </p>
+//             <p className="text-gray-800">{formatCurrency(getCartAmount())}</p>
 //           </div>
 //           <div className="flex justify-between">
 //             <p className="text-gray-600">Phí vận chuyển</p>
@@ -235,34 +239,34 @@
 //           <div className="flex justify-between">
 //             <p className="text-gray-600">Thuế (2%)</p>
 //             <p className="font-medium text-gray-800">
-//               {currency}
-//               {Math.floor(getCartAmount() * 0.02)}
+//               {formatCurrency(Math.floor(getCartAmount() * 0.02))}
 //             </p>
 //           </div>
 //           {discount > 0 && (
 //             <div className="flex justify-between">
 //               <p className="text-gray-600">Giảm Giá</p>
 //               <p className="font-medium text-green-600">
-//                 -{currency}
-//                 {discount}
+//                 -{formatCurrency(discount)}
 //               </p>
 //             </div>
 //           )}
 //           <div className="flex justify-between text-lg md:text-xl font-medium border-t pt-3">
 //             <p>Tổng</p>
-//             <p>
-//               {calculateFinalTotal()}
-//               {currency}
-//             </p>
+//             <p>{formatCurrency(calculateFinalTotal())}</p>
 //           </div>
 //         </div>
 //       </div>
 
 //       <button
 //         onClick={createOrder}
-//         className="w-full bg-orange-600 text-white py-3 mt-5 hover:bg-orange-700"
+//         disabled={isSubmitting} // Vô hiệu hóa nút khi đang gửi
+//         className={`w-full py-3 mt-5 text-white ${
+//           isSubmitting
+//             ? "bg-orange-400 cursor-not-allowed"
+//             : "bg-orange-600 hover:bg-orange-700"
+//         }`}
 //       >
-//         ĐẶT HÀNG
+//         {isSubmitting ? "Đang xử lý..." : "ĐẶT HÀNG"}
 //       </button>
 //     </div>
 //   );
@@ -285,7 +289,7 @@ const OrderSummary = () => {
     user,
     cartItems,
     setCartItems,
-    formatCurrency, // Thêm formatCurrency từ context
+    formatCurrency,
   } = useAppContext();
 
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -293,6 +297,7 @@ const OrderSummary = () => {
   const [userAddresses, setUserAddresses] = useState([]);
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchUserAddresses = async () => {
     try {
@@ -333,10 +338,12 @@ const OrderSummary = () => {
       );
 
       if (data.success) {
-        const discountValue =
-          data.discountPercentage < 1
-            ? getCartAmount() * data.discountPercentage
-            : data.discountPercentage;
+        const discountValue = (getCartAmount() * data.discountPercentage) / 100; // Tính giảm giá theo phần trăm
+        console.log("Promo applied:", {
+          discountPercentage: data.discountPercentage,
+          subtotal: getCartAmount(),
+          discountValue,
+        });
         setDiscount(Math.floor(discountValue));
         toast.success("Promo code applied successfully!");
       } else {
@@ -350,9 +357,13 @@ const OrderSummary = () => {
   };
 
   const createOrder = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       if (!selectedAddress) {
-        return toast.error("please select an address");
+        toast.error("Please select an address");
+        setIsSubmitting(false);
+        return;
       }
 
       let cartItemsArray = Object.keys(cartItems).map((key) => ({
@@ -362,33 +373,45 @@ const OrderSummary = () => {
       cartItemsArray = cartItemsArray.filter((item) => item.quantity > 0);
 
       if (cartItemsArray.length === 0) {
-        return toast.error("Cart is empty");
+        toast.error("Cart is empty");
+        setIsSubmitting(false);
+        return;
       }
 
       const token = await getToken();
+
+      console.log("Order data sent:", {
+        address: selectedAddress._id,
+        items: cartItemsArray,
+        promoCode,
+      });
 
       const { data } = await axios.post(
         "/api/order/create",
         {
           address: selectedAddress._id,
           items: cartItemsArray,
-          promoCode: promoCode || null,
-          discount: discount,
+          promoCode: promoCode || null, // Không gửi discount
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
+      console.log("Order response:", data);
+
       if (data.success) {
         toast.success(data.message);
         setCartItems({});
+        setDiscount(0); // Reset discount sau khi đặt hàng
         router.push("/order-placed");
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -521,9 +544,14 @@ const OrderSummary = () => {
 
       <button
         onClick={createOrder}
-        className="w-full bg-orange-600 text-white py-3 mt-5 hover:bg-orange-700"
+        disabled={isSubmitting}
+        className={`w-full py-3 mt-5 text-white ${
+          isSubmitting
+            ? "bg-orange-400 cursor-not-allowed"
+            : "bg-orange-600 hover:bg-orange-700"
+        }`}
       >
-        ĐẶT HÀNG
+        {isSubmitting ? "Đang xử lý..." : "ĐẶT HÀNG"}
       </button>
     </div>
   );

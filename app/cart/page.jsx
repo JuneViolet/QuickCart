@@ -119,7 +119,7 @@
 
 // export default Cart;
 "use client";
-import React, { useEffect, useState } from "react"; // Thêm useEffect, useState
+import React, { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
 import OrderSummary from "@/components/OrderSummary";
 import Image from "next/image";
@@ -135,15 +135,14 @@ const Cart = () => {
     getCartCount,
     formatCurrency,
   } = useAppContext();
-  const [cartProducts, setCartProducts] = useState([]); // State để lưu danh sách sản phẩm trong giỏ
+  const [cartProducts, setCartProducts] = useState([]);
 
-  // Lấy thông tin sản phẩm trong giỏ từ API
   useEffect(() => {
     const fetchCartProducts = async () => {
       try {
         const itemIds = Object.keys(cartItems).filter(
           (itemId) => cartItems[itemId] > 0
-        ); // Lấy danh sách ID sản phẩm có số lượng > 0
+        );
         if (itemIds.length === 0) {
           setCartProducts([]);
           return;
@@ -155,7 +154,7 @@ const Cart = () => {
           body: JSON.stringify({ ids: itemIds }),
         });
         const data = await response.json();
-        console.log("Cart Products API Response:", data); // Log dữ liệu trả về
+        console.log("Cart Products API Response:", data);
         if (data.success) {
           setCartProducts(data.products || []);
         } else {
@@ -169,7 +168,7 @@ const Cart = () => {
     };
 
     fetchCartProducts();
-  }, [cartItems]); // Gọi lại khi cartItems thay đổi
+  }, [cartItems]);
 
   return (
     <>
@@ -215,13 +214,19 @@ const Cart = () => {
                       <td className="flex items-center gap-4 py-4 md:px-4 px-1">
                         <div>
                           <div className="rounded-lg overflow-hidden bg-gray-500/10 p-2">
-                            <Image
-                              src={product.image[0]}
-                              alt={product.name}
-                              className="w-16 h-auto object-cover mix-blend-multiply"
-                              width={1280}
-                              height={720}
-                            />
+                            {product.images && product.images.length > 0 ? (
+                              <Image
+                                src={product.images[0]} // Sửa từ image thành images
+                                alt={product.name}
+                                className="w-16 h-auto object-cover mix-blend-multiply"
+                                width={1280}
+                                height={720}
+                              />
+                            ) : (
+                              <div className="w-16 h-16 bg-gray-200 flex items-center justify-center">
+                                <span className="text-gray-500">No Image</span>
+                              </div>
+                            )}
                           </div>
                           <button
                             className="md:hidden text-xs text-orange-600 mt-1"

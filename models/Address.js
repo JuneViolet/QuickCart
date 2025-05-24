@@ -26,7 +26,12 @@ const addressSchema = new mongoose.Schema({
   state: { type: String, required: true },
 });
 
-const Address =
-  mongoose.models.Address || mongoose.model("address", addressSchema);
+// Sử dụng try-catch để tránh overwrite và đảm bảo model được đăng ký
+let Address;
+try {
+  Address = mongoose.model("Address"); // Thử lấy model đã tồn tại
+} catch {
+  Address = mongoose.model("Address", addressSchema); // Định nghĩa mới nếu chưa có
+}
 
 export default Address;

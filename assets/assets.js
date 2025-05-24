@@ -1,4 +1,10 @@
 import logo from "./logo2.png";
+import x_icon from "./x-icon.png";
+import promocode from "./voucher.png";
+import down_arrow from "./down-arrow.png";
+import specifications from "./specifications.png";
+import work_list from "./work-list.png";
+import entity from "./entity.png";
 import arrow_right1 from "./arrow-right1.png";
 import arrow_left1 from "./left-arrow.png";
 import placeholder_image from "./aboutus.jpg";
@@ -102,6 +108,12 @@ export const assets = {
   checkmark,
   arrow_right1,
   arrow_left1,
+  promocode,
+  entity,
+  down_arrow,
+  specifications,
+  work_list,
+  x_icon,
 };
 
 export const BagIcon = () => {

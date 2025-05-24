@@ -1,9 +1,8 @@
-// import connectDB from "@/config/db";
-// import authSeller from "@/lib/authSeller";
-// import Product from "@/models/Product";
-// import { getAuth } from "@clerk/nextjs/server";
-// import { v2 as cloudinary } from "cloudinary";
 // import { NextResponse } from "next/server";
+// import Product from "@/models/Product";
+// import connectDB from "@/config/db";
+// import { currentUser } from "@clerk/nextjs/server"; // Thay getAuth bằng currentUser
+// import { v2 as cloudinary } from "cloudinary";
 
 // // Cấu hình Cloudinary
 // cloudinary.config({
@@ -14,28 +13,71 @@
 
 // export async function POST(request) {
 //   try {
-//     await connectDB(); // Kết nối MongoDB trước
-//     const { userId } = getAuth(request);
-//     const isSeller = await authSeller(userId);
+//     await connectDB(); // Kết nối MongoDB
 
+//     // Kiểm tra người dùng
+//     const user = await currentUser();
+//     if (!user) {
+//       return NextResponse.json(
+//         { success: false, message: "Unauthorized: Please sign in" },
+//         { status: 401 }
+//       );
+//     }
+
+//     // Kiểm tra xem user có phải là seller không (thay authSeller)
+//     // Giả định bạn đã có logic xác định seller trong user metadata
+//     const isSeller = user?.publicMetadata?.role === "seller"; // Điều chỉnh theo cách bạn lưu role
 //     if (!isSeller) {
 //       return NextResponse.json(
-//         { success: false, message: "Not authorized" },
+//         { success: false, message: "Forbidden: Seller role required" },
 //         { status: 403 }
 //       );
 //     }
 
+//     // Lấy dữ liệu từ form
 //     const formData = await request.formData();
 //     const name = formData.get("name");
 //     const description = formData.get("description");
 //     const category = formData.get("category");
 //     const price = formData.get("price");
 //     const offerPrice = formData.get("offerPrice");
+//     const stock = formData.get("stock"); // Thêm stock
+//     const brand = formData.get("brand"); // Thêm brand
 //     const files = formData.getAll("images");
 
-//     if (!files || files.length === 0) {
+//     // Kiểm tra dữ liệu đầu vào
+//     if (
+//       !name ||
+//       !description ||
+//       !category ||
+//       !price ||
+//       !offerPrice ||
+//       !stock ||
+//       !brand ||
+//       !files ||
+//       files.length === 0
+//     ) {
 //       return NextResponse.json(
-//         { success: false, message: "No files uploaded" },
+//         { success: false, message: "Missing required fields" },
+//         { status: 400 }
+//       );
+//     }
+
+//     // Kiểm tra giá trị số
+//     const parsedPrice = Number(price);
+//     const parsedOfferPrice = Number(offerPrice);
+//     const parsedStock = Number(stock);
+
+//     if (
+//       isNaN(parsedPrice) ||
+//       parsedPrice <= 0 ||
+//       isNaN(parsedOfferPrice) ||
+//       parsedOfferPrice <= 0 ||
+//       isNaN(parsedStock) ||
+//       parsedStock < 0
+//     ) {
+//       return NextResponse.json(
+//         { success: false, message: "Invalid price, offerPrice, or stock" },
 //         { status: 400 }
 //       );
 //     }
@@ -66,25 +108,27 @@
 
 //     // Thêm sản phẩm vào MongoDB
 //     const newProduct = await Product.create({
-//       userId,
+//       userId: user.id, // Sử dụng user.id thay vì getAuth
 //       name,
 //       description,
 //       category,
-//       price: Number(price),
-//       offerPrice: Number(offerPrice),
+//       price: parsedPrice,
+//       offerPrice: parsedOfferPrice,
+//       stock: parsedStock, // Lưu stock
+//       brand, // Lưu brand
 //       image: images,
 //       date: Date.now(),
 //     });
 
 //     return NextResponse.json({
 //       success: true,
-//       message: "Upload successful",
+//       message: "Product added successfully",
 //       newProduct,
 //     });
 //   } catch (error) {
-//     console.error("Error adding product:", error); // Log lỗi
+//     console.error("Error adding product:", error.message, error.stack); // Cải thiện log
 //     return NextResponse.json(
-//       { success: false, message: error.message },
+//       { success: false, message: "Failed to add product: " + error.message },
 //       { status: 500 }
 //     );
 //   }
@@ -92,8 +136,10 @@
 import { NextResponse } from "next/server";
 import Product from "@/models/Product";
 import connectDB from "@/config/db";
-import { currentUser } from "@clerk/nextjs/server"; // Thay getAuth bằng currentUser
+import { currentUser } from "@clerk/nextjs/server";
 import { v2 as cloudinary } from "cloudinary";
+import Category from "@/models/Category"; // Import Category
+import Brand from "@/models/Brand"; // Import Brand
 
 // Cấu hình Cloudinary
 cloudinary.config({
@@ -104,9 +150,8 @@ cloudinary.config({
 
 export async function POST(request) {
   try {
-    await connectDB(); // Kết nối MongoDB
+    await connectDB();
 
-    // Kiểm tra người dùng
     const user = await currentUser();
     if (!user) {
       return NextResponse.json(
@@ -115,9 +160,7 @@ export async function POST(request) {
       );
     }
 
-    // Kiểm tra xem user có phải là seller không (thay authSeller)
-    // Giả định bạn đã có logic xác định seller trong user metadata
-    const isSeller = user?.publicMetadata?.role === "seller"; // Điều chỉnh theo cách bạn lưu role
+    const isSeller = user?.publicMetadata?.role === "seller";
     if (!isSeller) {
       return NextResponse.json(
         { success: false, message: "Forbidden: Seller role required" },
@@ -125,26 +168,24 @@ export async function POST(request) {
       );
     }
 
-    // Lấy dữ liệu từ form
     const formData = await request.formData();
     const name = formData.get("name");
     const description = formData.get("description");
-    const category = formData.get("category");
+    const categoryName = formData.get("category"); // Nhận name thay vì _id
     const price = formData.get("price");
     const offerPrice = formData.get("offerPrice");
-    const stock = formData.get("stock"); // Thêm stock
-    const brand = formData.get("brand"); // Thêm brand
+    const stock = formData.get("stock");
+    const brandName = formData.get("brand"); // Nhận name thay vì _id
     const files = formData.getAll("images");
 
-    // Kiểm tra dữ liệu đầu vào
     if (
       !name ||
       !description ||
-      !category ||
+      !categoryName ||
       !price ||
       !offerPrice ||
       !stock ||
-      !brand ||
+      !brandName ||
       !files ||
       files.length === 0
     ) {
@@ -154,7 +195,6 @@ export async function POST(request) {
       );
     }
 
-    // Kiểm tra giá trị số
     const parsedPrice = Number(price);
     const parsedOfferPrice = Number(offerPrice);
     const parsedStock = Number(stock);
@@ -173,6 +213,23 @@ export async function POST(request) {
       );
     }
 
+    // Tìm _id của Category và Brand dựa trên name
+    const category = await Category.findOne({ name: categoryName });
+    const brand = await Brand.findOne({ name: brandName });
+
+    if (!category) {
+      return NextResponse.json(
+        { success: false, message: `Category "${categoryName}" not found` },
+        { status: 404 }
+      );
+    }
+    if (!brand) {
+      return NextResponse.json(
+        { success: false, message: `Brand "${brandName}" not found` },
+        { status: 404 }
+      );
+    }
+
     // Upload ảnh lên Cloudinary
     const result = await Promise.all(
       files.map(async (file) => {
@@ -183,11 +240,8 @@ export async function POST(request) {
           const stream = cloudinary.uploader.upload_stream(
             { resource_type: "auto" },
             (error, result) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(result);
-              }
+              if (error) reject(error);
+              else resolve(result);
             }
           );
           stream.end(buffer);
@@ -199,15 +253,15 @@ export async function POST(request) {
 
     // Thêm sản phẩm vào MongoDB
     const newProduct = await Product.create({
-      userId: user.id, // Sử dụng user.id thay vì getAuth
+      userId: user.id,
       name,
       description,
-      category,
+      category: category._id, // Sử dụng _id của Category
       price: parsedPrice,
       offerPrice: parsedOfferPrice,
-      stock: parsedStock, // Lưu stock
-      brand, // Lưu brand
-      image: images,
+      stock: parsedStock,
+      brand: brand._id, // Sử dụng _id của Brand
+      images,
       date: Date.now(),
     });
 
@@ -217,7 +271,7 @@ export async function POST(request) {
       newProduct,
     });
   } catch (error) {
-    console.error("Error adding product:", error.message, error.stack); // Cải thiện log
+    console.error("Error adding product:", error.message, error.stack);
     return NextResponse.json(
       { success: false, message: "Failed to add product: " + error.message },
       { status: 500 }
