@@ -8,36 +8,69 @@
 // import Loading from "@/components/Loading";
 // import axios from "axios";
 // import toast from "react-hot-toast";
+// import { useUser } from "@clerk/nextjs"; // Thêm useUser để lấy isLoaded
 
 // const MyOrders = () => {
-//   const { currency, getToken, user } = useAppContext();
+//   const { currency, getToken, user, formatCurrency, router } = useAppContext();
+//   const { isLoaded } = useUser(); // Lấy isLoaded từ useUser
 //   const [orders, setOrders] = useState([]);
 //   const [loading, setLoading] = useState(true);
 
 //   const fetchOrders = async () => {
 //     try {
 //       const token = await getToken();
+//       console.log("Token trong MyOrders:", token);
+//       console.log("Người dùng trong MyOrders:", user);
+//       if (!token) {
+//         toast.error("Vui lòng đăng nhập để xem đơn hàng của bạn");
+//         router.push("/sign-in");
+//         return;
+//       }
 //       const { data } = await axios.get("/api/order/list", {
 //         headers: { Authorization: `Bearer ${token}` },
 //       });
+//       console.log("Phản hồi API:", data);
 //       if (data.success) {
-//         console.log("MyOrders Data:", data.orders); // Log để kiểm tra
+//         console.log("Dữ liệu MyOrders:", data.orders);
 //         setOrders(data.orders.reverse());
 //       } else {
-//         toast.error(data.message);
+//         if (data.message === "Người dùng không được tìm thấy") {
+//           toast.error(
+//             "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại."
+//           );
+//           router.push("/sign-in");
+//         } else {
+//           toast.error(data.message);
+//         }
 //       }
 //     } catch (error) {
-//       toast.error(error.message);
+//       console.error("Lỗi khi lấy đơn hàng:", error);
+//       if (error.response?.status === 401) {
+//         toast.error("Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.");
+//         router.push("/sign-in");
+//       } else {
+//         toast.error(error.message);
+//       }
 //     } finally {
-//       setLoading(false); // Đảm bảo tắt loading
+//       setLoading(false);
 //     }
 //   };
 
 //   useEffect(() => {
-//     if (user) {
-//       fetchOrders();
+//     if (!isLoaded) {
+//       console.log("Đang đợi Clerk tải dữ liệu người dùng...");
+//       return; // Chờ Clerk tải xong trạng thái đăng nhập
 //     }
-//   }, [user]);
+//     if (user) {
+//       console.log("Đối tượng người dùng:", user);
+//       fetchOrders();
+//     } else {
+//       console.log(
+//         "Không tìm thấy người dùng, chuyển hướng đến trang đăng nhập"
+//       );
+//       router.push("/sign-in");
+//     }
+//   }, [user, isLoaded]); // Thêm isLoaded vào dependency array
 
 //   return (
 //     <>
@@ -54,7 +87,7 @@
 //               ) : (
 //                 orders.map((order) => (
 //                   <div
-//                     key={order._id} // Sửa: Dùng order._id
+//                     key={order._id}
 //                     className="flex flex-col md:flex-row gap-5 justify-between p-5 border-b border-gray-300"
 //                   >
 //                     <div className="flex-1 flex gap-5 max-w-80">
@@ -69,17 +102,17 @@
 //                             .map((item) =>
 //                               item.product?.name
 //                                 ? `${item.product.name} x ${item.quantity}`
-//                                 : `Unknown Product x ${item.quantity}`
+//                                 : `Sản phẩm không xác định x ${item.quantity}`
 //                             )
 //                             .join(", ")}
 //                         </span>
-//                         <span>Sản Phẩm : {order.items.length}</span>
+//                         <span>Sản Phẩm: {order.items.length}</span>
 //                       </p>
 //                     </div>
 //                     <div>
 //                       <p>
 //                         <span className="font-medium">
-//                           {order.address?.fullName || "Unknown Name"}
+//                           {order.address?.fullName || "Tên không xác định"}
 //                         </span>
 //                         <br />
 //                         <span>{order.address?.area || "N/A"}</span>
@@ -94,16 +127,15 @@
 //                       </p>
 //                     </div>
 //                     <p className="font-medium my-auto">
-//                       {currency}
-//                       {order.amount}
+//                       {formatCurrency(order.amount)}
 //                     </p>
 //                     <div>
 //                       <p className="flex flex-col">
-//                         <span>Method : COD</span>
+//                         <span>Phương thức: COD</span>
 //                         <span>
-//                           Date : {new Date(order.date).toLocaleDateString()}
+//                           Ngày: {new Date(order.date).toLocaleDateString()}
 //                         </span>
-//                         <span>Payment : Pending</span>
+//                         <span>Thanh toán: Đang chờ</span>
 //                       </p>
 //                     </div>
 //                   </div>
@@ -129,19 +161,17 @@ import Navbar from "@/components/Navbar";
 import Loading from "@/components/Loading";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useUser } from "@clerk/nextjs"; // Thêm useUser để lấy isLoaded
+import { useUser } from "@clerk/nextjs";
 
 const MyOrders = () => {
   const { currency, getToken, user, formatCurrency, router } = useAppContext();
-  const { isLoaded } = useUser(); // Lấy isLoaded từ useUser
+  const { isLoaded } = useUser();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchOrders = async () => {
     try {
       const token = await getToken();
-      console.log("Token trong MyOrders:", token);
-      console.log("Người dùng trong MyOrders:", user);
       if (!token) {
         toast.error("Vui lòng đăng nhập để xem đơn hàng của bạn");
         router.push("/sign-in");
@@ -150,10 +180,26 @@ const MyOrders = () => {
       const { data } = await axios.get("/api/order/list", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Phản hồi API:", data);
       if (data.success) {
-        console.log("Dữ liệu MyOrders:", data.orders);
-        setOrders(data.orders.reverse());
+        const updatedOrders = await Promise.all(
+          data.orders.map(async (order) => {
+            if (order.trackingCode) {
+              try {
+                const { data: ghtkData } = await axios.post("/api/ghtk", {
+                  action: "trackOrder",
+                  payload: { trackingCode: order.trackingCode },
+                });
+                if (ghtkData.success) {
+                  return { ...order, ghtkStatus: ghtkData.data.status };
+                }
+              } catch (error) {
+                console.error("Track Order Error:", error.message);
+              }
+            }
+            return order;
+          })
+        );
+        setOrders(updatedOrders.reverse());
       } else {
         if (data.message === "Người dùng không được tìm thấy") {
           toast.error(
@@ -180,18 +226,14 @@ const MyOrders = () => {
   useEffect(() => {
     if (!isLoaded) {
       console.log("Đang đợi Clerk tải dữ liệu người dùng...");
-      return; // Chờ Clerk tải xong trạng thái đăng nhập
+      return;
     }
     if (user) {
-      console.log("Đối tượng người dùng:", user);
       fetchOrders();
     } else {
-      console.log(
-        "Không tìm thấy người dùng, chuyển hướng đến trang đăng nhập"
-      );
       router.push("/sign-in");
     }
-  }, [user, isLoaded]); // Thêm isLoaded vào dependency array
+  }, [user, isLoaded]);
 
   return (
     <>
@@ -256,7 +298,9 @@ const MyOrders = () => {
                         <span>
                           Ngày: {new Date(order.date).toLocaleDateString()}
                         </span>
-                        <span>Thanh toán: Đang chờ</span>
+                        <span>
+                          Trạng thái: {order.ghtkStatus || order.status}
+                        </span>
                       </p>
                     </div>
                   </div>
