@@ -797,7 +797,7 @@ const Cart = () => {
             (key) => cartItems[key] === item
           );
           const specs = specifications[productId] || [];
-          let weight = 500; // Mặc định 500g
+          let weight = 100; // Giá trị mặc định hợp lý (100g)
 
           const weightSpec = specs.find(
             (s) => s.key.toLowerCase() === "trọng lượng"
@@ -807,7 +807,7 @@ const Cart = () => {
               weightSpec.value.replace(/[^0-9.]/g, "")
             );
             if (!isNaN(weightValue)) {
-              weight = Math.max(weightValue, 1000); // Đảm bảo tối thiểu 1000g
+              weight = weightValue; // Sử dụng trực tiếp giá trị từ Specifications
             } else {
               console.warn(
                 `Invalid weight value for ${item.name}: ${weightSpec.value}`
@@ -815,7 +815,7 @@ const Cart = () => {
             }
           } else {
             console.warn(
-              `No weight spec found for ${item.name}, using default 500g`
+              `No weight spec found for ${item.name}, using default 100g`
             );
           }
 
@@ -867,7 +867,7 @@ const Cart = () => {
               (key) => cartItems[key] === item
             );
             const specs = specifications[productId] || [];
-            let weight = 500;
+            let weight = 100; // Giá trị mặc định hợp lý (100g)
             const weightSpec = specs.find(
               (s) => s.key.toLowerCase() === "trọng lượng"
             );
@@ -876,7 +876,7 @@ const Cart = () => {
                 weightSpec.value.replace(/[^0-9.]/g, "")
               );
               if (!isNaN(weightValue)) {
-                weight = Math.max(weightValue, 1000);
+                weight = weightValue; // Sử dụng trực tiếp giá trị từ Specifications
               }
             }
             return {

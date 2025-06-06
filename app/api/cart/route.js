@@ -83,7 +83,7 @@ export async function GET(request) {
         obj[item.productId._id.toString()] = {
           quantity: item.quantity,
           name: item.productId.name,
-          price: item.productId.price,
+          price: item.productId.offerPrice,
           image: item.productId.images[0], // Lấy ảnh đầu tiên
         };
       }

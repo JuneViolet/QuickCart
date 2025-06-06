@@ -14,6 +14,7 @@
 //     cartItems,
 //     setCartItems,
 //     formatCurrency,
+//     specifications,
 //   } = useAppContext();
 
 //   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -21,6 +22,7 @@
 //   const [userAddresses, setUserAddresses] = useState([]);
 //   const [promoCode, setPromoCode] = useState("");
 //   const [discount, setDiscount] = useState(0);
+//   const [shippingFee, setShippingFee] = useState(null);
 //   const [isSubmitting, setIsSubmitting] = useState(false);
 
 //   const fetchUserAddresses = async () => {
@@ -45,6 +47,7 @@
 //   const handleAddressSelect = (address) => {
 //     setSelectedAddress(address);
 //     setIsDropdownOpen(false);
+//     calculateShippingFee(address);
 //   };
 
 //   const applyPromoCode = async () => {
@@ -62,12 +65,7 @@
 //       );
 
 //       if (data.success) {
-//         const discountValue = (getCartAmount() * data.discountPercentage) / 100; // Tính giảm giá theo phần trăm
-//         console.log("Promo applied:", {
-//           discountPercentage: data.discountPercentage,
-//           subtotal: getCartAmount(),
-//           discountValue,
-//         });
+//         const discountValue = (getCartAmount() * data.discountPercentage) / 100;
 //         setDiscount(Math.floor(discountValue));
 //         toast.success("Promo code applied successfully!");
 //       } else {
@@ -77,6 +75,118 @@
 //     } catch (error) {
 //       setDiscount(0);
 //       toast.error("Invalid promo code");
+//     }
+//   };
+
+//   const calculateShippingFee = async (address) => {
+//     if (!address || !cartItems || Object.keys(cartItems).length === 0) {
+//       console.log(
+//         "Skipping shipping fee calculation: No address or cart items"
+//       );
+//       setShippingFee(null);
+//       return;
+//     }
+
+//     try {
+//       const totalWeight = Object.keys(cartItems).reduce((sum, itemId) => {
+//         const item = cartItems[itemId];
+//         const specs = specifications[itemId] || [];
+//         let weight = 1000; // Mặc định 1000g nếu không có specs
+
+//         const weightSpec = specs.find(
+//           (s) => s.key.toLowerCase() === "trọng lượng"
+//         );
+//         if (weightSpec) {
+//           const weightValue = parseFloat(
+//             weightSpec.value.replace(/[^0-9.]/g, "")
+//           );
+//           if (!isNaN(weightValue)) {
+//             weight = Math.max(weightValue, 1000); // Đảm bảo tối thiểu 1000g
+//           }
+//         }
+//         const quantity = item.quantity || 1;
+//         console.log(
+//           `Product: ${
+//             item.name
+//           }, Weight: ${weight}g, Quantity: ${quantity}, Subtotal Weight: ${
+//             weight * quantity
+//           }g`
+//         );
+//         return sum + weight * quantity;
+//       }, 0);
+
+//       console.log("Total Weight Calculated:", totalWeight, "g");
+
+//       if (totalWeight <= 0) {
+//         throw new Error("Total weight must be greater than 0");
+//       }
+
+//       const payload = {
+//         pick_province: "TP. Hồ Chí Minh",
+//         pick_district: "Quận 3",
+//         pick_address: "123 Đường Lấy Hàng, Quận 3",
+//         province:
+//           address.city === "Hồ Chí Minh"
+//             ? "TP. Hồ Chí Minh"
+//             : address.city || "TP. Hồ Chí Minh",
+//         district: address.state.startsWith("Quận ")
+//           ? address.state
+//           : `Quận ${address.state}` || "Quận 1",
+//         ward: address.ward?.startsWith("Phường ")
+//           ? address.ward
+//           : `Phường ${address.ward || "1"}`,
+//         address: address.area || "123 Nguyễn Chí Thanh",
+//         weight: totalWeight,
+//         value: getCartAmount(),
+//         transport: "road",
+//         deliver_option: "none",
+//         products: Object.keys(cartItems).map((itemId) => {
+//           const item = cartItems[itemId];
+//           const specs = specifications[itemId] || [];
+//           let weight = 1000;
+//           const weightSpec = specs.find(
+//             (s) => s.key.toLowerCase() === "trọng lượng"
+//           );
+//           if (weightSpec) {
+//             const weightValue = parseFloat(
+//               weightSpec.value.replace(/[^0-9.]/g, "")
+//             );
+//             if (!isNaN(weightValue)) {
+//               weight = Math.max(weightValue, 1000);
+//             }
+//           }
+//           return {
+//             name: item.name || "Product",
+//             weight: weight,
+//             quantity: item.quantity || 1,
+//           };
+//         }),
+//       };
+
+//       console.log("Payload sent to GHTK:", JSON.stringify(payload, null, 2));
+
+//       const token = await getToken();
+//       const headers = token ? { Authorization: `Bearer ${token}` } : {};
+//       const { data } = await axios.post(
+//         "/api/ghtk",
+//         { action: "calculateFee", payload },
+//         { headers }
+//       );
+
+//       if (data.success && data.data?.success && data.data.fee?.fee) {
+//         setShippingFee(data.data.fee.fee);
+//         console.log("Shipping Fee Calculated:", data.data.fee.fee);
+//       } else {
+//         const errorMessage =
+//           data.data?.message || data.message || "GHTK failed to calculate fee";
+//         console.log("GHTK Error Response:", JSON.stringify(data, null, 2));
+//         setShippingFee(0);
+//         toast.error(`Không thể tính phí vận chuyển: ${errorMessage}`);
+//       }
+//     } catch (error) {
+//       console.error("Calculate Shipping Fee Error:", error.message);
+//       setShippingFee(0);
+//       toast.error("Không thể tính phí vận chuyển: " + error.message);
 //     }
 //   };
 
@@ -92,7 +202,7 @@
 
 //       let cartItemsArray = Object.keys(cartItems).map((key) => ({
 //         product: key,
-//         quantity: cartItems[key],
+//         quantity: cartItems[key].quantity || 1,
 //       }));
 //       cartItemsArray = cartItemsArray.filter((item) => item.quantity > 0);
 
@@ -104,30 +214,96 @@
 
 //       const token = await getToken();
 
-//       console.log("Order data sent:", {
-//         address: selectedAddress._id,
-//         items: cartItemsArray,
-//         promoCode,
-//       });
+//       const totalWeight = Object.keys(cartItems).reduce((sum, itemId) => {
+//         const specs = specifications[itemId] || [];
+//         let weight = 1000;
+//         const weightSpec = specs.find(
+//           (s) => s.key.toLowerCase() === "trọng lượng"
+//         );
+//         if (weightSpec) {
+//           const weightValue = parseFloat(
+//             weightSpec.value.replace(/[^0-9.]/g, "")
+//           );
+//           if (!isNaN(weightValue)) {
+//             weight = Math.max(weightValue, 1000);
+//           }
+//         }
+//         return sum + weight * (cartItems[itemId].quantity || 1);
+//       }, 0);
+
+//       const ghtkOrderResponse = await axios.post(
+//         "/api/ghtk",
+//         {
+//           action: "createOrder",
+//           payload: {
+//             products: cartItemsArray.map((item) => {
+//               const specs = specifications[item.product] || [];
+//               let weight = 1000;
+//               const weightSpec = specs.find(
+//                 (s) => s.key.toLowerCase() === "trọng lượng"
+//               );
+//               if (weightSpec) {
+//                 const weightValue = parseFloat(
+//                   weightSpec.value.replace(/[^0-9.]/g, "")
+//                 );
+//                 if (!isNaN(weightValue)) {
+//                   weight = Math.max(weightValue, 1000);
+//                 }
+//               }
+//               return {
+//                 name: cartItems[item.product]?.name || "Product",
+//                 weight: weight,
+//                 quantity: item.quantity,
+//                 product_code: item.product,
+//               };
+//             }),
+//             order: {
+//               id: `ORDER-${Date.now()}`,
+//               pick_name: "QuickCart Store",
+//               pick_address: "590 CMT8 P.11",
+//               pick_province: "TP. Hồ Chí Minh",
+//               pick_district: "Quận 3",
+//               pick_ward: "Phường 11",
+//               pick_tel: "0911222333",
+//               tel: selectedAddress.phoneNumber,
+//               name: selectedAddress.fullName,
+//               address: selectedAddress.area,
+//               province: selectedAddress.city,
+//               district: selectedAddress.state,
+//               ward: selectedAddress.ward || "Khác",
+//               hamlet: "Khác",
+//               is_freeship: "0",
+//               pick_money: calculateFinalTotal() + (shippingFee || 0),
+//               note: "Giao hàng cẩn thận",
+//               value: getCartAmount(),
+//               transport: "road",
+//               pick_option: "cod",
+//               deliver_option: "none",
+//             },
+//           },
+//         },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+
+//       const trackingCode = ghtkOrderResponse.data.data.order?.label;
 
 //       const { data } = await axios.post(
 //         "/api/order/create",
 //         {
 //           address: selectedAddress._id,
 //           items: cartItemsArray,
-//           promoCode: promoCode || null, // Không gửi discount
+//           promoCode: promoCode || null,
+//           trackingCode,
 //         },
 //         {
 //           headers: { Authorization: `Bearer ${token}` },
 //         }
 //       );
 
-//       console.log("Order response:", data);
-
 //       if (data.success) {
 //         toast.success(data.message);
 //         setCartItems({});
-//         setDiscount(0); // Reset discount sau khi đặt hàng
+//         setDiscount(0);
 //         router.push("/order-placed");
 //       } else {
 //         toast.error(data.message);
@@ -145,10 +321,20 @@
 //     }
 //   }, [user]);
 
+//   useEffect(() => {
+//     console.log("Cart Items Changed:", JSON.stringify(cartItems, null, 2));
+//     if (selectedAddress) {
+//       console.log("Selected Address Exists, calculating shipping fee...");
+//       calculateShippingFee(selectedAddress);
+//     } else {
+//       console.log("No selected address, skipping shipping fee calculation");
+//     }
+//   }, [cartItems, selectedAddress, specifications]);
+
 //   const calculateFinalTotal = () => {
 //     const subtotal = getCartAmount();
 //     const tax = Math.floor(subtotal * 0.02);
-//     return subtotal + tax - discount;
+//     return subtotal + tax + (shippingFee || 0) - discount;
 //   };
 
 //   return (
@@ -169,7 +355,7 @@
 //             >
 //               <span>
 //                 {selectedAddress
-//                   ? `${selectedAddress.fullName}, ${selectedAddress.area}, ${selectedAddress.city}, ${selectedAddress.state}`
+//                   ? `${selectedAddress.fullName}, ${selectedAddress.phoneNumber}, ${selectedAddress.area}, ${selectedAddress.ward}, ${selectedAddress.state}, ${selectedAddress.city}, ${selectedAddress.pincode}`
 //                   : "Select Address"}
 //               </span>
 //               <svg
@@ -198,8 +384,9 @@
 //                     className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer"
 //                     onClick={() => handleAddressSelect(address)}
 //                   >
-//                     {address.fullName}, {address.area}, {address.city},{" "}
-//                     {address.state}
+//                     {address.fullName}, {address.phoneNumber}, {address.area},{" "}
+//                     {address.ward}, {address.state}, {address.city},{" "}
+//                     {address.pincode}
 //                   </li>
 //                 ))}
 //                 <li
@@ -243,7 +430,11 @@
 //           </div>
 //           <div className="flex justify-between">
 //             <p className="text-gray-600">Phí vận chuyển</p>
-//             <p className="font-medium text-gray-800">Free</p>
+//             <p className="font-medium text-gray-800">
+//               {shippingFee !== null
+//                 ? formatCurrency(shippingFee)
+//                 : "Đang tính..."}
+//             </p>
 //           </div>
 //           <div className="flex justify-between">
 //             <p className="text-gray-600">Thuế (2%)</p>
@@ -281,13 +472,13 @@
 //   );
 // };
 
-// export default OrderSummary
+// export default OrderSummary;
 import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const OrderSummary = () => {
+const OrderSummary = ({ shippingFee }) => {
   const {
     currency,
     router,
@@ -306,7 +497,6 @@ const OrderSummary = () => {
   const [userAddresses, setUserAddresses] = useState([]);
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
-  const [shippingFee, setShippingFee] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchUserAddresses = async () => {
@@ -331,7 +521,6 @@ const OrderSummary = () => {
   const handleAddressSelect = (address) => {
     setSelectedAddress(address);
     setIsDropdownOpen(false);
-    calculateShippingFee(address);
   };
 
   const applyPromoCode = async () => {
@@ -362,118 +551,6 @@ const OrderSummary = () => {
     }
   };
 
-  const calculateShippingFee = async (address) => {
-    if (!address || !cartItems || Object.keys(cartItems).length === 0) {
-      console.log(
-        "Skipping shipping fee calculation: No address or cart items"
-      );
-      setShippingFee(null);
-      return;
-    }
-
-    try {
-      const totalWeight = Object.keys(cartItems).reduce((sum, itemId) => {
-        const item = cartItems[itemId];
-        const specs = specifications[itemId] || [];
-        let weight = 1000; // Mặc định 1000g nếu không có specs
-
-        const weightSpec = specs.find(
-          (s) => s.key.toLowerCase() === "trọng lượng"
-        );
-        if (weightSpec) {
-          const weightValue = parseFloat(
-            weightSpec.value.replace(/[^0-9.]/g, "")
-          );
-          if (!isNaN(weightValue)) {
-            weight = Math.max(weightValue, 1000); // Đảm bảo tối thiểu 1000g
-          }
-        }
-        const quantity = item.quantity || 1;
-        console.log(
-          `Product: ${
-            item.name
-          }, Weight: ${weight}g, Quantity: ${quantity}, Subtotal Weight: ${
-            weight * quantity
-          }g`
-        );
-        return sum + weight * quantity;
-      }, 0);
-
-      console.log("Total Weight Calculated:", totalWeight, "g");
-
-      if (totalWeight <= 0) {
-        throw new Error("Total weight must be greater than 0");
-      }
-
-      const payload = {
-        pick_province: "TP. Hồ Chí Minh",
-        pick_district: "Quận 3",
-        pick_address: "123 Đường Lấy Hàng, Quận 3",
-        province:
-          address.city === "Hồ Chí Minh"
-            ? "TP. Hồ Chí Minh"
-            : address.city || "TP. Hồ Chí Minh",
-        district: address.state.startsWith("Quận ")
-          ? address.state
-          : `Quận ${address.state}` || "Quận 1",
-        ward: address.ward?.startsWith("Phường ")
-          ? address.ward
-          : `Phường ${address.ward || "1"}`,
-        address: address.area || "123 Nguyễn Chí Thanh",
-        weight: totalWeight,
-        value: getCartAmount(),
-        transport: "road",
-        deliver_option: "none",
-        products: Object.keys(cartItems).map((itemId) => {
-          const item = cartItems[itemId];
-          const specs = specifications[itemId] || [];
-          let weight = 1000;
-          const weightSpec = specs.find(
-            (s) => s.key.toLowerCase() === "trọng lượng"
-          );
-          if (weightSpec) {
-            const weightValue = parseFloat(
-              weightSpec.value.replace(/[^0-9.]/g, "")
-            );
-            if (!isNaN(weightValue)) {
-              weight = Math.max(weightValue, 1000);
-            }
-          }
-          return {
-            name: item.name || "Product",
-            weight: weight,
-            quantity: item.quantity || 1,
-          };
-        }),
-      };
-
-      console.log("Payload sent to GHTK:", JSON.stringify(payload, null, 2));
-
-      const token = await getToken();
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const { data } = await axios.post(
-        "/api/ghtk",
-        { action: "calculateFee", payload },
-        { headers }
-      );
-
-      if (data.success && data.data?.success && data.data.fee?.fee) {
-        setShippingFee(data.data.fee.fee);
-        console.log("Shipping Fee Calculated:", data.data.fee.fee);
-      } else {
-        const errorMessage =
-          data.data?.message || data.message || "GHTK failed to calculate fee";
-        console.log("GHTK Error Response:", JSON.stringify(data, null, 2));
-        setShippingFee(0);
-        toast.error(`Không thể tính phí vận chuyển: ${errorMessage}`);
-      }
-    } catch (error) {
-      console.error("Calculate Shipping Fee Error:", error.message);
-      setShippingFee(0);
-      toast.error("Không thể tính phí vận chuyển: " + error.message);
-    }
-  };
-
   const createOrder = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -500,7 +577,7 @@ const OrderSummary = () => {
 
       const totalWeight = Object.keys(cartItems).reduce((sum, itemId) => {
         const specs = specifications[itemId] || [];
-        let weight = 1000;
+        let weight = 100; // Giá trị mặc định hợp lý (100g)
         const weightSpec = specs.find(
           (s) => s.key.toLowerCase() === "trọng lượng"
         );
@@ -509,11 +586,15 @@ const OrderSummary = () => {
             weightSpec.value.replace(/[^0-9.]/g, "")
           );
           if (!isNaN(weightValue)) {
-            weight = Math.max(weightValue, 1000);
+            weight = weightValue; // Sử dụng trực tiếp giá trị từ Specifications
           }
         }
         return sum + weight * (cartItems[itemId].quantity || 1);
       }, 0);
+
+      if (totalWeight <= 0) {
+        throw new Error("Total weight must be greater than 0");
+      }
 
       const ghtkOrderResponse = await axios.post(
         "/api/ghtk",
@@ -522,7 +603,7 @@ const OrderSummary = () => {
           payload: {
             products: cartItemsArray.map((item) => {
               const specs = specifications[item.product] || [];
-              let weight = 1000;
+              let weight = 100; // Giá trị mặc định hợp lý (100g)
               const weightSpec = specs.find(
                 (s) => s.key.toLowerCase() === "trọng lượng"
               );
@@ -531,7 +612,7 @@ const OrderSummary = () => {
                   weightSpec.value.replace(/[^0-9.]/g, "")
                 );
                 if (!isNaN(weightValue)) {
-                  weight = Math.max(weightValue, 1000);
+                  weight = weightValue; // Sử dụng trực tiếp giá trị từ Specifications
                 }
               }
               return {
@@ -557,7 +638,7 @@ const OrderSummary = () => {
               ward: selectedAddress.ward || "Khác",
               hamlet: "Khác",
               is_freeship: "0",
-              pick_money: calculateFinalTotal() + (shippingFee || 0),
+              pick_money: calculateFinalTotal(),
               note: "Giao hàng cẩn thận",
               value: getCartAmount(),
               transport: "road",
@@ -608,8 +689,9 @@ const OrderSummary = () => {
   useEffect(() => {
     console.log("Cart Items Changed:", JSON.stringify(cartItems, null, 2));
     if (selectedAddress) {
-      console.log("Selected Address Exists, calculating shipping fee...");
-      calculateShippingFee(selectedAddress);
+      console.log(
+        "Selected Address Exists, skipping shipping fee calculation..."
+      );
     } else {
       console.log("No selected address, skipping shipping fee calculation");
     }

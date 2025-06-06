@@ -104,6 +104,24 @@ export async function POST(request) {
     await connectDB();
     console.log("Connected to DB for POST"); // Log 5
 
+    let cart = await Cart.findOne({ userId });
+    console.log("Cart before update:", cart ? cart.toJSON() : null); // Log 10
+
+    if (!cart) {
+      cart = await Cart.create({ userId, items: [] });
+      console.log("New cart created:", cart.toJSON()); // Log 11
+    }
+
+    // Nếu cartData rỗng, xóa toàn bộ giỏ hàng
+    if (Object.keys(cartData).length === 0) {
+      cart.items = [];
+      cart.updatedAt = new Date();
+      await cart.save();
+      console.log("Cart after save (cleared):", cart.toJSON());
+      return NextResponse.json({ success: true, cart: {} });
+    }
+
+    // Xử lý bình thường nếu cartData không rỗng
     const items = await Promise.all(
       Object.entries(cartData)
         .filter(([_, quantity]) => quantity > 0)
@@ -138,19 +156,11 @@ export async function POST(request) {
       );
     }
 
-    let cart = await Cart.findOne({ userId });
-    console.log("Cart before update:", cart ? cart.toJSON() : null); // Log 10
-
-    if (!cart) {
-      cart = await Cart.create({ userId, items });
-      console.log("New cart created:", cart.toJSON()); // Log 11
-    } else {
-      cart.items = items;
-      cart.updatedAt = new Date();
-      cart.markModified("items");
-      await cart.save();
-      console.log("Cart after save:", cart.toJSON()); // Log 12
-    }
+    cart.items = items;
+    cart.updatedAt = new Date();
+    cart.markModified("items");
+    await cart.save();
+    console.log("Cart after save:", cart.toJSON()); // Log 12
 
     const cartItems = cart.items.reduce((obj, item) => {
       obj[item.productId.toString()] = item.quantity;

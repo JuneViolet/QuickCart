@@ -287,7 +287,7 @@ export const AppContextProvider = (props) => {
   const [userData, setUserData] = useState(null);
   const [isSeller, setIsSeller] = useState(false);
   const [cartItems, setCartItems] = useState({});
-  const [specifications, setSpecifications] = useState({}); // Thêm state cho specifications
+  const [specifications, setSpecifications] = useState({});
   const lastUpdateRef = useRef(null);
   const [lastSyncedCart, setLastSyncedCart] = useState({});
   const [shouldUpdateCart, setShouldUpdateCart] = useState(false);
@@ -468,12 +468,12 @@ export const AppContextProvider = (props) => {
     if (typeof window !== "undefined") {
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }
-    fetchSpecifications(); // Gọi fetchSpecifications khi cartItems thay đổi
+    fetchSpecifications();
   }, [cartItems]);
 
   useEffect(() => {
     const handler = setTimeout(async () => {
-      if (user && Object.keys(cartItems).length > 0 && shouldUpdateCart) {
+      if (user && shouldUpdateCart) {
         const hasChanges =
           JSON.stringify(cartItems) !== JSON.stringify(lastSyncedCart);
         if (hasChanges) {
@@ -506,6 +506,8 @@ export const AppContextProvider = (props) => {
               setLastSyncedCart(structuredClone(cartItems));
               toast.success("Giỏ hàng đã được cập nhật");
               setShouldUpdateCart(false);
+              // Đồng bộ lại giỏ hàng sau khi cập nhật
+              await syncCart();
             } else {
               toast.error(data.message);
             }
@@ -583,7 +585,7 @@ export const AppContextProvider = (props) => {
     } else if (isLoaded && !user) {
       setUserData(null);
       setCartItems({});
-      setSpecifications({}); // Reset specifications khi không có user
+      setSpecifications({});
       if (typeof window !== "undefined") {
         localStorage.removeItem("cartItems");
       }
@@ -609,7 +611,7 @@ export const AppContextProvider = (props) => {
     getCartAmount,
     deleteProduct,
     formatCurrency,
-    specifications, // Thêm specifications vào context
+    specifications,
   };
 
   return (
