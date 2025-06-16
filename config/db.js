@@ -28,7 +28,12 @@
 // export default connectDB;
 // config/db.js
 import mongoose from "mongoose";
-
+import Product from "@/models/Product";
+import Variant from "@/models/Variants";
+import Specification from "@/models/Specification";
+import Category from "@/models/Category";
+import Brand from "@/models/Brand";
+import Attribute from "@/models/Attribute";
 let cached = global.mongoose;
 
 if (!cached) {

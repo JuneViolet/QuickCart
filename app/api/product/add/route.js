@@ -1,8 +1,10 @@
 // import { NextResponse } from "next/server";
 // import Product from "@/models/Product";
 // import connectDB from "@/config/db";
-// import { currentUser } from "@clerk/nextjs/server"; // Thay getAuth bằng currentUser
+// import { currentUser } from "@clerk/nextjs/server";
 // import { v2 as cloudinary } from "cloudinary";
+// import Category from "@/models/Category"; // Import Category
+// import Brand from "@/models/Brand"; // Import Brand
 
 // // Cấu hình Cloudinary
 // cloudinary.config({
@@ -13,9 +15,8 @@
 
 // export async function POST(request) {
 //   try {
-//     await connectDB(); // Kết nối MongoDB
+//     await connectDB();
 
-//     // Kiểm tra người dùng
 //     const user = await currentUser();
 //     if (!user) {
 //       return NextResponse.json(
@@ -24,9 +25,7 @@
 //       );
 //     }
 
-//     // Kiểm tra xem user có phải là seller không (thay authSeller)
-//     // Giả định bạn đã có logic xác định seller trong user metadata
-//     const isSeller = user?.publicMetadata?.role === "seller"; // Điều chỉnh theo cách bạn lưu role
+//     const isSeller = user?.publicMetadata?.role === "seller";
 //     if (!isSeller) {
 //       return NextResponse.json(
 //         { success: false, message: "Forbidden: Seller role required" },
@@ -34,26 +33,24 @@
 //       );
 //     }
 
-//     // Lấy dữ liệu từ form
 //     const formData = await request.formData();
 //     const name = formData.get("name");
 //     const description = formData.get("description");
-//     const category = formData.get("category");
+//     const categoryName = formData.get("category"); // Nhận name thay vì _id
 //     const price = formData.get("price");
 //     const offerPrice = formData.get("offerPrice");
-//     const stock = formData.get("stock"); // Thêm stock
-//     const brand = formData.get("brand"); // Thêm brand
+//     const stock = formData.get("stock");
+//     const brandName = formData.get("brand"); // Nhận name thay vì _id
 //     const files = formData.getAll("images");
 
-//     // Kiểm tra dữ liệu đầu vào
 //     if (
 //       !name ||
 //       !description ||
-//       !category ||
+//       !categoryName ||
 //       !price ||
 //       !offerPrice ||
 //       !stock ||
-//       !brand ||
+//       !brandName ||
 //       !files ||
 //       files.length === 0
 //     ) {
@@ -63,7 +60,6 @@
 //       );
 //     }
 
-//     // Kiểm tra giá trị số
 //     const parsedPrice = Number(price);
 //     const parsedOfferPrice = Number(offerPrice);
 //     const parsedStock = Number(stock);
@@ -82,6 +78,23 @@
 //       );
 //     }
 
+//     // Tìm _id của Category và Brand dựa trên name
+//     const category = await Category.findOne({ name: categoryName });
+//     const brand = await Brand.findOne({ name: brandName });
+
+//     if (!category) {
+//       return NextResponse.json(
+//         { success: false, message: `Category "${categoryName}" not found` },
+//         { status: 404 }
+//       );
+//     }
+//     if (!brand) {
+//       return NextResponse.json(
+//         { success: false, message: `Brand "${brandName}" not found` },
+//         { status: 404 }
+//       );
+//     }
+
 //     // Upload ảnh lên Cloudinary
 //     const result = await Promise.all(
 //       files.map(async (file) => {
@@ -92,11 +105,8 @@
 //           const stream = cloudinary.uploader.upload_stream(
 //             { resource_type: "auto" },
 //             (error, result) => {
-//               if (error) {
-//                 reject(error);
-//               } else {
-//                 resolve(result);
-//               }
+//               if (error) reject(error);
+//               else resolve(result);
 //             }
 //           );
 //           stream.end(buffer);
@@ -108,15 +118,15 @@
 
 //     // Thêm sản phẩm vào MongoDB
 //     const newProduct = await Product.create({
-//       userId: user.id, // Sử dụng user.id thay vì getAuth
+//       userId: user.id,
 //       name,
 //       description,
-//       category,
+//       category: category._id, // Sử dụng _id của Category
 //       price: parsedPrice,
 //       offerPrice: parsedOfferPrice,
-//       stock: parsedStock, // Lưu stock
-//       brand, // Lưu brand
-//       image: images,
+//       stock: parsedStock,
+//       brand: brand._id, // Sử dụng _id của Brand
+//       images,
 //       date: Date.now(),
 //     });
 
@@ -126,7 +136,7 @@
 //       newProduct,
 //     });
 //   } catch (error) {
-//     console.error("Error adding product:", error.message, error.stack); // Cải thiện log
+//     console.error("Error adding product:", error.message, error.stack);
 //     return NextResponse.json(
 //       { success: false, message: "Failed to add product: " + error.message },
 //       { status: 500 }
@@ -138,8 +148,8 @@ import Product from "@/models/Product";
 import connectDB from "@/config/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { v2 as cloudinary } from "cloudinary";
-import Category from "@/models/Category"; // Import Category
-import Brand from "@/models/Brand"; // Import Brand
+import Category from "@/models/Category";
+import Brand from "@/models/Brand";
 
 // Cấu hình Cloudinary
 cloudinary.config({
@@ -171,44 +181,48 @@ export async function POST(request) {
     const formData = await request.formData();
     const name = formData.get("name");
     const description = formData.get("description");
-    const categoryName = formData.get("category"); // Nhận name thay vì _id
+    const categoryName = formData.get("category");
     const price = formData.get("price");
     const offerPrice = formData.get("offerPrice");
-    const stock = formData.get("stock");
-    const brandName = formData.get("brand"); // Nhận name thay vì _id
+    const brandName = formData.get("brand");
     const files = formData.getAll("images");
 
+    // Kiểm tra các trường bắt buộc
     if (
       !name ||
       !description ||
       !categoryName ||
-      !price ||
-      !offerPrice ||
-      !stock ||
       !brandName ||
       !files ||
       files.length === 0
     ) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields" },
+        {
+          success: false,
+          message:
+            "Missing required fields: name, description, category, brand, or images",
+        },
         { status: 400 }
       );
     }
 
-    const parsedPrice = Number(price);
-    const parsedOfferPrice = Number(offerPrice);
-    const parsedStock = Number(stock);
+    // Chuyển đổi price và offerPrice thành số, nếu có
+    const parsedPrice = price ? Number(price) : undefined;
+    const parsedOfferPrice = offerPrice ? Number(offerPrice) : undefined;
 
+    // Validate price và offerPrice nếu được cung cấp
+    if (parsedPrice !== undefined && (isNaN(parsedPrice) || parsedPrice <= 0)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid price" },
+        { status: 400 }
+      );
+    }
     if (
-      isNaN(parsedPrice) ||
-      parsedPrice <= 0 ||
-      isNaN(parsedOfferPrice) ||
-      parsedOfferPrice <= 0 ||
-      isNaN(parsedStock) ||
-      parsedStock < 0
+      parsedOfferPrice !== undefined &&
+      (isNaN(parsedOfferPrice) || parsedOfferPrice <= 0)
     ) {
       return NextResponse.json(
-        { success: false, message: "Invalid price, offerPrice, or stock" },
+        { success: false, message: "Invalid offer price" },
         { status: 400 }
       );
     }
@@ -256,13 +270,13 @@ export async function POST(request) {
       userId: user.id,
       name,
       description,
-      category: category._id, // Sử dụng _id của Category
-      price: parsedPrice,
-      offerPrice: parsedOfferPrice,
-      stock: parsedStock,
-      brand: brand._id, // Sử dụng _id của Brand
+      category: category._id,
+      price: parsedPrice, // Tùy chọn
+      offerPrice: parsedOfferPrice, // Tùy chọn
+      brand: brand._id,
       images,
-      date: Date.now(),
+      variants: [], // Khởi tạo mảng rỗng cho variants
+      createdAt: Date.now(), // Thêm createdAt nếu cần (tùy thuộc schema)
     });
 
     return NextResponse.json({

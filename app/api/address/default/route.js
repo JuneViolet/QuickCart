@@ -38,7 +38,6 @@
 //   }
 // }
 // api/address/default/route.js
-// api/address/default/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Address from "@/models/Address";
@@ -55,11 +54,14 @@ export async function GET(request) {
     }
 
     await connectDB();
+    console.log("Fetching address for userId:", userId);
 
     const address = await Address.findOne({ userId, isDefault: true });
+    console.log("Found default address:", address);
 
     if (!address) {
       const firstAddress = await Address.findOne({ userId });
+      console.log("No default address, using first address:", firstAddress);
       return NextResponse.json({
         success: true,
         address: firstAddress || null,

@@ -8,19 +8,17 @@
 // import Loading from "@/components/Loading";
 // import axios from "axios";
 // import toast from "react-hot-toast";
-// import { useUser } from "@clerk/nextjs"; // Thêm useUser để lấy isLoaded
+// import { useUser } from "@clerk/nextjs";
 
 // const MyOrders = () => {
 //   const { currency, getToken, user, formatCurrency, router } = useAppContext();
-//   const { isLoaded } = useUser(); // Lấy isLoaded từ useUser
+//   const { isLoaded } = useUser();
 //   const [orders, setOrders] = useState([]);
 //   const [loading, setLoading] = useState(true);
 
 //   const fetchOrders = async () => {
 //     try {
 //       const token = await getToken();
-//       console.log("Token trong MyOrders:", token);
-//       console.log("Người dùng trong MyOrders:", user);
 //       if (!token) {
 //         toast.error("Vui lòng đăng nhập để xem đơn hàng của bạn");
 //         router.push("/sign-in");
@@ -29,10 +27,26 @@
 //       const { data } = await axios.get("/api/order/list", {
 //         headers: { Authorization: `Bearer ${token}` },
 //       });
-//       console.log("Phản hồi API:", data);
 //       if (data.success) {
-//         console.log("Dữ liệu MyOrders:", data.orders);
-//         setOrders(data.orders.reverse());
+//         const updatedOrders = await Promise.all(
+//           data.orders.map(async (order) => {
+//             if (order.trackingCode) {
+//               try {
+//                 const { data: ghtkData } = await axios.post("/api/ghtk", {
+//                   action: "trackOrder",
+//                   payload: { trackingCode: order.trackingCode },
+//                 });
+//                 if (ghtkData.success) {
+//                   return { ...order, ghtkStatus: ghtkData.data.status };
+//                 }
+//               } catch (error) {
+//                 console.error("Track Order Error:", error.message);
+//               }
+//             }
+//             return order;
+//           })
+//         );
+//         setOrders(updatedOrders.reverse());
 //       } else {
 //         if (data.message === "Người dùng không được tìm thấy") {
 //           toast.error(
@@ -59,18 +73,14 @@
 //   useEffect(() => {
 //     if (!isLoaded) {
 //       console.log("Đang đợi Clerk tải dữ liệu người dùng...");
-//       return; // Chờ Clerk tải xong trạng thái đăng nhập
+//       return;
 //     }
 //     if (user) {
-//       console.log("Đối tượng người dùng:", user);
 //       fetchOrders();
 //     } else {
-//       console.log(
-//         "Không tìm thấy người dùng, chuyển hướng đến trang đăng nhập"
-//       );
 //       router.push("/sign-in");
 //     }
-//   }, [user, isLoaded]); // Thêm isLoaded vào dependency array
+//   }, [user, isLoaded]);
 
 //   return (
 //     <>
@@ -135,7 +145,9 @@
 //                         <span>
 //                           Ngày: {new Date(order.date).toLocaleDateString()}
 //                         </span>
-//                         <span>Thanh toán: Đang chờ</span>
+//                         <span>
+//                           Trạng thái: {order.ghtkStatus || order.status}
+//                         </span>
 //                       </p>
 //                     </div>
 //                   </div>
@@ -164,7 +176,7 @@ import toast from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
 
 const MyOrders = () => {
-  const { currency, getToken, user, formatCurrency, router } = useAppContext();
+  const { currency, getToken, user, formatCurrency, router } = useAppContext(); // Loại bỏ variants và fetchAllVariants
   const { isLoaded } = useUser();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -223,6 +235,22 @@ const MyOrders = () => {
     }
   };
 
+  const getVariantName = (variant) => {
+    if (
+      !variant ||
+      !variant.attributeRefs ||
+      variant.attributeRefs.length === 0
+    ) {
+      console.log("No attributeRefs found for variant:", variant);
+      return "";
+    }
+    // Tạo chuỗi biến thể từ attributeRefs (ví dụ: "(Trắng, 64GB)")
+    const variantDetails = variant.attributeRefs
+      .map((ref) => ref.value)
+      .join(", ");
+    return ` (${variantDetails})`;
+  };
+
   useEffect(() => {
     if (!isLoaded) {
       console.log("Đang đợi Clerk tải dữ liệu người dùng...");
@@ -262,11 +290,21 @@ const MyOrders = () => {
                       <p className="flex flex-col gap-3">
                         <span className="font-medium text-base">
                           {order.items
-                            .map((item) =>
-                              item.product?.name
-                                ? `${item.product.name} x ${item.quantity}`
-                                : `Sản phẩm không xác định x ${item.quantity}`
-                            )
+                            .map((item) => {
+                              const product = item.product;
+                              if (!product?.name || !item.variantId) {
+                                console.log("Missing data:", { product, item });
+                                return `${
+                                  product?.name || "Sản phẩm không xác định"
+                                } x ${item.quantity}`;
+                              }
+                              const productName =
+                                product?.name || "Sản phẩm không xác định";
+                              const variantName = getVariantName(
+                                item.variantId
+                              ); // Sử dụng object Variant từ populate
+                              return `${productName}${variantName} x ${item.quantity}`;
+                            })
                             .join(", ")}
                         </span>
                         <span>Sản Phẩm: {order.items.length}</span>
@@ -281,6 +319,9 @@ const MyOrders = () => {
                         <span>{order.address?.area || "N/A"}</span>
                         <br />
                         <span>
+                          {order.address?.ward && order.address?.ward !== "Khác"
+                            ? `${order.address.ward}, `
+                            : ""}
                           {order.address?.city && order.address?.state
                             ? `${order.address.city}, ${order.address.state}`
                             : "N/A"}
@@ -299,7 +340,8 @@ const MyOrders = () => {
                           Ngày: {new Date(order.date).toLocaleDateString()}
                         </span>
                         <span>
-                          Trạng thái: {order.ghtkStatus || order.status}
+                          Trạng thái:{" "}
+                          {order.ghtkStatus || order.status || "Chưa cập nhật"}
                         </span>
                       </p>
                     </div>

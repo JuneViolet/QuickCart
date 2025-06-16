@@ -29,6 +29,8 @@
 // export default mongoose.models.Cart || mongoose.model("Cart", CartSchema);
 import mongoose from "mongoose";
 import Product from "./Product";
+import Variant from "./Variants";// Giả sử bạn có model Variant
+
 const cartSchema = new mongoose.Schema({
   userId: { type: String, required: true, index: true },
   items: [
@@ -43,6 +45,18 @@ const cartSchema = new mongoose.Schema({
             return !!product;
           },
           message: "Product not found",
+        },
+      },
+      variantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Variant",
+        required: true,
+        validate: {
+          validator: async function (value) {
+            const variant = await Variant.findById(value);
+            return !!variant;
+          },
+          message: "Variant not found",
         },
       },
       quantity: { type: Number, required: true, min: 1 },

@@ -1,13 +1,14 @@
-// api/specifications/list/route.js
 import { NextResponse } from "next/server";
-import connectDB from "@/config/db"; // Quay lại sử dụng connectDB
+import connectDB from "@/config/db";
 import Specification from "@/models/Specification";
+import mongoose from "mongoose";
 
 export async function POST(request) {
   try {
-    await connectDB(); // Quay lại connectDB
+    await connectDB();
 
     const { productIds } = await request.json();
+    console.log("Received productIds in /api/specifications/list:", productIds);
 
     if (!productIds || !Array.isArray(productIds)) {
       return NextResponse.json(
@@ -16,9 +17,23 @@ export async function POST(request) {
       );
     }
 
+    const validProductIds = productIds.filter((id) =>
+      mongoose.Types.ObjectId.isValid(id)
+    );
+    if (validProductIds.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "No valid productIds provided" },
+        { status: 400 }
+      );
+    }
+
     const specifications = await Specification.find({
-      productId: { $in: productIds },
+      productId: {
+        $in: validProductIds.map((id) => new mongoose.Types.ObjectId(id)),
+      },
     }).lean();
+
+    console.log("Fetched specifications:", specifications);
 
     const groupedSpecs = specifications.reduce((acc, spec) => {
       if (!acc[spec.productId]) {
@@ -33,7 +48,10 @@ export async function POST(request) {
       specifications: Object.values(groupedSpecs),
     });
   } catch (error) {
-    console.error("Fetch Specifications Error:", error.message);
+    console.error("Fetch Specifications Error:", {
+      message: error.message,
+      stack: error.stack,
+    });
     return NextResponse.json(
       { success: false, message: "Failed to fetch specifications" },
       { status: 500 }

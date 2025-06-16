@@ -40,8 +40,18 @@ export async function GET(request) {
     await connectDB();
 
     const orders = await Order.find({ userId }).populate(
-      "address items.product"
+      "address items.product items.variantId"
     );
+    console.log(
+      "Populated Orders:",
+      orders.map((o) =>
+        o.items.map((i) => ({
+          product: i.product?.name,
+          variantId: i.variantId ? i.variantId._id : null,
+          attributeRefs: i.variantId ? i.variantId.attributeRefs : null,
+        }))
+      )
+    ); // Log để debug
 
     return NextResponse.json({ success: true, orders });
   } catch (error) {

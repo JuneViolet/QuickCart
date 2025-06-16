@@ -472,12 +472,11 @@
 //   );
 // };
 
-// export default OrderSummary;
-import { useAppContext } from "@/context/AppContext";
+// export default OrderSummary;import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
+import { useAppContext } from "@/context/AppContext";
 const OrderSummary = ({ shippingFee }) => {
   const {
     currency,
@@ -490,6 +489,7 @@ const OrderSummary = ({ shippingFee }) => {
     setCartItems,
     formatCurrency,
     specifications,
+    variants, // Thêm variants nếu có trong AppContext
   } = useAppContext();
 
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -551,6 +551,20 @@ const OrderSummary = ({ shippingFee }) => {
     }
   };
 
+  const calculateWeight = (productId, quantity) => {
+    const specs = specifications[productId.split("_")[0]] || []; // Lấy productId từ key
+    let weight = 100; // Default weight
+    const weightSpec = specs.find((s) => s.key.toLowerCase() === "trọng lượng");
+    if (weightSpec) {
+      const weightValue = parseFloat(weightSpec.value.replace(/[^0-9.]/g, ""));
+      if (!isNaN(weightValue)) weight = weightValue;
+    }
+    const variant = variants[productId.split("_")[0]]?.find(
+      (v) => v._id.toString() === productId.split("_")[1]
+    );
+    return (variant?.weight || weight) * quantity;
+  };
+
   const createOrder = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -561,11 +575,16 @@ const OrderSummary = ({ shippingFee }) => {
         return;
       }
 
-      let cartItemsArray = Object.keys(cartItems).map((key) => ({
-        product: key,
-        quantity: cartItems[key].quantity || 1,
-      }));
-      cartItemsArray = cartItemsArray.filter((item) => item.quantity > 0);
+      const cartItemsArray = Object.entries(cartItems)
+        .map(([key, item]) => {
+          const [productId, variantId] = key.split("_");
+          return {
+            product: productId,
+            variantId,
+            quantity: item.quantity || 1,
+          };
+        })
+        .filter((item) => item.quantity > 0);
 
       if (cartItemsArray.length === 0) {
         toast.error("Cart is empty");
@@ -574,81 +593,80 @@ const OrderSummary = ({ shippingFee }) => {
       }
 
       const token = await getToken();
+      const totalWeight = Object.entries(cartItems).reduce(
+        (sum, [key, item]) => {
+          return sum + calculateWeight(key, item.quantity);
+        },
+        0
+      );
 
-      const totalWeight = Object.keys(cartItems).reduce((sum, itemId) => {
-        const specs = specifications[itemId] || [];
-        let weight = 100; // Giá trị mặc định hợp lý (100g)
-        const weightSpec = specs.find(
-          (s) => s.key.toLowerCase() === "trọng lượng"
-        );
-        if (weightSpec) {
-          const weightValue = parseFloat(
-            weightSpec.value.replace(/[^0-9.]/g, "")
-          );
-          if (!isNaN(weightValue)) {
-            weight = weightValue; // Sử dụng trực tiếp giá trị từ Specifications
-          }
-        }
-        return sum + weight * (cartItems[itemId].quantity || 1);
-      }, 0);
+      const pickMoney = calculateFinalTotal();
+      console.log("Pick Money (CoD):", pickMoney);
 
-      if (totalWeight <= 0) {
-        throw new Error("Total weight must be greater than 0");
-      }
-
-      const ghtkOrderResponse = await axios.post(
-        "/api/ghtk",
-        {
-          action: "createOrder",
-          payload: {
-            products: cartItemsArray.map((item) => {
-              const specs = specifications[item.product] || [];
-              let weight = 100; // Giá trị mặc định hợp lý (100g)
-              const weightSpec = specs.find(
-                (s) => s.key.toLowerCase() === "trọng lượng"
+      const payload = {
+        action: "createOrder",
+        payload: {
+          products: cartItemsArray.map((item) => {
+            const specs = specifications[item.product] || [];
+            let weight = 100;
+            const weightSpec = specs.find(
+              (s) => s.key.toLowerCase() === "trọng lượng"
+            );
+            if (weightSpec) {
+              const weightValue = parseFloat(
+                weightSpec.value.replace(/[^0-9.]/g, "")
               );
-              if (weightSpec) {
-                const weightValue = parseFloat(
-                  weightSpec.value.replace(/[^0-9.]/g, "")
-                );
-                if (!isNaN(weightValue)) {
-                  weight = weightValue; // Sử dụng trực tiếp giá trị từ Specifications
-                }
-              }
-              return {
-                name: cartItems[item.product]?.name || "Product",
-                weight: weight,
-                quantity: item.quantity,
-                product_code: item.product,
-              };
-            }),
-            order: {
-              id: `ORDER-${Date.now()}`,
-              pick_name: "QuickCart Store",
-              pick_address: "590 CMT8 P.11",
-              pick_province: "TP. Hồ Chí Minh",
-              pick_district: "Quận 3",
-              pick_ward: "Phường 11",
-              pick_tel: "0911222333",
-              tel: selectedAddress.phoneNumber,
-              name: selectedAddress.fullName,
-              address: selectedAddress.area,
-              province: selectedAddress.city,
-              district: selectedAddress.state,
-              ward: selectedAddress.ward || "Khác",
-              hamlet: "Khác",
-              is_freeship: "0",
-              pick_money: calculateFinalTotal(),
-              note: "Giao hàng cẩn thận",
-              value: getCartAmount(),
-              transport: "road",
-              pick_option: "cod",
-              deliver_option: "none",
-            },
+              if (!isNaN(weightValue)) weight = weightValue;
+            }
+            const variant = variants[item.product]?.find(
+              (v) => v._id.toString() === item.variantId
+            );
+            return {
+              name:
+                cartItems[`${item.product}_${item.variantId}`]?.name ||
+                "Product",
+              weight: variant?.weight || weight,
+              quantity: item.quantity,
+              product_code: item.product,
+            };
+          }),
+          order: {
+            id: `ORDER-${Date.now()}`,
+            pick_name: "QuickCart Store",
+            pick_address: "590 CMT8 P.11",
+            pick_province: "TP. Hồ Chí Minh",
+            pick_district: "Quận 3",
+            pick_ward: "Phường 11",
+            pick_tel: "0911222333",
+            tel: selectedAddress.phoneNumber,
+            name: selectedAddress.fullName,
+            address: selectedAddress.area,
+            province: selectedAddress.city,
+            district: selectedAddress.state,
+            ward: selectedAddress.ward || "Khác",
+            hamlet: "Khác",
+            is_freeship: "0",
+            pick_money: pickMoney,
+            note: "Giao hàng cẩn thận",
+            value: getCartAmount(),
+            transport: "road",
+            pick_option: "cod",
+            deliver_option: "none",
           },
         },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      };
+      console.log("Payload sent to GHTK:", JSON.stringify(payload, null, 2));
+
+      const ghtkOrderResponse = await axios.post("/api/ghtk", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!ghtkOrderResponse.data.success) {
+        console.error("GHTK Response:", ghtkOrderResponse.data);
+        throw new Error(
+          ghtkOrderResponse.data.message || "GHTK failed to create order"
+        );
+      }
 
       const trackingCode = ghtkOrderResponse.data.data.order?.label;
 
@@ -656,7 +674,7 @@ const OrderSummary = ({ shippingFee }) => {
         "/api/order/create",
         {
           address: selectedAddress._id,
-          items: cartItemsArray,
+          items: cartItemsArray, // Sử dụng cấu trúc mới
           promoCode: promoCode || null,
           trackingCode,
         },
@@ -674,6 +692,10 @@ const OrderSummary = ({ shippingFee }) => {
         toast.error(data.message);
       }
     } catch (error) {
+      console.error(
+        "Create Order Error:",
+        error.response?.data || error.message
+      );
       toast.error(error.message);
     } finally {
       setIsSubmitting(false);

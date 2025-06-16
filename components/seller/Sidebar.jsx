@@ -1,4 +1,3 @@
-
 import React from "react";
 import Link from "next/link";
 import { assets } from "../../assets/assets";
@@ -38,6 +37,16 @@ const SideBar = () => {
     {
       name: "Specification-Tempate",
       path: "/seller/specification-template",
+      icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
+    },
+    {
+      name: "Variants",
+      path: "/seller/variants",
+      icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
+    },
+    {
+      name: "Attributes",
+      path: "/seller/attributes",
       icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
     },
   ];
