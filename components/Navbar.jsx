@@ -1,3 +1,4 @@
+// // components/Navbar.jsx
 // "use client";
 // import React, { useState, useEffect } from "react";
 // import { assets, BagIcon, BoxIcon, CartIcon, HomeIcon } from "@/assets/assets";
@@ -5,6 +6,14 @@
 // import { useAppContext } from "@/context/AppContext";
 // import Image from "next/image";
 // import { useClerk, UserButton } from "@clerk/nextjs";
+// import {
+//   NavigationMenu,
+//   NavigationMenuList,
+//   NavigationMenuContent,
+//   NavigationMenuItem,
+//   NavigationMenuTrigger,
+// } from "@/components/ui/navigation-menu";
+// import MegaMenu from "./MegaMenu";
 
 // const Navbar = () => {
 //   const { isSeller, router, user } = useAppContext();
@@ -12,10 +21,33 @@
 //   const [searchQuery, setSearchQuery] = useState("");
 //   const [suggestions, setSuggestions] = useState([]);
 //   const [noResults, setNoResults] = useState(false);
+//   const [categories, setCategories] = useState([]);
 
 //   const isValidQuery = (query) => {
 //     return /[a-zA-Z0-9]/.test(query);
 //   };
+
+//   useEffect(() => {
+//     const fetchCategories = async () => {
+//       try {
+//         const response = await fetch("/api/categorys/mega-menu");
+//         if (!response.ok) {
+//           throw new Error(`HTTP error! status: ${response.status}`);
+//         }
+//         const data = await response.json();
+//         if (data.success) {
+//           console.log("Fetched categories:", data.categories); // Thêm log để kiểm tra
+//           setCategories(data.categories);
+//         } else {
+//           console.error("API error:", data.message);
+//         }
+//       } catch (error) {
+//         console.error("Error fetching categories:", error.message);
+//         setCategories([]);
+//       }
+//     };
+//     fetchCategories();
+//   }, []);
 
 //   useEffect(() => {
 //     const delayDebounceFn = setTimeout(() => {
@@ -57,14 +89,43 @@
 //   };
 
 //   return (
-//     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-3 border-b border-gray-300 text-gray-700">
-//       <Image
-//         className="cursor-pointer w-28 md:w-32"
-//         onClick={() => router.push("/")}
-//         src={assets.logo}
-//         alt="logo"
-//       />
-//       <div className="flex items-center gap-4 lg:gap-8 max-md:hidden">
+//     <nav className="flex flex-col md:flex-row items-center justify-between px-6 md:px-16 lg:px-32 py-3 border-b border-gray-300 text-gray-700">
+//       {/* Logo và Trigger Mega Menu */}
+//       <div className="flex items-center justify-between w-full md:w-auto mb-2 md:mb-0">
+//         <Image
+//           className="cursor-pointer w-28 md:w-32"
+//           onClick={() => router.push("/")}
+//           src={assets.logo}
+//           alt="logo"
+//         />
+
+//         {/* Trigger Mega Menu trên mobile */}
+//         <div className="md:hidden">
+//           <NavigationMenu>
+//             <NavigationMenuList>
+//               <NavigationMenuItem>
+//                 <NavigationMenuTrigger>Danh Mục</NavigationMenuTrigger>
+//                 <NavigationMenuContent className="w-full mt-2">
+//                   <MegaMenu categories={categories} />
+//                 </NavigationMenuContent>
+//               </NavigationMenuItem>
+//             </NavigationMenuList>
+//           </NavigationMenu>
+//         </div>
+//       </div>
+
+//       {/* Main navigation items (bao gồm Mega Menu trigger trên desktop) */}
+//       <div className="flex items-center gap-4 lg:gap-8 max-md:hidden w-full md:w-auto justify-center">
+//         <NavigationMenu>
+//           <NavigationMenuList>
+//             <NavigationMenuItem>
+//               <NavigationMenuTrigger>Danh Mục</NavigationMenuTrigger>
+//               <NavigationMenuContent className="w-full mt-2">
+//                 <MegaMenu categories={categories} />
+//               </NavigationMenuContent>
+//             </NavigationMenuItem>
+//           </NavigationMenuList>
+//         </NavigationMenu>
 //         <Link href="/" className="hover:text-gray-900 transition">
 //           Trang Chủ
 //         </Link>
@@ -77,12 +138,11 @@
 //         <Link
 //           href="https://www.facebook.com/techtrend.62980/"
 //           className="hover:text-gray-900 transition"
-//           target="_blank" // Mở link trong tab mới
-//           rel="noopener noreferrer" // Bảo mật khi mở link bên ngoài
+//           target="_blank"
+//           rel="noopener noreferrer"
 //         >
 //           Liên Hệ
 //         </Link>
-
 //         {isSeller && (
 //           <button
 //             onClick={() => router.push("/seller")}
@@ -93,17 +153,20 @@
 //         )}
 //       </div>
 
-//       {/* Ô tìm kiếm cho màn hình lớn */}
-//       <ul className="hidden md:flex items-center gap-4">
-//         <div className="relative">
-//           <form onSubmit={handleSearch} className="flex items-center gap-2">
-//             <div className="relative">
+//       {/* Search and User actions */}
+//       <div className="flex items-center gap-4 w-full md:w-auto mt-2 md:mt-0">
+//         <div className="relative w-full md:w-auto">
+//           <form
+//             onSubmit={handleSearch}
+//             className="flex items-center gap-2 w-full"
+//           >
+//             <div className="relative w-full">
 //               <input
 //                 type="text"
 //                 value={searchQuery}
 //                 onChange={(e) => setSearchQuery(e.target.value)}
 //                 placeholder="Tìm kiếm sản phẩm..."
-//                 className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+//                 className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 w-full"
 //               />
 //               <button
 //                 type="submit"
@@ -131,7 +194,7 @@
 //                     className="flex items-center gap-3"
 //                   >
 //                     <Image
-//                       src={item.image[0]} // Lấy hình ảnh đầu tiên từ mảng image
+//                       src={item.image[0]}
 //                       alt={item.name}
 //                       width={40}
 //                       height={40}
@@ -151,35 +214,33 @@
 //         </div>
 
 //         {user ? (
-//           <>
-//             <UserButton
-//               appearance={{
-//                 elements: {
-//                   userButtonFooter: { display: "none" },
-//                   menuFooter: { display: "none" },
-//                   userButtonPopoverFooter: { display: "none" },
-//                   branding: { display: "none" },
-//                   clerkBranding: { display: "none" },
-//                   footerBrandingLogo: { display: "none" },
-//                   clerkFooter: { display: "none" },
-//                   userButtonBranding: { display: "none" },
-//                 },
-//               }}
-//             >
-//               <UserButton.MenuItems>
-//                 <UserButton.Action
-//                   label="Giỏ Hàng"
-//                   labelIcon={<CartIcon />}
-//                   onClick={() => router.push("/cart")}
-//                 />
-//                 <UserButton.Action
-//                   label="Đơn Đặt Hàng"
-//                   labelIcon={<BagIcon />}
-//                   onClick={() => router.push("/my-orders")}
-//                 />
-//               </UserButton.MenuItems>
-//             </UserButton>
-//           </>
+//           <UserButton
+//             appearance={{
+//               elements: {
+//                 userButtonFooter: { display: "none" },
+//                 menuFooter: { display: "none" },
+//                 userButtonPopoverFooter: { display: "none" },
+//                 branding: { display: "none" },
+//                 clerkBranding: { display: "none" },
+//                 footerBrandingLogo: { display: "none" },
+//                 clerkFooter: { display: "none" },
+//                 userButtonBranding: { display: "none" },
+//               },
+//             }}
+//           >
+//             <UserButton.MenuItems>
+//               <UserButton.Action
+//                 label="Giỏ Hàng"
+//                 labelIcon={<CartIcon />}
+//                 onClick={() => router.push("/cart")}
+//               />
+//               <UserButton.Action
+//                 label="Đơn Đặt Hàng"
+//                 labelIcon={<BagIcon />}
+//                 onClick={() => router.push("/my-orders")}
+//               />
+//             </UserButton.MenuItems>
+//           </UserButton>
 //         ) : (
 //           <button
 //             onClick={openSignIn}
@@ -189,10 +250,10 @@
 //             Account
 //           </button>
 //         )}
-//       </ul>
+//       </div>
 
-//       {/* Ô tìm kiếm và menu cho màn hình nhỏ */}
-//       <div className="flex items-center md:hidden gap-3">
+//       {/* Mobile menu (giữ nguyên cho responsive) */}
+//       <div className="flex items-center md:hidden gap-3 w-full">
 //         {isSeller && (
 //           <button
 //             onClick={() => router.push("/seller")}
@@ -201,15 +262,18 @@
 //             Admin Dashboard
 //           </button>
 //         )}
-//         <div className="relative">
-//           <form onSubmit={handleSearch} className="flex items-center gap-2">
-//             <div className="relative">
+//         <div className="relative w-full">
+//           <form
+//             onSubmit={handleSearch}
+//             className="flex items-center gap-2 w-full"
+//           >
+//             <div className="relative w-full">
 //               <input
 //                 type="text"
 //                 value={searchQuery}
 //                 onChange={(e) => setSearchQuery(e.target.value)}
 //                 placeholder="Tìm kiếm..."
-//                 className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+//                 className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 w-full"
 //               />
 //               <button
 //                 type="submit"
@@ -256,45 +320,43 @@
 //           )}
 //         </div>
 //         {user ? (
-//           <>
-//             <UserButton
-//               appearance={{
-//                 elements: {
-//                   userButtonFooter: { display: "none" },
-//                   menuFooter: { display: "none" },
-//                   userButtonPopoverFooter: { display: "none" },
-//                   branding: { display: "none" },
-//                   clerkBranding: { display: "none" },
-//                   footerBrandingLogo: { display: "none" },
-//                   clerkFooter: { display: "none" },
-//                   userButtonBranding: { display: "none" },
-//                 },
-//               }}
-//             >
-//               <UserButton.MenuItems>
-//                 <UserButton.Action
-//                   label="Home"
-//                   labelIcon={<HomeIcon />}
-//                   onClick={() => router.push("/")}
-//                 />
-//                 <UserButton.Action
-//                   label="Sản Phẩm"
-//                   labelIcon={<BoxIcon />}
-//                   onClick={() => router.push("/all-products")}
-//                 />
-//                 <UserButton.Action
-//                   label="Giỏ Hàng"
-//                   labelIcon={<CartIcon />}
-//                   onClick={() => router.push("/cart")}
-//                 />
-//                 <UserButton.Action
-//                   label="Đơn Đặt Hàng"
-//                   labelIcon={<BagIcon />}
-//                   onClick={() => router.push("/my-orders")}
-//                 />
-//               </UserButton.MenuItems>
-//             </UserButton>
-//           </>
+//           <UserButton
+//             appearance={{
+//               elements: {
+//                 userButtonFooter: { display: "none" },
+//                 menuFooter: { display: "none" },
+//                 userButtonPopoverFooter: { display: "none" },
+//                 branding: { display: "none" },
+//                 clerkBranding: { display: "none" },
+//                 footerBrandingLogo: { display: "none" },
+//                 clerkFooter: { display: "none" },
+//                 userButtonBranding: { display: "none" },
+//               },
+//             }}
+//           >
+//             <UserButton.MenuItems>
+//               <UserButton.Action
+//                 label="Home"
+//                 labelIcon={<HomeIcon />}
+//                 onClick={() => router.push("/")}
+//               />
+//               <UserButton.Action
+//                 label="Sản Phẩm"
+//                 labelIcon={<BoxIcon />}
+//                 onClick={() => router.push("/all-products")}
+//               />
+//               <UserButton.Action
+//                 label="Giỏ Hàng"
+//                 labelIcon={<CartIcon />}
+//                 onClick={() => router.push("/cart")}
+//               />
+//               <UserButton.Action
+//                 label="Đơn Đặt Hàng"
+//                 labelIcon={<BagIcon />}
+//                 onClick={() => router.push("/my-orders")}
+//               />
+//             </UserButton.MenuItems>
+//           </UserButton>
 //         ) : (
 //           <button
 //             onClick={openSignIn}
@@ -310,8 +372,6 @@
 // };
 
 // export default Navbar;
-// components/Navbar.jsx
-// components/Navbar.jsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { assets, BagIcon, BoxIcon, CartIcon, HomeIcon } from "@/assets/assets";
@@ -349,7 +409,7 @@ const Navbar = () => {
         }
         const data = await response.json();
         if (data.success) {
-          console.log("Fetched categories:", data.categories); // Thêm log để kiểm tra
+          console.log("Fetched categories:", data.categories);
           setCategories(data.categories);
         } else {
           console.error("API error:", data.message);
@@ -370,11 +430,12 @@ const Navbar = () => {
         fetch(`/api/search?query=${encodeURIComponent(searchQuery)}`)
           .then((res) => res.json())
           .then((data) => {
-            if (data.error || data.length === 0) {
+            console.log("Search API Response:", data);
+            if (!data.success || !data.products || data.products.length === 0) {
               setSuggestions([]);
               setNoResults(true);
             } else {
-              setSuggestions(data.slice(0, 5));
+              setSuggestions(data.products.slice(0, 5));
             }
           })
           .catch((err) => {
@@ -403,7 +464,6 @@ const Navbar = () => {
 
   return (
     <nav className="flex flex-col md:flex-row items-center justify-between px-6 md:px-16 lg:px-32 py-3 border-b border-gray-300 text-gray-700">
-      {/* Logo và Trigger Mega Menu */}
       <div className="flex items-center justify-between w-full md:w-auto mb-2 md:mb-0">
         <Image
           className="cursor-pointer w-28 md:w-32"
@@ -411,8 +471,6 @@ const Navbar = () => {
           src={assets.logo}
           alt="logo"
         />
-
-        {/* Trigger Mega Menu trên mobile */}
         <div className="md:hidden">
           <NavigationMenu>
             <NavigationMenuList>
@@ -427,7 +485,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Main navigation items (bao gồm Mega Menu trigger trên desktop) */}
       <div className="flex items-center gap-4 lg:gap-8 max-md:hidden w-full md:w-auto justify-center">
         <NavigationMenu>
           <NavigationMenuList>
@@ -466,7 +523,6 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* Search and User actions */}
       <div className="flex items-center gap-4 w-full md:w-auto mt-2 md:mt-0">
         <div className="relative w-full md:w-auto">
           <form
@@ -507,11 +563,16 @@ const Navbar = () => {
                     className="flex items-center gap-3"
                   >
                     <Image
-                      src={item.image[0]}
+                      src={
+                        item.image?.[0] ||
+                        item.images?.[0] ||
+                        assets.placeholder_image
+                      }
                       alt={item.name}
                       width={40}
                       height={40}
                       className="w-10 h-10 object-cover rounded"
+                      onError={(e) => (e.target.src = assets.placeholder_image)}
                     />
                     <span>{item.name}</span>
                   </Link>
@@ -565,7 +626,6 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* Mobile menu (giữ nguyên cho responsive) */}
       <div className="flex items-center md:hidden gap-3 w-full">
         {isSeller && (
           <button
@@ -614,11 +674,16 @@ const Navbar = () => {
                     className="flex items-center gap-3"
                   >
                     <Image
-                      src={item.image[0]}
+                      src={
+                        item.image?.[0] ||
+                        item.images?.[0] ||
+                        assets.placeholder_image
+                      }
                       alt={item.name}
                       width={40}
                       height={40}
                       className="w-10 h-10 object-cover rounded"
+                      onError={(e) => (e.target.src = assets.placeholder_image)}
                     />
                     <span>{item.name}</span>
                   </Link>

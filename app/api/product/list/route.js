@@ -133,31 +133,50 @@ export async function GET(request) {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const skip = (page - 1) * limit;
     const categoryName = searchParams.get("category");
-    const brandName = searchParams.get("brand"); // Lấy tham số brand
+    const categoryId = searchParams.get("categoryId");
+    const brandName = searchParams.get("brand");
 
     let query = {};
-    if (categoryName) {
+
+    // Xử lý categoryId (ưu tiên _id)
+    if (categoryId) {
+      if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid categoryId" },
+          { status: 400 }
+        );
+      }
+      query.category = categoryId;
+      console.log("Query category ID:", categoryId);
+    }
+    // Xử lý categoryName nếu categoryId không có
+    else if (categoryName) {
       const normalizedCategoryName = normalizeString(categoryName);
       console.log("Normalized categoryName:", normalizedCategoryName);
 
-      const categories = await Category.find().lean();
-      // console.log("All categories from DB:", categories);
-
-      const matchedCategory = categories.find(
-        (cat) => normalizeString(cat.name) === normalizedCategoryName
-      );
-      // console.log("Matched category:", matchedCategory);
-
-      if (!matchedCategory) {
-        console.log("No matching category found for:", normalizedCategoryName);
-        return NextResponse.json(
-          { success: false, message: "Category not found" },
-          { status: 404 }
+      if (normalizedCategoryName === normalizeString("All")) {
+        // Không áp dụng lọc category nếu là "All"
+        console.log("Category is 'All', no filtering applied");
+      } else {
+        const categories = await Category.find().lean();
+        const matchedCategory = categories.find(
+          (cat) => normalizeString(cat.name) === normalizedCategoryName
         );
-      }
 
-      query.category = matchedCategory._id;
-      // console.log("Query category ID:", matchedCategory._id);
+        if (!matchedCategory) {
+          console.log(
+            "No matching category found for:",
+            normalizedCategoryName
+          );
+          return NextResponse.json(
+            { success: false, message: "Category not found" },
+            { status: 404 }
+          );
+        }
+
+        query.category = matchedCategory._id;
+        console.log("Query category ID from name:", matchedCategory._id);
+      }
     }
 
     if (brandName) {
@@ -165,12 +184,9 @@ export async function GET(request) {
       console.log("Normalized brandName:", normalizedBrandName);
 
       const brands = await Brand.find().lean();
-      // console.log("All brands from DB:", brands);
-
       const matchedBrand = brands.find(
         (br) => normalizeString(br.name) === normalizedBrandName
       );
-      // console.log("Matched brand:", matchedBrand);
 
       if (!matchedBrand) {
         console.log("No matching brand found for:", normalizedBrandName);
@@ -193,10 +209,7 @@ export async function GET(request) {
       .limit(limit)
       .lean();
 
-    // console.log("Found products:", products);
-
     const totalProducts = await Product.countDocuments(query);
-    // console.log("Total products count:", totalProducts);
 
     const productsWithRating = products.map((product) => {
       const averageRating = product.reviews?.length
@@ -273,7 +286,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      products: productsWithRating, 
+      products: productsWithRating,
     });
   } catch (error) {
     console.error("Post Products Error:", error.message, error.stack);

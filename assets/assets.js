@@ -1,4 +1,8 @@
 import logo from "./logo2.png";
+import view from "./view.png";
+import variant from "./variant.png";
+import deleted from "./delete.png";
+import fix from "./fix.png";
 import x_icon from "./x-icon.png";
 import promocode from "./voucher.png";
 import down_arrow from "./down-arrow.png";
@@ -114,6 +118,10 @@ export const assets = {
   specifications,
   work_list,
   x_icon,
+  fix,
+  deleted,
+  view,
+  variant,
 };
 
 export const BagIcon = () => {

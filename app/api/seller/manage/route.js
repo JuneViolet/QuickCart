@@ -278,6 +278,7 @@ import BrandCategory from "@/models/BrandCategory";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import authSeller from "@/lib/authSeller";
+import slugify from "slugify"; // Thêm import này
 
 // GET - Lấy danh sách loại hoặc hãng
 export async function GET(req) {
@@ -305,36 +306,23 @@ export async function GET(req) {
 
     let items;
     if (type === "categories") {
-      items = await Category.find().lean(); // Sử dụng lean() để trả về plain object
+      items = await Category.find().lean();
     } else if (type === "brands") {
-      const brands = await Brand.find().lean(); // Sử dụng lean() để trả về plain object
-      items = [];
-      for (let brand of brands) {
-        const brandCategories = await BrandCategory.find({
-          brandId: brand._id,
-        }).populate("categoryId");
-        const categories = brandCategories
-          .map((bc) => {
-            if (bc.categoryId) {
-              // Đảm bảo categoryId tồn tại
-              const cat = bc.categoryId.toObject
-                ? bc.categoryId.toObject()
-                : bc.categoryId;
-              return {
-                _id: cat._id,
-                name: cat.name,
-                description: cat.description,
-                createdAt: cat.createdAt,
-              };
-            }
-            return null;
-          })
-          .filter((cat) => cat !== null); // Loại bỏ các giá trị null
-        items.push({
-          ...brand,
-          categories,
-        });
-      }
+      const brands = await Brand.find().lean();
+      const brandCategories = await BrandCategory.find()
+        .populate("categoryId")
+        .lean();
+      items = brands.map((brand) => {
+        const relatedCategories = brandCategories
+          .filter((bc) => bc.brandId.toString() === brand._id.toString())
+          .map((bc) => ({
+            _id: bc.categoryId._id,
+            name: bc.categoryId.name,
+            description: bc.categoryId.description,
+            createdAt: bc.categoryId.createdAt,
+          }));
+        return { ...brand, categories: relatedCategories };
+      });
     } else {
       return NextResponse.json(
         { success: false, message: "Invalid type" },
@@ -401,8 +389,21 @@ export async function POST(req) {
           { status: 400 }
         );
       }
-      item = await Brand.create({ name, description });
+      const slug = slugify(name, { lower: true, strict: true }); // Đã import slugify
+      item = await Brand.create({ name, description, slug });
       if (categoryIds && categoryIds.length > 0) {
+        const validCategoryIds = await Category.find({
+          _id: { $in: categoryIds },
+        });
+        if (validCategoryIds.length !== categoryIds.length) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Một hoặc nhiều categoryIds không hợp lệ",
+            },
+            { status: 400 }
+          );
+        }
         await BrandCategory.insertMany(
           categoryIds.map((categoryId) => ({ brandId: item._id, categoryId }))
         );
@@ -421,10 +422,14 @@ export async function POST(req) {
       item,
     });
   } catch (error) {
-    console.error("POST Error:", error);
+    console.error("POST Error:", {
+      message: error.message,
+      errors: error.errors,
+      stack: error.stack,
+    });
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500 }
+      { status: error.name === "ValidationError" ? 400 : 500 }
     );
   }
 }
@@ -496,9 +501,21 @@ export async function PUT(req) {
         );
       }
 
-      // Cập nhật quan hệ
+      const slug = slugify(name, { lower: true, strict: true }); // Đã import slugify
       await BrandCategory.deleteMany({ brandId: _id });
       if (categoryIds && categoryIds.length > 0) {
+        const validCategoryIds = await Category.find({
+          _id: { $in: categoryIds },
+        });
+        if (validCategoryIds.length !== categoryIds.length) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Một hoặc nhiều categoryIds không hợp lệ",
+            },
+            { status: 400 }
+          );
+        }
         await BrandCategory.insertMany(
           categoryIds.map((categoryId) => ({ brandId: _id, categoryId }))
         );
@@ -506,7 +523,7 @@ export async function PUT(req) {
 
       item = await Brand.findByIdAndUpdate(
         _id,
-        { name, description },
+        { name, description, slug },
         { new: true, runValidators: true }
       );
     } else {
@@ -530,10 +547,13 @@ export async function PUT(req) {
       item,
     });
   } catch (error) {
-    console.error("PUT Error:", error);
+    console.error("PUT Error:", {
+      message: error.message,
+      errors: error.errors,
+    });
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500 }
+      { status: error.name === "ValidationError" ? 400 : 500 }
     );
   }
 }

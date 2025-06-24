@@ -193,7 +193,7 @@ const Attributes = () => {
       ) : (
         <div className="md:p-10 p-4 space-y-5">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-medium">Quản Lý Thuộc Tính</h2>
+            <h2 className="text-lg font-medium">Quản Lý Thuộc Tính Biến Thể</h2>
             <button
               onClick={() => setIsAdding(true)}
               className="px-4 py-2 bg-green-600 text-white rounded-md"

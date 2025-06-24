@@ -311,7 +311,6 @@
 
 // export default ManageCategoriesBrands;
 // app/seller/manage-categories-brands
-// app/seller/manage-categories-brands
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
@@ -326,12 +325,12 @@ const ManageCategoriesBrands = () => {
     type: "category",
     name: "",
     description: "",
-    selectedCategories: [], // Danh sách Category đã chọn
+    selectedCategories: [],
   });
   const [editingItem, setEditingItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [newCategoryId, setNewCategoryId] = useState(""); // Để chọn Category mới
+  const [newCategoryId, setNewCategoryId] = useState("");
 
   const fetchData = async () => {
     try {
@@ -354,7 +353,7 @@ const ManageCategoriesBrands = () => {
       if (catRes.data.success) setCategories(catRes.data.items);
       if (brandRes.data.success) setBrands(brandRes.data.items);
     } catch (error) {
-      console.error("Fetch error:", error.response?.data);
+      console.error("Fetch error:", error.response?.data || error.message);
       toast.error(
         "Lỗi khi tải dữ liệu: " +
           (error.response?.data?.message || error.message)
@@ -404,8 +403,11 @@ const ManageCategoriesBrands = () => {
         toast.error(data.message || "Lỗi khi thêm");
       }
     } catch (error) {
-      console.error("Add error:", error.response?.data);
-      toast.error(error.response?.data?.message || "Lỗi khi thêm");
+      console.error("Add error:", error.response?.data || error.message);
+      toast.error(
+        "Lỗi khi thêm: " +
+          (error.response?.data?.message || error.message || "Không xác định")
+      );
     } finally {
       setActionLoading(false);
     }
@@ -432,6 +434,14 @@ const ManageCategoriesBrands = () => {
     try {
       setActionLoading(true);
       const token = await getToken();
+      console.log("Update data sent:", {
+        _id: editingItem._id,
+        type: newItem.type,
+        name: newItem.name,
+        description: newItem.description,
+        categoryIds:
+          newItem.type === "brand" ? newItem.selectedCategories : undefined,
+      });
       const { data } = await axios.put(
         "/api/seller/manage",
         {
@@ -461,8 +471,11 @@ const ManageCategoriesBrands = () => {
         toast.error(data.message || "Lỗi khi cập nhật");
       }
     } catch (error) {
-      console.error("Update error:", error.response?.data);
-      toast.error(error.response?.data?.message || "Lỗi khi cập nhật");
+      console.error("Update error:", error.response?.data || error.message);
+      toast.error(
+        "Lỗi khi cập nhật: " +
+          (error.response?.data?.message || error.message || "Không xác định")
+      );
     } finally {
       setActionLoading(false);
     }
@@ -493,15 +506,17 @@ const ManageCategoriesBrands = () => {
         toast.error(data.message || "Lỗi khi xóa");
       }
     } catch (error) {
-      console.error("Delete error:", error.response?.data);
-      toast.error(error.response?.data?.message || "Lỗi khi xóa");
+      console.error("Delete error:", error.response?.data || error.message);
+      toast.error(
+        "Lỗi khi xóa: " +
+          (error.response?.data?.message || error.message || "Không xác định")
+      );
       fetchData();
     } finally {
       setActionLoading(false);
     }
   };
 
-  // Thêm Category vào danh sách đã chọn
   const handleAddCategory = () => {
     if (!newCategoryId) {
       toast.error("Vui lòng chọn một loại để thêm");
@@ -518,7 +533,6 @@ const ManageCategoriesBrands = () => {
     setNewCategoryId("");
   };
 
-  // Xóa Category khỏi danh sách đã chọn
   const handleRemoveCategory = (categoryId) => {
     setNewItem({
       ...newItem,
@@ -579,7 +593,6 @@ const ManageCategoriesBrands = () => {
         {newItem.type === "brand" && (
           <div>
             <label className="block">Thuộc các loại</label>
-            {/* Hiển thị danh sách Category đã chọn */}
             <div className="mb-2">
               {newItem.selectedCategories.length > 0 ? (
                 <ul className="space-y-1">
@@ -613,7 +626,6 @@ const ManageCategoriesBrands = () => {
                 </p>
               )}
             </div>
-            {/* Thêm Category mới */}
             <div className="flex items-center space-x-2">
               <select
                 value={newCategoryId}

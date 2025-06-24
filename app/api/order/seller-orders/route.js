@@ -6,6 +6,7 @@
 // import { getAuth } from "@clerk/nextjs/server";
 // import { NextResponse } from "next/server";
 // import mongoose from "mongoose";
+// import axios from "axios";
 
 // export async function GET(request) {
 //   try {
@@ -46,10 +47,28 @@
 //       .exec();
 //     console.log("Orders from DB (raw):", ordersFromDB);
 
-//     // Loại bỏ các bản ghi trùng lặp dựa trên _id
+//     const updatedOrders = await Promise.all(
+//       ordersFromDB.map(async (order) => {
+//         if (order.trackingCode) {
+//           try {
+//             const { data: ghtkData } = await axios.post("/api/ghtk", {
+//               action: "trackOrder",
+//               payload: { trackingCode: order.trackingCode },
+//             });
+//             if (ghtkData.success) {
+//               return { ...order.toObject(), ghtkStatus: ghtkData.data.status };
+//             }
+//           } catch (error) {
+//             console.error("Track Order Error:", error.message);
+//           }
+//         }
+//         return order.toObject();
+//       })
+//     );
+
 //     const uniqueOrders = Array.from(
 //       new Map(
-//         ordersFromDB.map((order) => [order._id.toString(), order])
+//         updatedOrders.map((order) => [order._id.toString(), order])
 //       ).values()
 //     );
 //     console.log("Unique Orders:", uniqueOrders);
@@ -104,7 +123,7 @@ export async function GET(request) {
 
     await Address.findOne(); // Force load model
 
-    const sellerProducts = await Product.find({ userId: userId });
+    const sellerProducts = await Product.find({ userId: userId }).select("_id");
     const productIds = sellerProducts.map((p) => p._id.toString());
     console.log("Seller Product IDs:", productIds);
 
@@ -113,11 +132,13 @@ export async function GET(request) {
     })
       .populate("address")
       .populate("items.product")
+      .populate("items.variantId") // Thêm populate cho variantId
       .exec();
     console.log("Orders from DB (raw):", ordersFromDB);
 
     const updatedOrders = await Promise.all(
       ordersFromDB.map(async (order) => {
+        let orderData = order.toObject();
         if (order.trackingCode) {
           try {
             const { data: ghtkData } = await axios.post("/api/ghtk", {
@@ -125,13 +146,16 @@ export async function GET(request) {
               payload: { trackingCode: order.trackingCode },
             });
             if (ghtkData.success) {
-              return { ...order.toObject(), ghtkStatus: ghtkData.data.status };
+              orderData.ghtkStatus = ghtkData.data.status;
             }
-          } catch (error) {
-            console.error("Track Order Error:", error.message);
+          } catch (ghtkError) {
+            console.warn("GHTK Tracking Error:", ghtkError.message);
+            orderData.ghtkStatus = "Tracking Failed";
           }
         }
-        return order.toObject();
+        // Gán trạng thái mặc định nếu không có ghtkStatus
+        orderData.status = orderData.ghtkStatus || order.status || "Pending";
+        return orderData;
       })
     );
 

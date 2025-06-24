@@ -3,6 +3,7 @@
 // import { useAppContext } from "@/context/AppContext";
 // import { assets } from "@/assets/assets";
 // import Image from "next/image";
+
 // const HomeProducts = () => {
 //   const { router } = useAppContext();
 //   const [products, setProducts] = useState([]);
@@ -93,26 +94,24 @@
 
 //       {filteredProducts.length > 0 ? (
 //         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-6 pb-14 w-full">
-//           {filteredProducts.slice(0, 10).map(
-//             (
-//               product,
-//               index // sửa nếu muốn rút rọn lại sản phâm
-//             ) => (
-//               <ProductCard key={index} product={product} />
-//             )
-//           )}
+//           {filteredProducts.slice(0, 10).map((product, index) => (
+//             <ProductCard
+//               key={index}
+//               product={{
+//                 ...product,
+//                 image:
+//                   product.images?.[0] ||
+//                   product.image?.[0] ||
+//                   assets.placeholder_image, // Đảm bảo luôn có ảnh
+//               }}
+//             />
+//           ))}
 //         </div>
 //       ) : (
 //         <p className="text-gray-500 mt-6">Không tìm thấy sản phẩm nào.</p>
 //       )}
 
 //       <div className="flex gap-4 mt-4">
-//         {/* <button
-//           onClick={() => router.push("/all-products")}
-//           className="px-12 py-2.5 border rounded text-gray-500/70 hover:bg-slate-50/90 transition"
-//         >
-//           See more
-//         </button> */}
 //         {totalPages > 1 && (
 //           <div className="flex gap-2">
 //             <button
@@ -121,9 +120,9 @@
 //               className="px-4 py-2 border rounded text-gray-500/70 hover:bg-slate-50/90 transition disabled:opacity-50"
 //             >
 //               <Image
-//                 src={assets.arrow_left1} // Hình ảnh mũi tên trái
+//                 src={assets.arrow_left1}
 //                 alt="Previous"
-//                 className="w-4 h-4" // Điều chỉnh kích thước hình ảnh
+//                 className="w-4 h-4"
 //               />
 //             </button>
 //             <button
@@ -131,11 +130,7 @@
 //               disabled={page === totalPages}
 //               className="px-4 py-2 border rounded text-gray-500/70 hover:bg-slate-50/90 transition disabled:opacity-50"
 //             >
-//               <Image
-//                 src={assets.arrow_right1} // Hình ảnh mũi tên trái
-//                 alt="Previous"
-//                 className="w-4 h-4" // Điều chỉnh kích thước hình ảnh
-//               />
+//               <Image src={assets.arrow_right1} alt="Next" className="w-4 h-4" />
 //             </button>
 //           </div>
 //         )}
@@ -161,24 +156,36 @@ const HomeProducts = () => {
 
   const categories = [
     "All",
-    "Earphone",
+    "Tai Nghe",
     "Headphone",
     "Watch",
-    "Smartphone",
+    "Điện Thoại",
     "Laptop",
     "Camera",
     "Accessories",
   ];
 
-  // Lấy danh sách sản phẩm từ API
-  const fetchProducts = async () => {
+  const fetchProducts = async (query = "", category = "") => {
     try {
-      const response = await fetch(`/api/product/list?page=${page}&limit=10`);
+      const url = query
+        ? `/api/search?query=${query}`
+        : `/api/product/list?page=${page}&limit=10&category=${category}`;
+      const response = await fetch(url);
       const data = await response.json();
       if (data.success) {
-        console.log("Fetched products:", data.products); // Log để kiểm tra dữ liệu
+        console.log("Fetched products:", data.products);
+        data.products.forEach((prod, idx) => {
+          console.log(`Product ${idx}:`, prod);
+          console.log(
+            `Product ${idx} images:`,
+            prod.images,
+            "image:",
+            prod.image
+          );
+          console.log(`Product ${idx} category:`, prod.category);
+        });
         setProducts(data.products);
-        setTotalPages(data.totalPages);
+        setTotalPages(data.totalPages || 1);
       } else {
         console.error("Fetch Products Error:", data.message);
       }
@@ -188,24 +195,21 @@ const HomeProducts = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, [page]);
+    fetchProducts("", selectedCategory); // Lấy dữ liệu theo category
+  }, [page, selectedCategory]); // Phản ứng với page và selectedCategory
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearchTerm = product.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "" || selectedCategory === "All"
-        ? true
-        : product.category === selectedCategory;
-    return matchesSearchTerm && matchesCategory;
-  });
+  useEffect(() => {
+    if (searchTerm) {
+      fetchProducts(searchTerm, selectedCategory); // Tìm kiếm với category
+    }
+  }, [searchTerm, selectedCategory]);
+
+  const filteredProducts = products; // Không cần lọc thêm, API đã xử lý
 
   useEffect(() => {
     console.log("Total filtered products:", filteredProducts.length);
     console.log("Displayed products:", filteredProducts.slice(0, 8).length);
-    console.log("Filtered products with ratings:", filteredProducts); // Log để kiểm tra averageRating
+    console.log("Filtered products with ratings:", filteredProducts);
   }, [filteredProducts]);
 
   return (
@@ -246,10 +250,14 @@ const HomeProducts = () => {
               key={index}
               product={{
                 ...product,
+                images:
+                  product.images && product.images.length > 0
+                    ? product.images
+                    : [assets.placeholder_image],
                 image:
-                  product.images?.[0] ||
-                  product.image?.[0] ||
-                  assets.placeholder_image, // Đảm bảo luôn có ảnh
+                  product.image && product.image.length > 0
+                    ? product.image[0]
+                    : assets.placeholder_image,
               }}
             />
           ))}

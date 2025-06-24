@@ -2,12 +2,13 @@
 // import Product from "@/models/Product";
 // import connectDB from "@/config/db";
 // import { currentUser } from "@clerk/nextjs/server";
+// import Category from "@/models/Category";
+// import Brand from "@/models/Brand";
 
 // export async function PUT(request, context) {
 //   try {
 //     await connectDB();
 
-//     // Kiểm tra người dùng
 //     const user = await currentUser();
 //     if (!user) {
 //       return NextResponse.json(
@@ -16,10 +17,10 @@
 //       );
 //     }
 
-//     // Await params để lấy id
-//     const { id } = await context.params; // Thêm await ở đây
+//     // Await context.params để lấy id
+//     const params = await context.params;
+//     const { id } = params;
 
-//     // Kiểm tra ID hợp lệ
 //     if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
 //       return NextResponse.json(
 //         { success: false, message: "Invalid product ID" },
@@ -27,7 +28,6 @@
 //       );
 //     }
 
-//     // Tìm sản phẩm
 //     const product = await Product.findById(id);
 //     if (!product) {
 //       return NextResponse.json(
@@ -36,7 +36,7 @@
 //       );
 //     }
 
-//     // Kiểm tra quyền chỉnh sửa
+//     // Kiểm tra quyền: Dùng userId thay vì owner
 //     if (product.userId !== user.id) {
 //       return NextResponse.json(
 //         { success: false, message: "Forbidden" },
@@ -44,19 +44,26 @@
 //       );
 //     }
 
-//     // Lấy dữ liệu từ request
-//     const { name, description, category, price, offerPrice, stock, brand } =
-//       await request.json();
+//     const {
+//       name,
+//       description,
+//       category: categoryName,
+//       price,
+//       offerPrice,
+//       stock,
+//       brand: brandName,
+//     } = await request.json();
 
-//     // Kiểm tra dữ liệu đầu vào
+//     // Kiểm tra các trường bắt buộc
 //     if (
 //       !name ||
 //       !description ||
-//       !category ||
+//       !categoryName ||
 //       !price ||
 //       !offerPrice ||
 //       stock === undefined ||
-//       !brand
+//       stock === "" ||
+//       !brandName
 //     ) {
 //       return NextResponse.json(
 //         { success: false, message: "Missing required fields" },
@@ -64,14 +71,46 @@
 //       );
 //     }
 
+//     // Tìm _id của Category và Brand dựa trên name
+//     const category = await Category.findOne({ name: categoryName });
+//     const brand = await Brand.findOne({ name: brandName });
+
+//     if (!category) {
+//       return NextResponse.json(
+//         { success: false, message: `Category "${categoryName}" not found` },
+//         { status: 404 }
+//       );
+//     }
+//     if (!brand) {
+//       return NextResponse.json(
+//         { success: false, message: `Brand "${brandName}" not found` },
+//         { status: 404 }
+//       );
+//     }
+
 //     // Cập nhật sản phẩm
 //     product.name = name;
 //     product.description = description;
-//     product.category = category;
+//     product.category = category._id;
 //     product.price = parseFloat(price);
 //     product.offerPrice = parseFloat(offerPrice);
 //     product.stock = parseInt(stock);
-//     product.brand = brand;
+
+//     if (
+//       isNaN(product.price) ||
+//       isNaN(product.offerPrice) ||
+//       isNaN(product.stock)
+//     ) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           message: "Invalid numeric values for price, offerPrice, or stock",
+//         },
+//         { status: 400 }
+//       );
+//     }
+
+//     product.brand = brand._id;
 
 //     await product.save();
 
@@ -106,9 +145,9 @@ export async function PUT(request, context) {
       );
     }
 
-    // Await context.params để lấy id
     const params = await context.params;
     const { id } = params;
+    console.log("Extracted ID:", id);
 
     if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
       return NextResponse.json(
@@ -125,7 +164,6 @@ export async function PUT(request, context) {
       );
     }
 
-    // Kiểm tra quyền: Dùng userId thay vì owner
     if (product.userId !== user.id) {
       return NextResponse.json(
         { success: false, message: "Forbidden" },
@@ -133,15 +171,18 @@ export async function PUT(request, context) {
       );
     }
 
-    const {
-      name,
-      description,
-      category: categoryName,
-      price,
-      offerPrice,
-      stock,
-      brand: brandName,
-    } = await request.json();
+    const body = await request.json();
+    console.log("Received body:", body);
+
+    let { name, description, category, price, offerPrice, stock, brand } = body;
+
+    // Xử lý categoryName và brandName
+    let categoryName =
+      body.categoryName ||
+      (typeof category === "object" && category?.name) ||
+      "";
+    let brandName =
+      body.brandName || (typeof brand === "object" && brand?.name) || "";
 
     // Kiểm tra các trường bắt buộc
     if (
@@ -150,57 +191,67 @@ export async function PUT(request, context) {
       !categoryName ||
       !price ||
       !offerPrice ||
-      stock === undefined ||
-      stock === "" ||
       !brandName
     ) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields" },
+        {
+          success: false,
+          message:
+            "Missing required fields: " +
+            JSON.stringify({
+              name,
+              description,
+              categoryName,
+              price,
+              offerPrice,
+              brandName,
+            }),
+        },
         { status: 400 }
       );
     }
 
-    // Tìm _id của Category và Brand dựa trên name
-    const category = await Category.findOne({ name: categoryName });
-    const brand = await Brand.findOne({ name: brandName });
+    const categoryDoc = await Category.findOne({ name: categoryName });
+    const brandDoc = await Brand.findOne({ name: brandName });
 
-    if (!category) {
+    if (!categoryDoc) {
       return NextResponse.json(
         { success: false, message: `Category "${categoryName}" not found` },
         { status: 404 }
       );
     }
-    if (!brand) {
+    if (!brandDoc) {
       return NextResponse.json(
         { success: false, message: `Brand "${brandName}" not found` },
         { status: 404 }
       );
     }
 
-    // Cập nhật sản phẩm
     product.name = name;
     product.description = description;
-    product.category = category._id;
+    product.category = categoryDoc._id;
     product.price = parseFloat(price);
     product.offerPrice = parseFloat(offerPrice);
-    product.stock = parseInt(stock);
-
-    if (
-      isNaN(product.price) ||
-      isNaN(product.offerPrice) ||
-      isNaN(product.stock)
-    ) {
+    if (stock !== undefined && stock !== "") {
+      product.stock = parseInt(stock);
+      if (isNaN(product.stock)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid stock value" },
+          { status: 400 }
+        );
+      }
+    }
+    if (isNaN(product.price) || isNaN(product.offerPrice)) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid numeric values for price, offerPrice, or stock",
+          message: "Invalid numeric values for price or offerPrice",
         },
         { status: 400 }
       );
     }
 
-    product.brand = brand._id;
-
+    product.brand = brandDoc._id;
     await product.save();
 
     return NextResponse.json(
