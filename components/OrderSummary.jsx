@@ -510,26 +510,36 @@ const OrderSummary = ({ shippingFee }) => {
       if (paymentMethod === "vnpay") {
         if (!bankCode) {
           toast.error("Vui lòng chọn ngân hàng!");
+          setIsSubmitting(false);
           return;
         }
-        const { data: vnpayUrl } = await axios.post(
+
+        const payload = {
+          amount: pickMoney,
+          orderId: `ORDER-${Date.now()}`,
+          orderInfo: `Thanh toán đơn hàng từ QuickCart`,
+          bankCode,
+        };
+        console.log("VNPAY Payload:", JSON.stringify(payload, null, 2));
+
+        const { data: vnpayResponse } = await axios.post(
           "/api/vnpay/create-payment",
-          {
-            amount: pickMoney,
-            orderId: `ORDER-${Date.now()}`,
-            orderInfo: `Thanh toán đơn hàng từ QuickCart`,
-            bankCode,
-          },
+          payload,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        console.log("Received VNPAY URL:", vnpayUrl);
-        if (vnpayUrl && typeof vnpayUrl === "string") {
-          window.location.href = vnpayUrl;
+
+        console.log("VNPAY Response from Client:", vnpayResponse);
+
+        if (vnpayResponse.success && vnpayResponse.redirectUrl) {
+          window.location.href = vnpayResponse.redirectUrl; // Redirect to VNPAY
+          return; // Thoát để tránh tiếp tục xử lý COD
         } else {
-          toast.error("URL thanh toán không hợp lệ: " + vnpayUrl);
+          throw new Error(
+            vnpayResponse.message || "Không thể tạo giao dịch thanh toán"
+          );
         }
-        return;
       } else {
+        // Logic COD giữ nguyên
         const payload = {
           action: "createOrder",
           payload: {
@@ -615,7 +625,10 @@ const OrderSummary = ({ shippingFee }) => {
         }
       }
     } catch (error) {
-      console.error("Lỗi đặt hàng:", error.response?.data || error.message);
+      console.error("Lỗi đặt hàng:", {
+        message: error.message,
+        response: error.response?.data,
+      });
       toast.error(error.message || "Đã xảy ra lỗi khi đặt hàng");
     } finally {
       setIsSubmitting(false);
@@ -635,7 +648,15 @@ const OrderSummary = ({ shippingFee }) => {
     const subtotal = getCartAmount() || 0;
     const tax = Math.floor(subtotal * 0.02);
     const finalShippingFee = shippingFee !== null ? shippingFee : 0;
-    return subtotal + tax + finalShippingFee - discount;
+    const total = subtotal + tax + finalShippingFee - discount;
+    console.log("Final Total Breakdown:", {
+      subtotal,
+      tax,
+      shippingFee: finalShippingFee,
+      discount,
+      total,
+    });
+    return total;
   };
 
   return (
