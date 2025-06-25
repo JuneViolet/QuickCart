@@ -443,14 +443,14 @@ const OrderSummary = ({ shippingFee }) => {
 
   const applyPromoCode = async () => {
     try {
-      if (!promoCode) {
+      if (!promoCode.trim()) {
         toast.error("Vui lòng nhập mã giảm giá");
         return;
       }
       const token = await getToken();
       const { data } = await axios.post(
         "/api/promo/validate",
-        { code: promoCode },
+        { code: promoCode.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (data.success) {
@@ -481,148 +481,175 @@ const OrderSummary = ({ shippingFee }) => {
     return (variant?.weight || weight) * quantity;
   };
 
-  const createOrder = async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+  const validateOrderData = () => {
+    if (!selectedAddress) {
+      toast.error("Vui lòng chọn địa chỉ giao hàng");
+      return false;
+    }
+
+    const cartItemsArray = Object.entries(cartItems)
+      .map(([key, item]) => ({
+        product: key.split("_")[0],
+        variantId: key.split("_")[1],
+        quantity: item.quantity || 1,
+      }))
+      .filter((item) => item.quantity > 0);
+
+    if (cartItemsArray.length === 0) {
+      toast.error("Giỏ hàng trống");
+      return false;
+    }
+
+    if (paymentMethod === "vnpay" && !bankCode) {
+      toast.error("Vui lòng chọn ngân hàng!");
+      return false;
+    }
+
+    return cartItemsArray;
+  };
+
+  const handleVNPayPayment = async (pickMoney) => {
     try {
-      if (!selectedAddress) {
-        toast.error("Vui lòng chọn địa chỉ giao hàng");
-        return;
-      }
-
-      const cartItemsArray = Object.entries(cartItems)
-        .map(([key, item]) => ({
-          product: key.split("_")[0],
-          variantId: key.split("_")[1],
-          quantity: item.quantity || 1,
-        }))
-        .filter((item) => item.quantity > 0);
-
-      if (cartItemsArray.length === 0) {
-        toast.error("Giỏ hàng trống");
-        return;
-      }
-
       const token = await getToken();
-      const pickMoney = calculateFinalTotal();
-      console.log("Pick Money:", pickMoney);
-
-      if (paymentMethod === "vnpay") {
-        if (!bankCode) {
-          toast.error("Vui lòng chọn ngân hàng!");
-          setIsSubmitting(false);
-          return;
-        }
-
-        const payload = {
+      const { data: vnpayResponse } = await axios.post(
+        "/api/vnpay/create-payment",
+        {
           amount: pickMoney,
           orderId: `ORDER-${Date.now()}`,
           orderInfo: `Thanh toán đơn hàng từ QuickCart`,
           bankCode,
-        };
-        console.log("VNPAY Payload:", JSON.stringify(payload, null, 2));
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-        const { data: vnpayResponse } = await axios.post(
-          "/api/vnpay/create-payment",
-          payload,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+      console.log("VNPAY Response:", vnpayResponse);
 
-        console.log("VNPAY Response from Client:", vnpayResponse);
-
-        if (vnpayResponse.success && vnpayResponse.redirectUrl) {
-          window.location.href = vnpayResponse.redirectUrl; // Redirect to VNPAY
-          return; // Thoát để tránh tiếp tục xử lý COD
-        } else {
-          throw new Error(
-            vnpayResponse.message || "Không thể tạo giao dịch thanh toán"
-          );
-        }
+      if (vnpayResponse.success && vnpayResponse.redirectUrl) {
+        // Chuyển hướng đến trang thanh toán VNPAY
+        window.location.href = vnpayResponse.redirectUrl;
       } else {
-        // Logic COD giữ nguyên
-        const payload = {
-          action: "createOrder",
-          payload: {
-            products: cartItemsArray.map((item) => {
-              const specs = specifications[item.product] || [];
-              let weight = 100;
-              const weightSpec = specs.find(
-                (s) => s.key.toLowerCase() === "trọng lượng"
+        toast.error("Không thể tạo giao dịch thanh toán");
+        console.error("VNPAY Error:", vnpayResponse);
+      }
+    } catch (error) {
+      console.error("VNPAY API Error:", error);
+      toast.error(
+        "Lỗi khi tạo giao dịch: " +
+          (error.response?.data?.error || error.message)
+      );
+    }
+  };
+
+  const handleCODPayment = async (cartItemsArray, pickMoney) => {
+    try {
+      const token = await getToken();
+
+      const payload = {
+        action: "createOrder",
+        payload: {
+          products: cartItemsArray.map((item) => {
+            const specs = specifications[item.product] || [];
+            let weight = 100;
+            const weightSpec = specs.find(
+              (s) => s.key.toLowerCase() === "trọng lượng"
+            );
+            if (weightSpec) {
+              const weightValue = parseFloat(
+                weightSpec.value.replace(/[^0-9.]/g, "")
               );
-              if (weightSpec) {
-                const weightValue = parseFloat(
-                  weightSpec.value.replace(/[^0-9.]/g, "")
-                );
-                if (!isNaN(weightValue)) weight = weightValue;
-              }
-              const variant = variants[item.product]?.find(
-                (v) => v._id.toString() === item.variantId
-              );
-              return {
-                name:
-                  cartItems[`${item.product}_${item.variantId}`]?.name ||
-                  "Sản phẩm",
-                weight: variant?.weight || weight,
-                quantity: item.quantity,
-                product_code: item.product,
-              };
-            }),
-            order: {
-              id: `ORDER-${Date.now()}`,
-              pick_name: "QuickCart Store",
-              pick_address: "590 CMT8, P.11, Q.3, TP. HCM",
-              pick_province: "TP. Hồ Chí Minh",
-              pick_district: "Quận 3",
-              pick_ward: "Phường 11",
-              pick_tel: "0911222333",
-              tel: selectedAddress.phoneNumber,
-              name: selectedAddress.fullName,
-              address: selectedAddress.area,
-              province: selectedAddress.city,
-              district: selectedAddress.state,
-              ward: selectedAddress.ward || "Khác",
-              hamlet: "Khác",
-              is_freeship: "0",
-              pick_money: pickMoney,
-              note: "Giao hàng cẩn thận",
-              value: getCartAmount(),
-              transport: "road",
-              pick_option: "cod",
-              deliver_option: "none",
-            },
+              if (!isNaN(weightValue)) weight = weightValue;
+            }
+            const variant = variants[item.product]?.find(
+              (v) => v._id.toString() === item.variantId
+            );
+            return {
+              name:
+                cartItems[`${item.product}_${item.variantId}`]?.name ||
+                "Sản phẩm",
+              weight: variant?.weight || weight,
+              quantity: item.quantity,
+              product_code: item.product,
+            };
+          }),
+          order: {
+            id: `ORDER-${Date.now()}`,
+            pick_name: "QuickCart Store",
+            pick_address: "590 CMT8, P.11, Q.3, TP. HCM",
+            pick_province: "TP. Hồ Chí Minh",
+            pick_district: "Quận 3",
+            pick_ward: "Phường 11",
+            pick_tel: "0911222333",
+            tel: selectedAddress.phoneNumber,
+            name: selectedAddress.fullName,
+            address: selectedAddress.area,
+            province: selectedAddress.city,
+            district: selectedAddress.state,
+            ward: selectedAddress.ward || "Khác",
+            hamlet: "Khác",
+            is_freeship: "0",
+            pick_money: pickMoney,
+            note: "Giao hàng cẩn thận",
+            value: getCartAmount(),
+            transport: "road",
+            pick_option: "cod",
+            deliver_option: "none",
           },
-        };
-        console.log("Payload GHTK:", JSON.stringify(payload, null, 2));
+        },
+      };
 
-        const ghtkResponse = await axios.post("/api/ghtk", payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      console.log("Payload GHTK:", JSON.stringify(payload, null, 2));
 
-        if (!ghtkResponse.data.success) {
-          throw new Error(ghtkResponse.data.message || "Tạo đơn GHTK thất bại");
-        }
+      const ghtkResponse = await axios.post("/api/ghtk", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        const trackingCode = ghtkResponse.data.data.order?.label;
+      if (!ghtkResponse.data.success) {
+        throw new Error(ghtkResponse.data.message || "Tạo đơn GHTK thất bại");
+      }
 
-        const orderResponse = await axios.post(
-          "/api/order/create",
-          {
-            address: selectedAddress._id,
-            items: cartItemsArray,
-            promoCode: promoCode || null,
-            trackingCode,
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+      const trackingCode = ghtkResponse.data.data.order?.label;
 
-        if (orderResponse.data.success) {
-          toast.success(orderResponse.data.message || "Đặt hàng thành công");
-          setCartItems({});
-          setDiscount(0);
-          router.push("/order-placed");
-        } else {
-          throw new Error(orderResponse.data.message || "Tạo đơn thất bại");
-        }
+      const orderResponse = await axios.post(
+        "/api/order/create",
+        {
+          address: selectedAddress._id,
+          items: cartItemsArray,
+          promoCode: promoCode || null,
+          trackingCode,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (orderResponse.data.success) {
+        toast.success(orderResponse.data.message || "Đặt hàng thành công");
+        setCartItems({});
+        setDiscount(0);
+        setPromoCode("");
+        router.push("/order-placed");
+      } else {
+        throw new Error(orderResponse.data.message || "Tạo đơn thất bại");
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const createOrder = async () => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const cartItemsArray = validateOrderData();
+      if (!cartItemsArray) return;
+
+      const pickMoney = calculateFinalTotal();
+      console.log("Pick Money:", pickMoney);
+
+      if (paymentMethod === "vnpay") {
+        await handleVNPayPayment(pickMoney);
+      } else {
+        await handleCODPayment(cartItemsArray, pickMoney);
       }
     } catch (error) {
       console.error("Lỗi đặt hàng:", {
@@ -644,6 +671,10 @@ const OrderSummary = ({ shippingFee }) => {
     console.log("Selected Address:", selectedAddress);
   }, [cartItems, selectedAddress, specifications]);
 
+  useEffect(() => {
+    console.log("Client Time:", new Date().toISOString());
+  }, []);
+
   const calculateFinalTotal = () => {
     const subtotal = getCartAmount() || 0;
     const tax = Math.floor(subtotal * 0.02);
@@ -656,7 +687,14 @@ const OrderSummary = ({ shippingFee }) => {
       discount,
       total,
     });
-    return total;
+    return Math.max(0, total); // Đảm bảo total không âm
+  };
+
+  // Thêm function để reset discount khi promoCode thay đổi
+  const resetDiscount = () => {
+    if (discount > 0) {
+      setDiscount(0);
+    }
   };
 
   return (
@@ -672,7 +710,7 @@ const OrderSummary = ({ shippingFee }) => {
           </label>
           <div className="relative inline-block w-full text-sm border">
             <button
-              className="peer w-full text-left px-4 pr-2 py-2 bg-white text-gray-700 focus:outline-none"
+              className="peer w-full text-left px-4 pr-2 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
               <span>
@@ -698,10 +736,10 @@ const OrderSummary = ({ shippingFee }) => {
               </svg>
             </button>
             {isDropdownOpen && (
-              <ul className="absolute w-full bg-white border shadow-md mt-1 z-10 py-1.5">
+              <ul className="absolute w-full bg-white border shadow-md mt-1 z-10 py-1.5 max-h-60 overflow-y-auto">
                 {userAddresses.map((address, index) => (
                   <li
-                    key={index}
+                    key={address._id || index}
                     className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer"
                     onClick={() => handleAddressSelect(address)}
                   >
@@ -710,7 +748,7 @@ const OrderSummary = ({ shippingFee }) => {
                 ))}
                 <li
                   onClick={() => router.push("/add-address")}
-                  className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer text-center"
+                  className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer text-center text-orange-600 font-medium"
                 >
                   + Thêm địa chỉ mới
                 </li>
@@ -724,23 +762,25 @@ const OrderSummary = ({ shippingFee }) => {
             PHƯƠNG THỨC THANH TOÁN
           </label>
           <div className="flex flex-col gap-2">
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 value="cod"
                 checked={paymentMethod === "cod"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
+                className="text-orange-600 focus:ring-orange-500"
               />
               <span className="text-gray-600">
                 Thanh toán khi nhận hàng (COD)
               </span>
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 value="vnpay"
                 checked={paymentMethod === "vnpay"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
+                className="text-orange-600 focus:ring-orange-500"
               />
               <span className="text-gray-600">Thanh toán qua VNPAY</span>
             </label>
@@ -753,7 +793,7 @@ const OrderSummary = ({ shippingFee }) => {
               CHỌN NGÂN HÀNG
             </label>
             <select
-              className="w-full p-2 border text-gray-600"
+              className="w-full p-2 border text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
               onChange={(e) => setBankCode(e.target.value)}
               value={bankCode}
             >
@@ -761,6 +801,10 @@ const OrderSummary = ({ shippingFee }) => {
               <option value="NCB">Ngân hàng NCB</option>
               <option value="VCB">Ngân hàng VCB</option>
               <option value="TCB">Ngân hàng Techcombank</option>
+              <option value="ACB">Ngân hàng ACB</option>
+              <option value="VTB">Ngân hàng VietinBank</option>
+              <option value="MB">Ngân hàng MB</option>
+              <option value="SHB">Ngân hàng SHB</option>
             </select>
           </div>
         )}
@@ -773,13 +817,21 @@ const OrderSummary = ({ shippingFee }) => {
             <input
               type="text"
               placeholder="Nhập mã giảm giá"
-              className="flex-grow w-full outline-none p-2.5 text-gray-600 border"
+              className="flex-grow w-full outline-none p-2.5 text-gray-600 border focus:ring-2 focus:ring-orange-500"
               value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
+              onChange={(e) => {
+                setPromoCode(e.target.value);
+                resetDiscount();
+              }}
             />
             <button
               onClick={applyPromoCode}
-              className="bg-orange-600 text-white px-9 py-2 hover:bg-orange-700"
+              disabled={!promoCode.trim()}
+              className={`px-9 py-2 text-white transition-colors ${
+                !promoCode.trim()
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-orange-600 hover:bg-orange-700"
+              }`}
             >
               Áp Dụng
             </button>
@@ -827,10 +879,10 @@ const OrderSummary = ({ shippingFee }) => {
 
         <button
           onClick={createOrder}
-          disabled={isSubmitting}
-          className={`w-full py-3 mt-5 text-white ${
-            isSubmitting
-              ? "bg-orange-400 cursor-not-allowed"
+          disabled={isSubmitting || !selectedAddress || getCartCount() === 0}
+          className={`w-full py-3 mt-5 text-white transition-colors ${
+            isSubmitting || !selectedAddress || getCartCount() === 0
+              ? "bg-gray-400 cursor-not-allowed"
               : "bg-orange-600 hover:bg-orange-700"
           }`}
         >

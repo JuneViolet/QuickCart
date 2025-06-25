@@ -100,34 +100,60 @@ export async function POST(req) {
   try {
     const { amount, orderId, orderInfo, bankCode } = await req.json();
 
-    const vnp_TmnCode = process.env.VNP_TMN_CODE; // OLNDPX0M
-    const vnp_HashSecret = process.env.VNP_HASH_SECRET; // SHJDW11ZBY6OZVHSUJSVUEESNL5ENCGN
-    const vnp_Url =
-      process.env.VNP_URL ||
-      "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    // Validate input
+    if (!amount || amount <= 0) {
+      throw new Error("Amount is required and must be greater than 0");
+    }
+    if (!orderId) {
+      throw new Error("Order ID is required");
+    }
+
+    const vnp_TmnCode = process.env.VNP_TMN_CODE;
+    const vnp_HashSecret = process.env.VNP_HASH_SECRET;
+    const vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     const vnp_ReturnUrl =
       process.env.VNP_RETURN_URL ||
       "https://techtrend-vip.vercel.app/order/return";
 
+    // Validate environment variables
+    if (!vnp_TmnCode || !vnp_HashSecret) {
+      throw new Error("Missing VNPAY credentials");
+    }
+
     const vnp_TxnRef = orderId;
-    const vnp_Amount = Math.round(amount); // Sử dụng amount trực tiếp
-    const vnp_IpAddr = req.headers.get("x-forwarded-for") || "127.0.0.1";
+    const vnp_Amount = Math.round(amount * 100); // Convert to VND cents (multiply by 100)
+    const vnp_IpAddr = req.headers.get("x-forwarded-for")
+      ? req.headers.get("x-forwarded-for").split(",")[0].trim()
+      : "127.0.0.1";
+
+    // Format dates
     const now = new Date();
-    const vnp_CreateDate = `${now.getFullYear()}${String(
-      now.getMonth() + 1
-    ).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}${String(
-      now.getHours()
-    ).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(
-      now.getSeconds()
-    ).padStart(2, "0")}`;
-    const vnp_ExpireDate = new Date(now.getTime() + 60 * 60 * 1000) // 60 phút
-      .toISOString()
-      .replace(/[-:]/g, "")
-      .replace("T", "")
-      .slice(0, 14);
+    const vnp_CreateDate =
+      now.getFullYear().toString() +
+      (now.getMonth() + 1).toString().padStart(2, "0") +
+      now.getDate().toString().padStart(2, "0") +
+      now.getHours().toString().padStart(2, "0") +
+      now.getMinutes().toString().padStart(2, "0") +
+      now.getSeconds().toString().padStart(2, "0");
+    const expireTime = new Date(now.getTime() + 60 * 60 * 1000); // 60 minutes later
+    const vnp_ExpireDate =
+      expireTime.getFullYear().toString() +
+      (expireTime.getMonth() + 1).toString().padStart(2, "0") +
+      expireTime.getDate().toString().padStart(2, "0") +
+      expireTime.getHours().toString().padStart(2, "0") +
+      expireTime.getMinutes().toString().padStart(2, "0") +
+      expireTime.getSeconds().toString().padStart(2, "0");
 
-    console.log("Server Time:", new Date().toISOString());
+    console.log("Payment details:", {
+      vnp_TmnCode,
+      vnp_Amount,
+      vnp_TxnRef,
+      vnp_IpAddr,
+      vnp_CreateDate,
+      vnp_ExpireDate,
+    });
 
+    // Prepare data object
     const data = {
       vnp_Version: "2.1.0",
       vnp_Command: "pay",
@@ -142,44 +168,49 @@ export async function POST(req) {
       vnp_IpAddr,
       vnp_CreateDate,
       vnp_ExpireDate,
-      vnp_BankCode: bankCode || "",
+      vnp_BankCode: bankCode ? bankCode.trim() : "",
     };
 
-    // Sắp xếp và tạo query string
+    // Sort keys and create signature data (WITH ENCODING for signature)
     const sortedKeys = Object.keys(data)
       .filter((key) => data[key] !== undefined && data[key] !== "")
       .sort();
-    let query = sortedKeys
+    const signData = sortedKeys
       .map(
         (key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
       )
       .join("&");
-    console.log("Query String:", query);
+    console.log("Sign data (raw):", signData);
 
-    // Tạo vnp_SecureHash (HMAC-SHA512)
-    let hashData = sortedKeys
-      .map(
-        (key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
-      )
-      .join("&");
+    // Create signature
     const vnp_SecureHash = crypto
       .createHmac("sha512", vnp_HashSecret)
-      .update(hashData)
+      .update(signData, "utf8")
       .digest("hex");
-    console.log("Calculated SecureHash:", vnp_SecureHash);
+    console.log("Generated hash:", vnp_SecureHash);
 
-    // Tạo URL hoàn chỉnh và trả về cho client
-    const vnp_UrlFinal = `${vnp_Url}?${query}&vnp_SecureHash=${vnp_SecureHash}`;
-    console.log("Final VNPAY URL:", vnp_UrlFinal);
+    // Create query string (WITH ENCODING for URL)
+    const queryString = sortedKeys
+      .map(
+        (key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
+      )
+      .join("&");
 
-    return NextResponse.json(
-      { success: true, redirectUrl: vnp_UrlFinal },
-      { status: 200 }
-    );
+    // Build final URL
+    const paymentUrl = `${vnp_Url}?${queryString}&vnp_SecureHash=${vnp_SecureHash}`;
+    console.log("Final payment URL:", paymentUrl);
+
+    return NextResponse.json({
+      success: true,
+      redirectUrl: paymentUrl,
+    });
   } catch (error) {
     console.error("VNPAY Error:", error);
     return NextResponse.json(
-      { success: false, error: "Lỗi khi tạo giao dịch VNPAY" },
+      {
+        success: false,
+        error: error.message || "Lỗi khi tạo giao dịch VNPAY",
+      },
       { status: 500 }
     );
   }
