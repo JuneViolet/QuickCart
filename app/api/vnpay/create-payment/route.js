@@ -176,9 +176,7 @@ export async function POST(req) {
     // Dùng encode chuẩn theo yêu cầu VNPAY (dấu cách là '+')
     const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
 
-    const signData = sortedKeys
-      .map((key) => `${encode(key)}=${encode(data[key])}`)
-      .join("&");
+    const signData = sortedKeys.map((key) => `${key}=${data[key]}`).join("&");
 
     const vnp_SecureHash = crypto
       .createHmac("sha512", vnp_HashSecret)
