@@ -74,6 +74,11 @@ export async function GET(req) {
       .update(signData, "utf8")
       .digest("hex");
 
+    console.log("🔍 Raw signData: ", signData);
+    console.log("🔑 Generated Hash:", generatedSecureHash);
+    console.log("🧾 Received Hash:", receivedSecureHash);
+    console.log("✅ VNP_HASH_SECRET:", vnp_HashSecret);
+
     if (receivedSecureHash !== generatedSecureHash) {
       return NextResponse.json({ RspCode: "97", Message: "Invalid Checksum" });
     }
