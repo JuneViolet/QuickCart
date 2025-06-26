@@ -95,11 +95,13 @@
 // }
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import moment from "moment-timezone";
 
 export async function POST(req) {
   try {
     const { amount, orderId, orderInfo, bankCode } = await req.json();
 
+    // Validate input
     if (!amount || amount <= 0) {
       throw new Error("Amount is required and must be greater than 0");
     }
@@ -114,37 +116,39 @@ export async function POST(req) {
       process.env.VNP_RETURN_URL ||
       "https://techtrend-vip.vercel.app/order/return";
 
+    // Validate environment variables
     if (!vnp_TmnCode || !vnp_HashSecret) {
       throw new Error("Missing VNPAY credentials");
     }
 
     const vnp_TxnRef = orderId;
-    const vnp_Amount = Math.round(amount * 100);
+    const vnp_Amount = Math.round(amount * 100); // Convert to VND cents
 
+    // Lấy IP address từ header hoặc socket
     let vnp_IpAddr = req.headers.get("x-forwarded-for")
       ? req.headers.get("x-forwarded-for").split(",")[0].trim()
       : req.socket?.remoteAddress || "127.0.0.1";
+
     if (vnp_IpAddr === "::1") {
       vnp_IpAddr = "127.0.0.1";
     }
 
-    const now = new Date();
-    const vnp_CreateDate =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, "0") +
-      now.getDate().toString().padStart(2, "0") +
-      now.getHours().toString().padStart(2, "0") +
-      now.getMinutes().toString().padStart(2, "0") +
-      now.getSeconds().toString().padStart(2, "0");
+    // Dùng múi giờ Asia/Ho_Chi_Minh
+    const now = moment().tz("Asia/Ho_Chi_Minh");
+    const expire = now.clone().add(15, "minutes");
 
-    const expireTime = new Date(now.getTime() + 15 * 60 * 1000);
-    const vnp_ExpireDate =
-      expireTime.getFullYear().toString() +
-      (expireTime.getMonth() + 1).toString().padStart(2, "0") +
-      expireTime.getDate().toString().padStart(2, "0") +
-      expireTime.getHours().toString().padStart(2, "0") +
-      expireTime.getMinutes().toString().padStart(2, "0") +
-      expireTime.getSeconds().toString().padStart(2, "0");
+    const vnp_CreateDate = now.format("YYYYMMDDHHmmss");
+    const vnp_ExpireDate = expire.format("YYYYMMDDHHmmss");
+
+    console.log("Server Time (VN):", now.toISOString());
+    console.log("Payment details:", {
+      vnp_TmnCode,
+      vnp_Amount,
+      vnp_TxnRef,
+      vnp_IpAddr,
+      vnp_CreateDate,
+      vnp_ExpireDate,
+    });
 
     const data = {
       vnp_Version: "2.1.0",
@@ -153,7 +157,7 @@ export async function POST(req) {
       vnp_Amount,
       vnp_CurrCode: "VND",
       vnp_TxnRef,
-      vnp_OrderInfo: orderInfo || "Thanh toan don hang tu QuickCart",
+      vnp_OrderInfo: orderInfo || "Thanh toán đơn hàng từ QuickCart",
       vnp_OrderType: "other",
       vnp_Locale: "vn",
       vnp_ReturnUrl,
@@ -166,13 +170,12 @@ export async function POST(req) {
       data.vnp_BankCode = bankCode.trim();
     }
 
+    // Tạo chuỗi ký hash
     const sortedKeys = Object.keys(data).sort();
-
-    // Định nghĩa encode đúng format theo VNPAY (dấu cách là '+')
-    const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
-
     const signData = sortedKeys
-      .map((key) => `${encode(key)}=${encode(data[key])}`)
+      .map(
+        (key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
+      )
       .join("&");
 
     const vnp_SecureHash = crypto
@@ -181,7 +184,9 @@ export async function POST(req) {
       .digest("hex");
 
     const queryString = sortedKeys
-      .map((key) => `${encode(key)}=${encode(data[key])}`)
+      .map(
+        (key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
+      )
       .join("&");
 
     const paymentUrl = `${vnp_Url}?${queryString}&vnp_SecureHash=${vnp_SecureHash}`;
