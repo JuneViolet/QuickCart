@@ -100,7 +100,6 @@ export async function POST(req) {
   try {
     const { amount, orderId, orderInfo, bankCode } = await req.json();
 
-    // Validate input
     if (!amount || amount <= 0) {
       throw new Error("Amount is required and must be greater than 0");
     }
@@ -115,17 +114,20 @@ export async function POST(req) {
       process.env.VNP_RETURN_URL ||
       "https://techtrend-vip.vercel.app/order/return";
 
-    // Validate environment variables
     if (!vnp_TmnCode || !vnp_HashSecret) {
       throw new Error("Missing VNPAY credentials");
     }
 
     const vnp_TxnRef = orderId;
-    const vnp_Amount = Math.round(amount * 100); // Convert to VND cents (multiply by 100)
-    const vnp_IpAddr = req.headers.get("x-forwarded-for")
+    const vnp_Amount = Math.round(amount * 100);
+
+    let vnp_IpAddr = req.headers.get("x-forwarded-for")
       ? req.headers.get("x-forwarded-for").split(",")[0].trim()
-      : req.socket.remoteAddress || "127.0.0.1";
-    // Format dates
+      : req.socket?.remoteAddress || "127.0.0.1";
+    if (vnp_IpAddr === "::1") {
+      vnp_IpAddr = "127.0.0.1";
+    }
+
     const now = new Date();
     const vnp_CreateDate =
       now.getFullYear().toString() +
@@ -134,7 +136,8 @@ export async function POST(req) {
       now.getHours().toString().padStart(2, "0") +
       now.getMinutes().toString().padStart(2, "0") +
       now.getSeconds().toString().padStart(2, "0");
-    const expireTime = new Date(now.getTime() + 15 * 60 * 1000); // 15 phút
+
+    const expireTime = new Date(now.getTime() + 15 * 60 * 1000);
     const vnp_ExpireDate =
       expireTime.getFullYear().toString() +
       (expireTime.getMonth() + 1).toString().padStart(2, "0") +
@@ -142,17 +145,7 @@ export async function POST(req) {
       expireTime.getHours().toString().padStart(2, "0") +
       expireTime.getMinutes().toString().padStart(2, "0") +
       expireTime.getSeconds().toString().padStart(2, "0");
-    console.log("Server Time:", new Date().toISOString());
-    console.log("Payment details:", {
-      vnp_TmnCode,
-      vnp_Amount,
-      vnp_TxnRef,
-      vnp_IpAddr,
-      vnp_CreateDate,
-      vnp_ExpireDate,
-    });
 
-    // Prepare data object
     const data = {
       vnp_Version: "2.1.0",
       vnp_Command: "pay",
@@ -167,36 +160,32 @@ export async function POST(req) {
       vnp_IpAddr,
       vnp_CreateDate,
       vnp_ExpireDate,
-      vnp_BankCode: bankCode ? bankCode.trim() : "",
     };
 
-    // Sort keys and create signature data (WITH ENCODING for signature)
-    const sortedKeys = Object.keys(data)
-      .filter((key) => data[key] !== undefined && data[key] !== "")
-      .sort();
-    const signData = sortedKeys
-      .map(
-        (key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
-      )
-      .join("&");
-    console.log("Sign data (raw):", signData);
+    if (bankCode) {
+      data.vnp_BankCode = bankCode.trim();
+    }
 
-    // Create signature
+    const sortedKeys = Object.keys(data).sort();
+
+    // Định nghĩa encode đúng format theo VNPAY (dấu cách là '+')
+    const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
+
+    const signData = sortedKeys
+      .map((key) => `${encode(key)}=${encode(data[key])}`)
+      .join("&");
+
     const vnp_SecureHash = crypto
       .createHmac("sha512", vnp_HashSecret)
       .update(signData, "utf8")
       .digest("hex");
-    console.log("Generated hash:", vnp_SecureHash);
 
-    // Create query string (WITH ENCODING for URL)
     const queryString = sortedKeys
-      .map(
-        (key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
-      )
+      .map((key) => `${encode(key)}=${encode(data[key])}`)
       .join("&");
 
-    // Build final URL
     const paymentUrl = `${vnp_Url}?${queryString}&vnp_SecureHash=${vnp_SecureHash}`;
+
     console.log("Final payment URL:", paymentUrl);
 
     return NextResponse.json({

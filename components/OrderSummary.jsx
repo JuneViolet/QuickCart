@@ -500,11 +500,7 @@ const OrderSummary = ({ shippingFee }) => {
       return false;
     }
 
-    if (paymentMethod === "vnpay" && !bankCode) {
-      toast.error("Vui lòng chọn ngân hàng!");
-      return false;
-    }
-
+    // ⚠️ Đã xoá kiểm tra bankCode bắt buộc
     return cartItemsArray;
   };
 
@@ -517,7 +513,7 @@ const OrderSummary = ({ shippingFee }) => {
           amount: pickMoney,
           orderId: `ORDER-${Date.now()}`,
           orderInfo: `Thanh toán đơn hàng từ QuickCart`,
-          bankCode,
+          bankCode: bankCode || undefined, // ✅ Đảm bảo không gửi bankCode="" nếu không có
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -525,7 +521,6 @@ const OrderSummary = ({ shippingFee }) => {
       console.log("VNPAY Response:", vnpayResponse);
 
       if (vnpayResponse.success && vnpayResponse.redirectUrl) {
-        // Chuyển hướng đến trang thanh toán VNPAY
         window.location.href = vnpayResponse.redirectUrl;
       } else {
         toast.error("Không thể tạo giao dịch thanh toán");
