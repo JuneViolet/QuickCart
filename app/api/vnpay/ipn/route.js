@@ -64,6 +64,7 @@ export async function GET(req) {
 
     const receivedSecureHash = params.vnp_SecureHash;
     delete params.vnp_SecureHash;
+    delete params.vnp_SecureHashType;
 
     const sortedKeys = Object.keys(params).sort();
     const signData = sortedKeys.map((key) => `${key}=${params[key]}`).join("&");
