@@ -124,8 +124,7 @@ export async function POST(req) {
     const vnp_Amount = Math.round(amount * 100); // Convert to VND cents (multiply by 100)
     const vnp_IpAddr = req.headers.get("x-forwarded-for")
       ? req.headers.get("x-forwarded-for").split(",")[0].trim()
-      : "127.0.0.1";
-
+      : req.socket.remoteAddress || "127.0.0.1";
     // Format dates
     const now = new Date();
     const vnp_CreateDate =
@@ -135,7 +134,7 @@ export async function POST(req) {
       now.getHours().toString().padStart(2, "0") +
       now.getMinutes().toString().padStart(2, "0") +
       now.getSeconds().toString().padStart(2, "0");
-    const expireTime = new Date(now.getTime() + 60 * 60 * 1000); // 60 minutes later
+    const expireTime = new Date(now.getTime() + 15 * 60 * 1000); // 15 phút
     const vnp_ExpireDate =
       expireTime.getFullYear().toString() +
       (expireTime.getMonth() + 1).toString().padStart(2, "0") +
@@ -143,7 +142,7 @@ export async function POST(req) {
       expireTime.getHours().toString().padStart(2, "0") +
       expireTime.getMinutes().toString().padStart(2, "0") +
       expireTime.getSeconds().toString().padStart(2, "0");
-
+    console.log("Server Time:", new Date().toISOString());
     console.log("Payment details:", {
       vnp_TmnCode,
       vnp_Amount,
