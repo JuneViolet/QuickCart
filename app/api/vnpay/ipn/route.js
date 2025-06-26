@@ -59,42 +59,72 @@ export async function GET(req) {
     await connectDB();
 
     const url = new URL(req.url);
-    const params = Object.fromEntries(url.searchParams.entries());
+    const rawParams = Object.fromEntries(url.searchParams.entries());
+    console.log("🔍 IPN Params:", rawParams);
+
     const vnp_HashSecret = process.env.VNP_HASH_SECRET;
+    const receivedSecureHash = rawParams.vnp_SecureHash;
 
-    const receivedSecureHash = params.vnp_SecureHash;
-    delete params.vnp_SecureHash;
-    delete params.vnp_SecureHashType;
+    // Chỉ xóa vnp_SecureHash
+    delete rawParams.vnp_SecureHash;
 
-    const sortedKeys = Object.keys(params).sort();
-    const signData = sortedKeys.map((key) => `${key}=${params[key]}`).join("&");
+    // Giải mã các giá trị
+    const decodedParams = {};
+    for (const [key, value] of Object.entries(rawParams)) {
+      decodedParams[key] = decodeURIComponent(value).replace(/\+/g, " ");
+    }
 
+    // Sắp xếp keys và tạo chuỗi ký
+    const sortedKeys = Object.keys(decodedParams).sort();
+    const signData = sortedKeys
+      .map((key) => `${key}=${decodedParams[key]}`)
+      .join("&");
+    console.log("🔑 Sign Data:", signData);
+
+    // Tạo chữ ký
     const generatedSecureHash = crypto
       .createHmac("sha512", vnp_HashSecret)
       .update(signData, "utf8")
       .digest("hex");
-
-    console.log("🔍 Raw signData: ", signData);
     console.log("🔑 Generated Hash:", generatedSecureHash);
     console.log("🧾 Received Hash:", receivedSecureHash);
-    console.log("✅ VNP_HASH_SECRET:", vnp_HashSecret);
 
-    if (receivedSecureHash !== generatedSecureHash) {
+    // Kiểm tra chữ ký
+    if (!receivedSecureHash) {
+      console.error("❌ vnp_SecureHash is empty or missing");
+      return NextResponse.json({
+        RspCode: "99",
+        Message: "Missing SecureHash",
+      });
+    }
+    if (
+      receivedSecureHash.toLowerCase() !== generatedSecureHash.toLowerCase()
+    ) {
+      console.error("❌ IPN failed - Invalid Checksum:", {
+        generatedSecureHash,
+        receivedSecureHash,
+      });
       return NextResponse.json({ RspCode: "97", Message: "Invalid Checksum" });
     }
 
     const { vnp_ResponseCode, vnp_Amount, vnp_TxnRef, vnp_TransactionNo } =
-      params;
+      decodedParams;
+    console.log("📋 Transaction Details:", {
+      vnp_TxnRef,
+      vnp_Amount,
+      vnp_ResponseCode,
+    });
 
-    // Kiểm tra đơn hàng
+    // Tìm đơn hàng
     const order = await Order.findOne({ trackingCode: vnp_TxnRef });
-
     if (!order) {
+      console.warn("⚠️ Order not found:", vnp_TxnRef);
       return NextResponse.json({ RspCode: "01", Message: "Order Not Found" });
     }
 
-    // Kiểm tra đơn đã được xử lý chưa
+    // Kiểm tra trạng thái đã xác nhận
     if (order.status === "paid") {
+      console.log("ℹ️ Order already confirmed:", vnp_TxnRef);
       return NextResponse.json({
         RspCode: "02",
         Message: "Order already confirmed",
@@ -102,30 +132,43 @@ export async function GET(req) {
     }
 
     // Kiểm tra số tiền
-    if (order.amount * 100 !== parseInt(vnp_Amount)) {
+    const expectedAmount = order.amount * 100; // Đơn vị nhỏ
+    if (parseInt(vnp_Amount) !== expectedAmount) {
+      console.error("❌ Invalid amount:", {
+        expected: expectedAmount,
+        received: vnp_Amount,
+      });
       return NextResponse.json({ RspCode: "04", Message: "Invalid amount" });
     }
 
-    // Nếu thanh toán thành công
+    // Cập nhật trạng thái
     if (vnp_ResponseCode === "00") {
       order.status = "paid";
-      order.vnp_TransactionNo = vnp_TransactionNo; // lưu nếu cần
+      order.vnp_TransactionNo = vnp_TransactionNo;
       await order.save();
+      console.log("✅ Order updated:", { vnp_TxnRef, vnp_Amount });
       return NextResponse.json({ RspCode: "00", Message: "Confirm Success" });
     } else {
-      // Thanh toán thất bại, có thể cập nhật trạng thái khác tùy logic
       order.status = "failed";
       await order.save();
+      console.log("❌ Transaction failed recorded:", {
+        vnp_TxnRef,
+        vnp_ResponseCode,
+      });
       return NextResponse.json({
-        RspCode: "00",
-        Message: "Payment Failed Recorded",
+        RspCode: "99",
+        Message: "Transaction Failed",
       });
     }
   } catch (err) {
-    console.error("💥 IPN Exception:", err);
+    console.error("💥 IPN Exception:", {
+      message: err.message,
+      stack: err.stack,
+    });
     return NextResponse.json(
       { RspCode: "99", Message: `Exception: ${err.message}` },
       { status: 500 }
     );
   }
 }
+  
