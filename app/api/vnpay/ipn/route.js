@@ -65,15 +65,20 @@ export async function GET(req) {
     const vnp_HashSecret = process.env.VNP_HASH_SECRET;
 
     console.log("💬 ENV HASH SECRET:", vnp_HashSecret);
-    // Xóa các trường không tham gia ký
+
+    // 1. Xóa các trường không dùng để ký
     delete params.vnp_SecureHash;
     delete params.vnp_SecureHashType;
 
-    // Sắp xếp theo thứ tự key tăng dần
+    // 2. Sắp xếp theo thứ tự tăng dần
     const sortedKeys = Object.keys(params).sort();
-    const signData = sortedKeys.map((key) => `${key}=${params[key]}`).join("&");
 
-    // Tạo chữ ký
+    // 3. Encode lại tham số và tạo signData đúng chuẩn
+    const signData = sortedKeys
+      .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+      .join("&");
+
+    // 4. Tạo chữ ký
     const generatedSecureHash = crypto
       .createHmac("sha512", vnp_HashSecret)
       .update(signData, "utf8")
@@ -83,12 +88,14 @@ export async function GET(req) {
     console.log("🧾 Received Hash:", receivedSecureHash);
     console.log("🔐 Generated Hash:", generatedSecureHash);
 
+    // 5. So sánh chữ ký
     if (
       receivedSecureHash.toLowerCase() !== generatedSecureHash.toLowerCase()
     ) {
       return NextResponse.json({ RspCode: "97", Message: "Invalid Checksum" });
     }
 
+    // 6. Xử lý đơn hàng
     const { vnp_TxnRef, vnp_Amount, vnp_ResponseCode, vnp_TransactionNo } =
       params;
 
@@ -104,6 +111,7 @@ export async function GET(req) {
       });
     }
 
+    // Lưu ý: vnp_Amount từ VNPAY là đơn vị VND * 100
     if (parseInt(vnp_Amount) !== order.amount * 100) {
       return NextResponse.json({ RspCode: "04", Message: "Invalid amount" });
     }

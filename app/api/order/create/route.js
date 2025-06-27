@@ -1,4 +1,4 @@
-// //test biến thể
+// //app/api/order/create/route.js
 // import connectDB from "@/config/db";
 // import Product from "@/models/Product";
 // import User from "@/models/User";
@@ -11,14 +11,21 @@
 // import Variant from "@/models/Variants";
 
 // export async function POST(request) {
-//   try {
-//     await connectDB();
+//   await connectDB();
 
+//   try {
 //     const { userId } = getAuth(request);
-//     const { address, items, promoCode, trackingCode } = await request.json();
+//     const { address, items, promoCode, trackingCode, paymentMethod } =
+//       await request.json();
 
 //     console.log(`Received order request for user ${userId} at ${Date.now()}`);
-//     console.log("Request data:", { address, items, promoCode, trackingCode });
+//     console.log("Request data:", {
+//       address,
+//       items,
+//       promoCode,
+//       trackingCode,
+//       paymentMethod,
+//     });
 
 //     if (!userId) {
 //       return NextResponse.json(
@@ -48,6 +55,15 @@
 //       );
 //     }
 
+//     // Kiểm tra trùng lặp trackingCode
+//     const existingOrder = await Order.findOne({ trackingCode });
+//     if (existingOrder) {
+//       return NextResponse.json(
+//         { success: false, message: "Tracking code already exists" },
+//         { status: 400 }
+//       );
+//     }
+
 //     let subtotal = 0;
 //     const updatedItems = [];
 
@@ -55,9 +71,15 @@
 //       const productId = item.product;
 //       const variantId = item.variantId;
 
-//       if (!mongoose.Types.ObjectId.isValid(productId)) {
+//       if (
+//         !mongoose.Types.ObjectId.isValid(productId) ||
+//         !mongoose.Types.ObjectId.isValid(variantId)
+//       ) {
 //         return NextResponse.json(
-//           { success: false, message: `Invalid product ID: ${productId}` },
+//           {
+//             success: false,
+//             message: `Invalid product ID: ${productId} or variant ID: ${variantId}`,
+//           },
 //           { status: 400 }
 //         );
 //       }
@@ -67,13 +89,6 @@
 //         return NextResponse.json(
 //           { success: false, message: `Product with ID ${productId} not found` },
 //           { status: 404 }
-//         );
-//       }
-
-//       if (!mongoose.Types.ObjectId.isValid(variantId)) {
-//         return NextResponse.json(
-//           { success: false, message: `Invalid variant ID: ${variantId}` },
-//           { status: 400 }
 //         );
 //       }
 
@@ -109,32 +124,27 @@
 
 //     let calculatedDiscount = 0;
 //     if (promoCode) {
-//       console.log(`Looking up promo code: ${promoCode}`);
 //       const promo = await Promo.findOne({
 //         code: promoCode.toUpperCase(),
 //         isActive: true,
 //       });
 //       if (!promo) {
-//         console.log("Promo not found or inactive");
 //         return NextResponse.json(
 //           { success: false, message: "Promo code not found or inactive" },
 //           { status: 400 }
 //         );
 //       }
 //       if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) {
-//         console.log("Promo code expired");
 //         return NextResponse.json(
 //           { success: false, message: "Promo code has expired" },
 //           { status: 400 }
 //         );
 //       }
-//       console.log(`Promo found:`, promo);
 //       calculatedDiscount =
 //         promo.discountType === "percentage"
 //           ? (subtotal * promo.discount) / 100
 //           : promo.discount;
 //       calculatedDiscount = Math.min(calculatedDiscount, subtotal);
-//       console.log(`Calculated discount: ${calculatedDiscount}`);
 //     }
 
 //     const orderDate = Date.now();
@@ -143,7 +153,6 @@
 
 //     const orderId = new mongoose.Types.ObjectId();
 
-//     // Tạo tài liệu Order trực tiếp
 //     const order = await Order.create({
 //       _id: orderId,
 //       userId,
@@ -154,9 +163,7 @@
 //       status: "pending",
 //       date: orderDate,
 //     });
-//     console.log("Order created:", order); // Log để debug
 
-//     // Gửi sự kiện qua inngest sau khi tạo order
 //     await inngest.send({
 //       name: "order/created",
 //       id: `order-created-${orderId.toString()}`,
@@ -184,11 +191,72 @@
 //     user.cartItems = [];
 //     await user.save();
 
-//     // Cập nhật stock của variant
-//     for (const item of updatedItems) {
-//       const variant = await Variant.findById(item.variantId);
-//       variant.stock -= item.quantity;
-//       await variant.save();
+//     // Cập nhật stock bằng bulk update
+//     const bulkOps = updatedItems.map((item) => ({
+//       updateOne: {
+//         filter: { _id: item.variantId },
+//         update: { $inc: { stock: -item.quantity } },
+//       },
+//     }));
+//     await Variant.bulkWrite(bulkOps);
+
+//     // Tích hợp VNPAY nếu chọn thanh toán online
+//     let vnpayUrl = null;
+//     if (paymentMethod === "vnpay") {
+//       const vnp_TmnCode = process.env.VNP_TMN_CODE;
+//       const vnp_HashSecret = process.env.VNP_HASH_SECRET;
+//       const vnp_Url =
+//         process.env.VNP_URL ||
+//         "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+//       const vnp_ReturnUrl =
+//         process.env.VNP_RETURN_URL ||
+//         "https://techtrend-vip.vercel.app/order/return";
+
+//       const data = {
+//         vnp_Version: "2.1.0",
+//         vnp_Command: "pay",
+//         vnp_TmnCode,
+//         vnp_Amount: finalAmount * 100, // Đơn vị nhỏ nhất
+//         vnp_CurrCode: "VND",
+//         vnp_TxnRef: orderId.toString(),
+//         vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
+//         vnp_OrderType: "other",
+//         vnp_Locale: "vn",
+//         vnp_ReturnUrl,
+//         vnp_IpAddr: req.headers.get("x-forwarded-for") || "127.0.0.1",
+//         vnp_CreateDate: new Date()
+//           .toISOString()
+//           .replace(/[-:]/g, "")
+//           .replace("T", "")
+//           .slice(0, 14),
+//       };
+
+//       const sortedKeys = Object.keys(data)
+//         .filter((key) => data[key] !== undefined && data[key] !== "")
+//         .sort();
+//       let signData = sortedKeys
+//         .map(
+//           (key) =>
+//             `${key}=${encodeURIComponent(data[key]).replace(/%20/g, "+")}`
+//         )
+//         .join("&");
+//       const secureHash = crypto
+//         .createHash("sha256")
+//         .update(signData + vnp_HashSecret, "utf8")
+//         .digest("hex");
+//       data.vnp_SecureHash = secureHash;
+
+//       const response = await fetch(vnp_Url, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/x-www-form-urlencoded" },
+//         body: new URLSearchParams(data).toString(),
+//       });
+
+//       if (!response.ok) {
+//         throw new Error(`Failed to connect to VNPAY: ${response.statusText}`);
+//       }
+
+//       vnpayUrl = response.url;
 //     }
 
 //     return NextResponse.json({
@@ -198,17 +266,21 @@
 //         id: orderId,
 //         amount: finalAmount,
 //         trackingCode,
+//         vnpayUrl, // Trả về URL thanh toán nếu có
 //       },
 //     });
 //   } catch (error) {
-//     console.error("Error in /api/order/create:", error.message, error.stack);
+//     console.error("Error in /api/order/create:", {
+//       message: error.message,
+//       stack: error.stack,
+//       details: error.details || "No additional details",
+//     });
 //     return NextResponse.json(
-//       { success: false, message: error.message },
+//       { success: false, message: "Lỗi server, vui lòng thử lại sau" },
 //       { status: 500 }
 //     );
 //   }
 // }
-//app/api/order/create/route.js
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
 import User from "@/models/User";
@@ -219,6 +291,7 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { inngest } from "@/config/inngest";
 import Variant from "@/models/Variants";
+import crypto from "crypto";
 
 export async function POST(request) {
   await connectDB();
@@ -227,15 +300,6 @@ export async function POST(request) {
     const { userId } = getAuth(request);
     const { address, items, promoCode, trackingCode, paymentMethod } =
       await request.json();
-
-    console.log(`Received order request for user ${userId} at ${Date.now()}`);
-    console.log("Request data:", {
-      address,
-      items,
-      promoCode,
-      trackingCode,
-      paymentMethod,
-    });
 
     if (!userId) {
       return NextResponse.json(
@@ -265,7 +329,6 @@ export async function POST(request) {
       );
     }
 
-    // Kiểm tra trùng lặp trackingCode
     const existingOrder = await Order.findOne({ trackingCode });
     if (existingOrder) {
       return NextResponse.json(
@@ -288,7 +351,7 @@ export async function POST(request) {
         return NextResponse.json(
           {
             success: false,
-            message: `Invalid product ID: ${productId} or variant ID: ${variantId}`,
+            message: `Invalid product ID or variant ID`,
           },
           { status: 400 }
         );
@@ -297,7 +360,7 @@ export async function POST(request) {
       const product = await Product.findById(productId);
       if (!product) {
         return NextResponse.json(
-          { success: false, message: `Product with ID ${productId} not found` },
+          { success: false, message: `Product not found` },
           { status: 404 }
         );
       }
@@ -307,7 +370,7 @@ export async function POST(request) {
         return NextResponse.json(
           {
             success: false,
-            message: `Variant with ID ${variantId} not found or not associated with product ${productId}`,
+            message: `Variant not found or not match product`,
           },
           { status: 400 }
         );
@@ -316,9 +379,7 @@ export async function POST(request) {
       if (variant.stock < item.quantity) {
         return NextResponse.json({
           success: false,
-          message: `Not enough stock for variant ${variant.attributeRefs
-            .map((ref) => ref.value)
-            .join(", ")}. Available: ${variant.stock}`,
+          message: `Not enough stock for variant`,
         });
       }
 
@@ -338,15 +399,12 @@ export async function POST(request) {
         code: promoCode.toUpperCase(),
         isActive: true,
       });
-      if (!promo) {
+      if (
+        !promo ||
+        (promo.expiresAt && new Date(promo.expiresAt) < new Date())
+      ) {
         return NextResponse.json(
-          { success: false, message: "Promo code not found or inactive" },
-          { status: 400 }
-        );
-      }
-      if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) {
-        return NextResponse.json(
-          { success: false, message: "Promo code has expired" },
+          { success: false, message: "Promo code invalid or expired" },
           { status: 400 }
         );
       }
@@ -357,10 +415,9 @@ export async function POST(request) {
       calculatedDiscount = Math.min(calculatedDiscount, subtotal);
     }
 
-    const orderDate = Date.now();
     const tax = Math.floor(subtotal * 0.02);
     const finalAmount = subtotal + tax - calculatedDiscount;
-
+    const orderDate = Date.now();
     const orderId = new mongoose.Types.ObjectId();
 
     const order = await Order.create({
@@ -392,16 +449,11 @@ export async function POST(request) {
     });
 
     const user = await User.findById(userId);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User not found" },
-        { status: 404 }
-      );
+    if (user) {
+      user.cartItems = [];
+      await user.save();
     }
-    user.cartItems = [];
-    await user.save();
 
-    // Cập nhật stock bằng bulk update
     const bulkOps = updatedItems.map((item) => ({
       updateOne: {
         filter: { _id: item.variantId },
@@ -410,63 +462,48 @@ export async function POST(request) {
     }));
     await Variant.bulkWrite(bulkOps);
 
-    // Tích hợp VNPAY nếu chọn thanh toán online
+    // ===== VNPAY PAYMENT INTEGRATION =====
     let vnpayUrl = null;
     if (paymentMethod === "vnpay") {
       const vnp_TmnCode = process.env.VNP_TMN_CODE;
       const vnp_HashSecret = process.env.VNP_HASH_SECRET;
-      const vnp_Url =
-        process.env.VNP_URL ||
-        "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-      const vnp_ReturnUrl =
-        process.env.VNP_RETURN_URL ||
-        "https://techtrend-vip.vercel.app/order/return";
+      const vnp_Url = process.env.VNP_URL;
+      const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
 
-      const data = {
+      const currentDate = new Date();
+      const vnp_CreateDate = currentDate
+        .toISOString()
+        .replace(/[-:]/g, "")
+        .replace("T", "")
+        .slice(0, 14);
+
+      const vnp_Params = {
         vnp_Version: "2.1.0",
         vnp_Command: "pay",
         vnp_TmnCode,
-        vnp_Amount: finalAmount * 100, // Đơn vị nhỏ nhất
-        vnp_CurrCode: "VND",
-        vnp_TxnRef: orderId.toString(),
-        vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
-        vnp_OrderType: "other",
         vnp_Locale: "vn",
+        vnp_CurrCode: "VND",
+        vnp_TxnRef: trackingCode, // dùng trackingCode để đồng bộ với IPN
+        vnp_OrderInfo: `Thanh toán đơn hàng từ QuickCart`,
+        vnp_OrderType: "other",
+        vnp_Amount: finalAmount * 100, // VNPAY yêu cầu đơn vị nhỏ nhất (vd: 1000 = 10.000đ)
         vnp_ReturnUrl,
-        vnp_IpAddr: req.headers.get("x-forwarded-for") || "127.0.0.1",
-        vnp_CreateDate: new Date()
-          .toISOString()
-          .replace(/[-:]/g, "")
-          .replace("T", "")
-          .slice(0, 14),
+        vnp_IpAddr: request.headers.get("x-forwarded-for") || "127.0.0.1",
+        vnp_CreateDate,
       };
 
-      const sortedKeys = Object.keys(data)
-        .filter((key) => data[key] !== undefined && data[key] !== "")
-        .sort();
-      let signData = sortedKeys
-        .map(
-          (key) =>
-            `${key}=${encodeURIComponent(data[key]).replace(/%20/g, "+")}`
-        )
+      const sortedKeys = Object.keys(vnp_Params).sort();
+      const signData = sortedKeys
+        .map((key) => `${key}=${vnp_Params[key]}`)
         .join("&");
+
       const secureHash = crypto
-        .createHash("sha256")
-        .update(signData + vnp_HashSecret, "utf8")
+        .createHmac("sha512", vnp_HashSecret)
+        .update(signData, "utf8")
         .digest("hex");
-      data.vnp_SecureHash = secureHash;
 
-      const response = await fetch(vnp_Url, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(data).toString(),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to connect to VNPAY: ${response.statusText}`);
-      }
-
-      vnpayUrl = response.url;
+      vnp_Params.vnp_SecureHash = secureHash;
+      vnpayUrl = `${vnp_Url}?${new URLSearchParams(vnp_Params).toString()}`;
     }
 
     return NextResponse.json({
@@ -476,17 +513,13 @@ export async function POST(request) {
         id: orderId,
         amount: finalAmount,
         trackingCode,
-        vnpayUrl, // Trả về URL thanh toán nếu có
+        vnpayUrl,
       },
     });
   } catch (error) {
-    console.error("Error in /api/order/create:", {
-      message: error.message,
-      stack: error.stack,
-      details: error.details || "No additional details",
-    });
+    console.error("🔥 Order creation error:", error);
     return NextResponse.json(
-      { success: false, message: "Lỗi server, vui lòng thử lại sau" },
+      { success: false, message: "Lỗi server, thử lại sau." },
       { status: 500 }
     );
   }
