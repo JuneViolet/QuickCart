@@ -61,9 +61,9 @@ export async function GET(req) {
     const url = new URL(req.url);
     const params = Object.fromEntries(url.searchParams.entries());
     const receivedSecureHash = params.vnp_SecureHash;
-    const vnp_HashSecret = process.env.VNP_HASH_SECRET?.trim(); // loại ký tự thừa
+    const vnp_HashSecret = process.env.VNP_HASH_SECRET?.trim();
 
-    // 🔍 Debug: In URL gốc và toàn bộ params trước khi xử lý
+    // 🔍 Debug thông tin IPN nhận được
     console.log("🌐 IPN Request URL:", req.url);
     console.log("📥 Raw VNPAY Params:", JSON.stringify(params, null, 2));
     console.log("🔑 ENV HASH SECRET:", JSON.stringify(vnp_HashSecret));
@@ -72,27 +72,30 @@ export async function GET(req) {
     delete params.vnp_SecureHash;
     delete params.vnp_SecureHashType;
 
-    // 2. Sắp xếp theo thứ tự tăng dần
+    // 2. Sắp xếp theo thứ tự key tăng dần
     const sortedKeys = Object.keys(params).sort();
 
-    // 3. Tạo signData KHÔNG encodeURIComponent, giữ nguyên raw VNPAY gửi
+    // 3. Hàm encode đúng chuẩn VNPAY (space => +)
+    const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
+
+    // 4. Tạo signData với encode đúng
     const signData = sortedKeys
-      .map((key) => `${key}=${params[key]}`) // Không encode
+      .map((key) => `${encode(key)}=${encode(params[key])}`)
       .join("&");
 
-    // 4. Tạo hash SHA512
+    // 5. Tạo hash SHA512
     const generatedSecureHash = crypto
       .createHmac("sha512", vnp_HashSecret)
-      .update(signData, "utf8") // bắt buộc là utf8
+      .update(signData, "utf8")
       .digest("hex");
 
-    // 🔍 Debug: Log các thông tin liên quan đến chữ ký
+    // 🔍 Log so sánh hash
     console.log("🔑 Sorted Keys:", sortedKeys);
     console.log("🧾 Sign Data:", signData);
     console.log("📨 Received Hash:", receivedSecureHash);
     console.log("✅ Generated Hash:", generatedSecureHash);
 
-    // 5. So sánh chữ ký
+    // 6. So sánh hash
     if (
       receivedSecureHash?.toLowerCase() !== generatedSecureHash.toLowerCase()
     ) {
@@ -100,7 +103,7 @@ export async function GET(req) {
       return NextResponse.json({ RspCode: "97", Message: "Invalid Checksum" });
     }
 
-    // 6. Xử lý đơn hàng
+    // 7. Lấy dữ liệu đơn hàng
     const { vnp_TxnRef, vnp_Amount, vnp_ResponseCode, vnp_TransactionNo } =
       params;
 
