@@ -349,10 +349,7 @@ export async function POST(request) {
         !mongoose.Types.ObjectId.isValid(variantId)
       ) {
         return NextResponse.json(
-          {
-            success: false,
-            message: `Invalid product ID or variant ID`,
-          },
+          { success: false, message: `Invalid product ID or variant ID` },
           { status: 400 }
         );
       }
@@ -368,19 +365,16 @@ export async function POST(request) {
       const variant = await Variant.findById(variantId);
       if (!variant || variant.productId.toString() !== productId) {
         return NextResponse.json(
-          {
-            success: false,
-            message: `Variant not found or not match product`,
-          },
+          { success: false, message: `Variant not found or not match product` },
           { status: 400 }
         );
       }
 
       if (variant.stock < item.quantity) {
-        return NextResponse.json({
-          success: false,
-          message: `Not enough stock for variant`,
-        });
+        return NextResponse.json(
+          { success: false, message: `Not enough stock for variant` },
+          { status: 400 }
+        );
       }
 
       subtotal += variant.offerPrice * item.quantity;
@@ -415,8 +409,8 @@ export async function POST(request) {
       calculatedDiscount = Math.min(calculatedDiscount, subtotal);
     }
 
-    const tax = Math.floor(subtotal * 0.02);
-    const finalAmount = subtotal + tax - calculatedDiscount;
+    const tax = Math.floor(subtotal * 0.02); // Làm tròn thuế
+    const finalAmount = Math.floor(subtotal + tax - calculatedDiscount); // Làm tròn tổng
     const orderDate = Date.now();
     const orderId = new mongoose.Types.ObjectId();
 
@@ -470,8 +464,17 @@ export async function POST(request) {
       const vnp_Url = process.env.VNP_URL;
       const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
 
+      if (!vnp_TmnCode || !vnp_HashSecret || !vnp_Url || !vnp_ReturnUrl) {
+        throw new Error("Missing VNPAY configuration in .env");
+      }
+
       const currentDate = new Date();
       const vnp_CreateDate = currentDate
+        .toISOString()
+        .replace(/[-:]/g, "")
+        .replace("T", "")
+        .slice(0, 14);
+      const vnp_ExpireDate = new Date(currentDate.getTime() + 15 * 60000) // 15 phút
         .toISOString()
         .replace(/[-:]/g, "")
         .replace("T", "")
@@ -483,18 +486,19 @@ export async function POST(request) {
         vnp_TmnCode,
         vnp_Locale: "vn",
         vnp_CurrCode: "VND",
-        vnp_TxnRef: trackingCode, // dùng trackingCode để đồng bộ với IPN
+        vnp_TxnRef: trackingCode,
         vnp_OrderInfo: `Thanh toán đơn hàng từ QuickCart`,
         vnp_OrderType: "other",
-        vnp_Amount: finalAmount * 100, // VNPAY yêu cầu đơn vị nhỏ nhất (vd: 1000 = 10.000đ)
+        vnp_Amount: Math.floor(finalAmount) * 100, // Làm tròn trước khi nhân 100
         vnp_ReturnUrl,
         vnp_IpAddr: request.headers.get("x-forwarded-for") || "127.0.0.1",
         vnp_CreateDate,
+        vnp_ExpireDate,
       };
 
       const sortedKeys = Object.keys(vnp_Params).sort();
       const signData = sortedKeys
-        .map((key) => `${key}=${vnp_Params[key]}`)
+        .map((key) => `${key}=${encodeURIComponent(vnp_Params[key])}`)
         .join("&");
 
       const secureHash = crypto
