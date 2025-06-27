@@ -59,50 +59,44 @@ export async function GET(req) {
     await connectDB();
 
     const url = new URL(req.url);
-    const params = Object.fromEntries(url.searchParams.entries());
+    const rawParams = Object.fromEntries(url.searchParams.entries());
+    console.log("🔍 IPN Params:", rawParams);
+
     const vnp_HashSecret = process.env.VNP_HASH_SECRET;
+    const receivedSecureHash = rawParams.vnp_SecureHash;
+    delete rawParams.vnp_SecureHash;
+    delete rawParams.vnp_SecureHashType;
 
-    // Lấy và xóa SecureHash & SecureHashType
-    const receivedSecureHash = params.vnp_SecureHash;
-    delete params.vnp_SecureHash;
-    delete params.vnp_SecureHashType;
-
-    // Sắp xếp key theo thứ tự A-Z
-    const sortedKeys = Object.keys(params).sort();
-
-    // Tạo chuỗi dữ liệu để ký lại
-    const signData = sortedKeys.map((key) => `${key}=${params[key]}`).join("&");
+    // ❌ KHÔNG decode hoặc thay đổi giá trị param
+    const sortedKeys = Object.keys(rawParams).sort();
+    const signData = sortedKeys
+      .map((key) => `${key}=${rawParams[key]}`)
+      .join("&");
 
     const generatedSecureHash = crypto
       .createHmac("sha512", vnp_HashSecret)
       .update(signData, "utf8")
       .digest("hex");
 
-    // Log để kiểm tra
     console.log("🔑 Sign Data:", signData);
     console.log("🔑 Generated Hash:", generatedSecureHash);
     console.log("🧾 Received Hash:", receivedSecureHash);
 
-    // So sánh chữ ký
     if (
       !receivedSecureHash ||
       receivedSecureHash.toLowerCase() !== generatedSecureHash.toLowerCase()
     ) {
-      console.error("❌ Invalid Checksum");
       return NextResponse.json({ RspCode: "97", Message: "Invalid Checksum" });
     }
 
     const { vnp_ResponseCode, vnp_Amount, vnp_TxnRef, vnp_TransactionNo } =
-      params;
+      rawParams;
 
-    // Tìm đơn hàng
     const order = await Order.findOne({ trackingCode: vnp_TxnRef });
     if (!order) {
-      console.warn("⚠️ Order not found:", vnp_TxnRef);
       return NextResponse.json({ RspCode: "01", Message: "Order Not Found" });
     }
 
-    // Đơn hàng đã xác nhận
     if (order.status === "paid") {
       return NextResponse.json({
         RspCode: "02",
@@ -110,14 +104,10 @@ export async function GET(req) {
       });
     }
 
-    // Kiểm tra số tiền
-    const expectedAmount = order.amount * 100;
-    if (parseInt(vnp_Amount) !== expectedAmount) {
-      console.error("❌ Invalid amount");
+    if (parseInt(vnp_Amount) !== order.amount * 100) {
       return NextResponse.json({ RspCode: "04", Message: "Invalid amount" });
     }
 
-    // Xử lý trạng thái giao dịch
     if (vnp_ResponseCode === "00") {
       order.status = "paid";
       order.vnp_TransactionNo = vnp_TransactionNo;
@@ -127,12 +117,12 @@ export async function GET(req) {
       order.status = "failed";
       await order.save();
       return NextResponse.json({
-        RspCode: "00",
-        Message: "Payment Failed Recorded",
+        RspCode: "99",
+        Message: "Transaction Failed",
       });
     }
   } catch (err) {
-    console.error("💥 IPN Exception:", err);
+    console.error("💥 IPN Error:", err);
     return NextResponse.json(
       { RspCode: "99", Message: `Exception: ${err.message}` },
       { status: 500 }
