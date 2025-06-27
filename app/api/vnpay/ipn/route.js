@@ -73,9 +73,9 @@ export async function GET(req) {
     // 2. Sắp xếp theo thứ tự tăng dần
     const sortedKeys = Object.keys(params).sort();
 
-    // 3. Encode lại tham số và tạo signData đúng chuẩn
+    // 3. Tạo signData đúng chuẩn KHÔNG encode
     const signData = sortedKeys
-      .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+      .map((key) => `${key}=${params[key]}`) // <-- KHÔNG encode!
       .join("&");
 
     // 4. Tạo chữ ký
