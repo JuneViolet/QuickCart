@@ -171,6 +171,10 @@ export async function POST(req) {
 
     const paymentUrl = `${vnp_Url}?${queryString}&vnp_SecureHash=${vnp_SecureHash}`;
 
+    console.log("🔗 Final Redirect URL:", paymentUrl);
+    console.log("🧾 Raw Sign Data:", signData);
+    console.log("🔒 Generated Hash:", vnp_SecureHash);
+
     return NextResponse.json({
       success: true,
       redirectUrl: paymentUrl,
