@@ -49,6 +49,7 @@
 //   }
 // }
 //app/api/vnpay/ipn/route.js
+// app/api/vnpay/ipn/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
@@ -59,38 +60,37 @@ export async function GET(req) {
     await connectDB();
 
     const url = new URL(req.url);
-    const rawParams = Object.fromEntries(url.searchParams.entries());
-    console.log("🔍 IPN Params:", rawParams);
-
+    const params = Object.fromEntries(url.searchParams.entries());
+    const receivedSecureHash = params.vnp_SecureHash;
     const vnp_HashSecret = process.env.VNP_HASH_SECRET;
-    const receivedSecureHash = rawParams.vnp_SecureHash;
-    delete rawParams.vnp_SecureHash;
-    delete rawParams.vnp_SecureHashType;
 
-    // ❌ KHÔNG decode hoặc thay đổi giá trị param
-    const sortedKeys = Object.keys(rawParams).sort();
-    const signData = sortedKeys
-      .map((key) => `${key}=${rawParams[key]}`)
-      .join("&");
+    console.log("💬 ENV HASH SECRET:", vnp_HashSecret);
+    // Xóa các trường không tham gia ký
+    delete params.vnp_SecureHash;
+    delete params.vnp_SecureHashType;
 
+    // Sắp xếp theo thứ tự key tăng dần
+    const sortedKeys = Object.keys(params).sort();
+    const signData = sortedKeys.map((key) => `${key}=${params[key]}`).join("&");
+
+    // Tạo chữ ký
     const generatedSecureHash = crypto
       .createHmac("sha512", vnp_HashSecret)
       .update(signData, "utf8")
       .digest("hex");
 
     console.log("🔑 Sign Data:", signData);
-    console.log("🔑 Generated Hash:", generatedSecureHash);
     console.log("🧾 Received Hash:", receivedSecureHash);
+    console.log("🔐 Generated Hash:", generatedSecureHash);
 
     if (
-      !receivedSecureHash ||
       receivedSecureHash.toLowerCase() !== generatedSecureHash.toLowerCase()
     ) {
       return NextResponse.json({ RspCode: "97", Message: "Invalid Checksum" });
     }
 
-    const { vnp_ResponseCode, vnp_Amount, vnp_TxnRef, vnp_TransactionNo } =
-      rawParams;
+    const { vnp_TxnRef, vnp_Amount, vnp_ResponseCode, vnp_TransactionNo } =
+      params;
 
     const order = await Order.findOne({ trackingCode: vnp_TxnRef });
     if (!order) {
@@ -117,12 +117,12 @@ export async function GET(req) {
       order.status = "failed";
       await order.save();
       return NextResponse.json({
-        RspCode: "99",
-        Message: "Transaction Failed",
+        RspCode: "00",
+        Message: "Transaction Failed Recorded",
       });
     }
   } catch (err) {
-    console.error("💥 IPN Error:", err);
+    console.error("💥 IPN Exception:", err);
     return NextResponse.json(
       { RspCode: "99", Message: `Exception: ${err.message}` },
       { status: 500 }
