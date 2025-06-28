@@ -185,7 +185,7 @@ export const createUserOrder = inngest.createFunction(
         tax,
         discount,
         amount,
-        trackingCode, // Thêm trackingCode từ payload
+        trackingCode,
         date,
       } = event.data;
 
@@ -195,21 +195,23 @@ export const createUserOrder = inngest.createFunction(
         throw new Error("trackingCode is required");
       }
 
-      // Tạo và lưu đơn hàng
-      const order = new Order({
-        _id: orderId,
-        userId,
-        address,
-        items,
-        subtotal,
-        tax,
-        discount: discount || 0,
-        amount,
-        trackingCode, // Thêm trackingCode vào schema
-        date,
-        status: "pending",
-      });
-      await order.save();
+      // Tìm hoặc tạo đơn hàng (sử dụng upsert)
+      const order = await Order.findOneAndUpdate(
+        { trackingCode }, // Tìm theo trackingCode
+        {
+          userId,
+          address,
+          items,
+          subtotal,
+          tax,
+          discount: discount || 0,
+          amount,
+          trackingCode,
+          date,
+          status: "pending",
+        },
+        { new: true, upsert: true } // Tạo mới nếu không tồn tại
+      );
 
       // Giảm số lượng sản phẩm
       for (const item of items) {

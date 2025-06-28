@@ -416,10 +416,8 @@ export async function POST(request) {
       Math.floor(subtotal + tax - calculatedDiscount)
     );
     const orderDate = new Date();
-    const orderId = new mongoose.Types.ObjectId();
 
     const order = await Order.create({
-      _id: orderId,
       userId,
       items: updatedItems,
       amount: finalAmount,
@@ -428,6 +426,8 @@ export async function POST(request) {
       status: "pending",
       date: orderDate,
     });
+
+    const orderId = order._id;
 
     await inngest.send({
       name: "order/created",
@@ -490,7 +490,6 @@ export async function POST(request) {
         vnp_ExpireDate,
       };
 
-      // Hàm encode giống /api/vnpay/create-payment
       const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
 
       const sortedKeys = Object.keys(vnp_Params).sort();
