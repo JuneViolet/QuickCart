@@ -69,7 +69,7 @@ const orderSchema = new mongoose.Schema({
   trackingCode: { type: String, required: true, unique: true }, // ✅ giữ lại unique ở đây
   status: {
     type: String,
-    enum: ["pending", "confirmed", "shipped", "delivered", "canceled"],
+    enum: ["pending", "paid", "confirmed", "shipped", "delivered", "canceled"], // Thêm "paid"
     default: "pending",
   },
   date: { type: Date, default: Date.now, required: true },
