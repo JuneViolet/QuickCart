@@ -282,7 +282,6 @@
 //   }
 // }
 // /api/order/create/route.js
-
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
 import Promo from "@/models/Promo";
@@ -491,18 +490,25 @@ export async function POST(request) {
         vnp_ExpireDate,
       };
 
+      // Hàm encode giống /api/vnpay/create-payment
+      const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
+
       const sortedKeys = Object.keys(vnp_Params).sort();
       const signData = sortedKeys
-        .map((key) => `${key}=${encodeURIComponent(vnp_Params[key])}`)
+        .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
         .join("&");
+      console.log("🔑 VNPAY Sign Data:", signData);
 
       const secureHash = crypto
         .createHmac("sha512", vnp_HashSecret)
         .update(signData, "utf8")
         .digest("hex");
+      console.log("🔒 VNPAY Generated Hash:", secureHash);
 
       vnp_Params.vnp_SecureHash = secureHash;
-      vnpayUrl = `${vnp_Url}?${new URLSearchParams(vnp_Params).toString()}`;
+      vnpayUrl = `${vnp_Url}?${sortedKeys
+        .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
+        .join("&")}&vnp_SecureHash=${secureHash}`;
     }
 
     return NextResponse.json({
