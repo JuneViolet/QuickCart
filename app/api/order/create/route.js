@@ -281,7 +281,8 @@
 //     );
 //   }
 // }
-//api/order/create/route.js
+// /api/order/create/route.js
+
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
 import Promo from "@/models/Promo";
@@ -291,6 +292,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import crypto from "crypto";
+import moment from "moment-timezone";
 import { inngest } from "@/config/inngest";
 
 export async function POST(request) {
@@ -301,7 +303,6 @@ export async function POST(request) {
     const { address, items, promoCode, trackingCode, paymentMethod } =
       await request.json();
 
-    // 1. Kiểm tra user
     if (!userId) {
       return NextResponse.json(
         { success: false, message: "Chưa đăng nhập" },
@@ -309,7 +310,6 @@ export async function POST(request) {
       );
     }
 
-    // 2. Kiểm tra dữ liệu cơ bản
     if (
       !trackingCode ||
       typeof trackingCode !== "string" ||
@@ -325,7 +325,6 @@ export async function POST(request) {
       );
     }
 
-    // 3. Kiểm tra address
     if (!mongoose.Types.ObjectId.isValid(address)) {
       return NextResponse.json(
         { success: false, message: "Địa chỉ không hợp lệ" },
@@ -333,7 +332,6 @@ export async function POST(request) {
       );
     }
 
-    // 4. Kiểm tra trùng trackingCode
     const existing = await Order.findOne({ trackingCode });
     if (existing) {
       return NextResponse.json(
@@ -342,7 +340,6 @@ export async function POST(request) {
       );
     }
 
-    // 5. Xử lý giỏ hàng
     let subtotal = 0;
     const updatedItems = [];
 
@@ -387,7 +384,6 @@ export async function POST(request) {
       });
     }
 
-    // 6. Áp dụng mã giảm giá (nếu có)
     let calculatedDiscount = 0;
     if (promoCode) {
       const promo = await Promo.findOne({
@@ -415,7 +411,6 @@ export async function POST(request) {
       calculatedDiscount = Math.min(calculatedDiscount, subtotal);
     }
 
-    // 7. Tính tổng đơn hàng
     const tax = Math.floor(subtotal * 0.02);
     const finalAmount = Math.max(
       0,
@@ -424,7 +419,6 @@ export async function POST(request) {
     const orderDate = new Date();
     const orderId = new mongoose.Types.ObjectId();
 
-    // 8. Tạo đơn hàng
     const order = await Order.create({
       _id: orderId,
       userId,
@@ -436,7 +430,6 @@ export async function POST(request) {
       date: orderDate,
     });
 
-    // 9. Gửi event tới inngest
     await inngest.send({
       name: "order/created",
       id: `order-created-${orderId}`,
@@ -454,7 +447,6 @@ export async function POST(request) {
       },
     });
 
-    // 10. Cập nhật tồn kho (chỉ nếu COD)
     if (paymentMethod === "cod") {
       const bulkOps = updatedItems.map((item) => ({
         updateOne: {
@@ -465,7 +457,6 @@ export async function POST(request) {
       await Variant.bulkWrite(bulkOps);
     }
 
-    // 11. Nếu thanh toán qua VNPAY => tạo URL
     let vnpayUrl = null;
     if (paymentMethod === "vnpay") {
       const vnp_TmnCode = process.env.VNP_TMN_CODE;
@@ -477,15 +468,12 @@ export async function POST(request) {
         throw new Error("Thiếu cấu hình VNPAY trong .env");
       }
 
-      const createDate = new Date();
-      const vnp_CreateDate = createDate
-        .toISOString()
-        .replace(/[-:.TZ]/g, "")
-        .slice(0, 14);
-      const vnp_ExpireDate = new Date(createDate.getTime() + 15 * 60000)
-        .toISOString()
-        .replace(/[-:.TZ]/g, "")
-        .slice(0, 14);
+      const now = moment().tz("Asia/Ho_Chi_Minh");
+      const vnp_CreateDate = now.format("YYYYMMDDHHmmss");
+      const vnp_ExpireDate = now
+        .clone()
+        .add(15, "minutes")
+        .format("YYYYMMDDHHmmss");
 
       const vnp_Params = {
         vnp_Version: "2.1.0",
@@ -517,7 +505,6 @@ export async function POST(request) {
       vnpayUrl = `${vnp_Url}?${new URLSearchParams(vnp_Params).toString()}`;
     }
 
-    // 12. Trả kết quả
     return NextResponse.json({
       success: true,
       message: "Đặt hàng thành công",
