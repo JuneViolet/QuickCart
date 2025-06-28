@@ -284,15 +284,14 @@
 //api/order/create/route.js
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
-import User from "@/models/User";
 import Promo from "@/models/Promo";
 import Order from "@/models/Order";
+import Variant from "@/models/Variants";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { inngest } from "@/config/inngest";
-import Variant from "@/models/Variants";
 import crypto from "crypto";
+import { inngest } from "@/config/inngest";
 
 export async function POST(request) {
   await connectDB();
@@ -302,107 +301,113 @@ export async function POST(request) {
     const { address, items, promoCode, trackingCode, paymentMethod } =
       await request.json();
 
+    // 1. Kiểm tra user
     if (!userId) {
       return NextResponse.json(
-        { success: false, message: "User not authenticated" },
+        { success: false, message: "Chưa đăng nhập" },
         { status: 401 }
       );
     }
 
-    if (!address || !items || items.length === 0) {
+    // 2. Kiểm tra dữ liệu cơ bản
+    if (
+      !trackingCode ||
+      typeof trackingCode !== "string" ||
+      trackingCode.trim() === "" ||
+      !address ||
+      !items ||
+      !Array.isArray(items) ||
+      items.length === 0
+    ) {
       return NextResponse.json(
-        { success: false, message: "Invalid data" },
+        { success: false, message: "Dữ liệu đơn hàng không hợp lệ" },
         { status: 400 }
       );
     }
 
+    // 3. Kiểm tra address
     if (!mongoose.Types.ObjectId.isValid(address)) {
       return NextResponse.json(
-        { success: false, message: `Invalid address ID: ${address}` },
+        { success: false, message: "Địa chỉ không hợp lệ" },
         { status: 400 }
       );
     }
 
-    if (!trackingCode) {
+    // 4. Kiểm tra trùng trackingCode
+    const existing = await Order.findOne({ trackingCode });
+    if (existing) {
       return NextResponse.json(
-        { success: false, message: "Tracking code is required" },
+        { success: false, message: "Mã đơn hàng đã tồn tại" },
         { status: 400 }
       );
     }
 
-    const existingOrder = await Order.findOne({ trackingCode });
-    if (existingOrder) {
-      return NextResponse.json(
-        { success: false, message: "Tracking code already exists" },
-        { status: 400 }
-      );
-    }
-
+    // 5. Xử lý giỏ hàng
     let subtotal = 0;
     const updatedItems = [];
 
     for (const item of items) {
-      const productId = item.product;
-      const variantId = item.variantId;
+      const { product, variantId, quantity } = item;
 
       if (
-        !mongoose.Types.ObjectId.isValid(productId) ||
-        !mongoose.Types.ObjectId.isValid(variantId)
+        !mongoose.Types.ObjectId.isValid(product) ||
+        !mongoose.Types.ObjectId.isValid(variantId) ||
+        quantity <= 0
       ) {
         return NextResponse.json(
-          { success: false, message: `Invalid product ID or variant ID` },
+          { success: false, message: "Sản phẩm không hợp lệ" },
           { status: 400 }
         );
       }
 
-      const product = await Product.findById(productId);
-      if (!product) {
+      const foundProduct = await Product.findById(product);
+      const foundVariant = await Variant.findById(variantId);
+
+      if (!foundProduct || !foundVariant) {
         return NextResponse.json(
-          { success: false, message: `Product not found` },
+          { success: false, message: "Không tìm thấy sản phẩm/phiên bản" },
           { status: 404 }
         );
       }
 
-      const variant = await Variant.findById(variantId);
-      if (!variant || variant.productId.toString() !== productId) {
+      if (foundVariant.stock < quantity) {
         return NextResponse.json(
-          { success: false, message: `Variant not found or not match product` },
+          { success: false, message: "Phiên bản không đủ hàng" },
           { status: 400 }
         );
       }
 
-      if (variant.stock < item.quantity) {
-        return NextResponse.json(
-          { success: false, message: `Not enough stock for variant` },
-          { status: 400 }
-        );
-      }
-
-      subtotal += variant.offerPrice * item.quantity;
+      subtotal += foundVariant.offerPrice * quantity;
       updatedItems.push({
-        product: new mongoose.Types.ObjectId(productId),
+        product: new mongoose.Types.ObjectId(product),
         variantId: new mongoose.Types.ObjectId(variantId),
-        quantity: item.quantity,
-        brand: product.brand,
-        sku: variant.sku,
+        quantity,
+        brand: foundProduct.brand,
+        sku: foundVariant.sku,
       });
     }
 
+    // 6. Áp dụng mã giảm giá (nếu có)
     let calculatedDiscount = 0;
     if (promoCode) {
       const promo = await Promo.findOne({
         code: promoCode.toUpperCase(),
         isActive: true,
       });
+
       if (
         !promo ||
         (promo.expiresAt && new Date(promo.expiresAt) < new Date())
       ) {
         return NextResponse.json(
-          { success: false, message: "Promo code invalid or expired" },
+          {
+            success: false,
+            message: "Mã giảm giá không hợp lệ hoặc đã hết hạn",
+          },
           { status: 400 }
         );
       }
+
       calculatedDiscount =
         promo.discountType === "percentage"
           ? (subtotal * promo.discount) / 100
@@ -410,11 +415,16 @@ export async function POST(request) {
       calculatedDiscount = Math.min(calculatedDiscount, subtotal);
     }
 
-    const tax = Math.floor(subtotal * 0.02); // Làm tròn thuế
-    const finalAmount = Math.floor(subtotal + tax - calculatedDiscount); // Làm tròn tổng
-    const orderDate = Date.now();
+    // 7. Tính tổng đơn hàng
+    const tax = Math.floor(subtotal * 0.02);
+    const finalAmount = Math.max(
+      0,
+      Math.floor(subtotal + tax - calculatedDiscount)
+    );
+    const orderDate = new Date();
     const orderId = new mongoose.Types.ObjectId();
 
+    // 8. Tạo đơn hàng
     const order = await Order.create({
       _id: orderId,
       userId,
@@ -426,38 +436,36 @@ export async function POST(request) {
       date: orderDate,
     });
 
+    // 9. Gửi event tới inngest
     await inngest.send({
       name: "order/created",
-      id: `order-created-${orderId.toString()}`,
+      id: `order-created-${orderId}`,
       data: {
         orderId,
         userId,
-        address: new mongoose.Types.ObjectId(address),
+        address,
         items: updatedItems,
         subtotal,
         tax,
         discount: calculatedDiscount,
         amount: finalAmount,
-        date: orderDate,
         trackingCode,
+        date: orderDate,
       },
     });
 
-    const user = await User.findById(userId);
-    if (user) {
-      user.cartItems = [];
-      await user.save();
+    // 10. Cập nhật tồn kho (chỉ nếu COD)
+    if (paymentMethod === "cod") {
+      const bulkOps = updatedItems.map((item) => ({
+        updateOne: {
+          filter: { _id: item.variantId },
+          update: { $inc: { stock: -item.quantity } },
+        },
+      }));
+      await Variant.bulkWrite(bulkOps);
     }
 
-    const bulkOps = updatedItems.map((item) => ({
-      updateOne: {
-        filter: { _id: item.variantId },
-        update: { $inc: { stock: -item.quantity } },
-      },
-    }));
-    await Variant.bulkWrite(bulkOps);
-
-    // ===== VNPAY PAYMENT INTEGRATION =====
+    // 11. Nếu thanh toán qua VNPAY => tạo URL
     let vnpayUrl = null;
     if (paymentMethod === "vnpay") {
       const vnp_TmnCode = process.env.VNP_TMN_CODE;
@@ -466,19 +474,17 @@ export async function POST(request) {
       const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
 
       if (!vnp_TmnCode || !vnp_HashSecret || !vnp_Url || !vnp_ReturnUrl) {
-        throw new Error("Missing VNPAY configuration in .env");
+        throw new Error("Thiếu cấu hình VNPAY trong .env");
       }
 
-      const currentDate = new Date();
-      const vnp_CreateDate = currentDate
+      const createDate = new Date();
+      const vnp_CreateDate = createDate
         .toISOString()
-        .replace(/[-:]/g, "")
-        .replace("T", "")
+        .replace(/[-:.TZ]/g, "")
         .slice(0, 14);
-      const vnp_ExpireDate = new Date(currentDate.getTime() + 15 * 60000) // 15 phút
+      const vnp_ExpireDate = new Date(createDate.getTime() + 15 * 60000)
         .toISOString()
-        .replace(/[-:]/g, "")
-        .replace("T", "")
+        .replace(/[-:.TZ]/g, "")
         .slice(0, 14);
 
       const vnp_Params = {
@@ -488,9 +494,9 @@ export async function POST(request) {
         vnp_Locale: "vn",
         vnp_CurrCode: "VND",
         vnp_TxnRef: trackingCode,
-        vnp_OrderInfo: `Thanh toán đơn hàng từ QuickCart`,
+        vnp_OrderInfo: "Thanh toán đơn hàng từ QuickCart",
         vnp_OrderType: "other",
-        vnp_Amount: Math.floor(finalAmount) * 100, // Làm tròn trước khi nhân 100
+        vnp_Amount: finalAmount * 100,
         vnp_ReturnUrl,
         vnp_IpAddr: request.headers.get("x-forwarded-for") || "127.0.0.1",
         vnp_CreateDate,
@@ -511,20 +517,21 @@ export async function POST(request) {
       vnpayUrl = `${vnp_Url}?${new URLSearchParams(vnp_Params).toString()}`;
     }
 
+    // 12. Trả kết quả
     return NextResponse.json({
       success: true,
       message: "Đặt hàng thành công",
       order: {
-        id: orderId,
+        id: order._id,
         amount: finalAmount,
         trackingCode,
         vnpayUrl,
       },
     });
   } catch (error) {
-    console.error("🔥 Order creation error:", error);
+    console.error("❌ Order creation error:", error);
     return NextResponse.json(
-      { success: false, message: "Lỗi server, thử lại sau." },
+      { success: false, message: "Lỗi server: " + error.message },
       { status: 500 }
     );
   }
