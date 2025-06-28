@@ -281,6 +281,7 @@
 //     );
 //   }
 // }
+//api/order/create/route.js
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
 import User from "@/models/User";
