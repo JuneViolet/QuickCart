@@ -85,13 +85,11 @@
 
 // export default Order;
 import mongoose from "mongoose";
-import Address from "./Address";
 
 const orderSchema = new mongoose.Schema({
   userId: {
-    type: String, // Giả sử dùng String từ Clerk, nếu dùng ObjectId thì thay bằng mongoose.Schema.Types.ObjectId
+    type: String,
     required: true,
-    // Nếu dùng ObjectId, thêm: ref: "User"
   },
   items: [
     {
@@ -116,7 +114,7 @@ const orderSchema = new mongoose.Schema({
     ref: "Address",
     required: true,
   },
-  trackingCode: { type: String, required: true, unique: true },
+  trackingCode: { type: String, required: true, unique: true }, // ✅ giữ lại unique ở đây
   status: {
     type: String,
     enum: ["pending", "confirmed", "shipped", "delivered", "canceled"],
@@ -125,8 +123,8 @@ const orderSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now, required: true },
 });
 
-// Thêm index unique cho trackingCode
-orderSchema.index({ trackingCode: 1 }, { unique: true });
+// ❌ XÓA dòng index bên dưới vì đã có unique ở trackingCode
+// orderSchema.index({ trackingCode: 1 }, { unique: true });
 
 let Order;
 try {
