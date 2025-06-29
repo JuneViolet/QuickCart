@@ -281,12 +281,12 @@
 //     );
 //   }
 // }
-// /api/order/create/route.js
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
 import Promo from "@/models/Promo";
 import Order from "@/models/Order";
 import Variant from "@/models/Variants";
+import Address from "@/models/Address";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
@@ -311,8 +311,6 @@ export async function POST(request) {
 
     if (
       !trackingCode ||
-      typeof trackingCode !== "string" ||
-      trackingCode.trim() === "" ||
       !address ||
       !items ||
       !Array.isArray(items) ||
@@ -336,6 +334,15 @@ export async function POST(request) {
       return NextResponse.json(
         { success: false, message: "Mã đơn hàng đã tồn tại" },
         { status: 400 }
+      );
+    }
+
+    // ✅ Lấy địa chỉ chi tiết
+    const fullAddress = await Address.findById(address);
+    if (!fullAddress) {
+      return NextResponse.json(
+        { success: false, message: "Không tìm thấy địa chỉ" },
+        { status: 404 }
       );
     }
 
@@ -429,6 +436,7 @@ export async function POST(request) {
 
     const orderId = order._id;
 
+    // Gửi event
     await inngest.send({
       name: "order/created",
       id: `order-created-${orderId}`,
@@ -446,6 +454,7 @@ export async function POST(request) {
       },
     });
 
+    // Trừ hàng nếu COD
     if (paymentMethod === "cod") {
       const bulkOps = updatedItems.map((item) => ({
         updateOne: {
@@ -456,6 +465,61 @@ export async function POST(request) {
       await Variant.bulkWrite(bulkOps);
     }
 
+    // Tạo đơn hàng trên GHTK nếu là COD
+    if (paymentMethod === "cod") {
+      try {
+        const ghtkPayload = {
+          order: {
+            id: trackingCode,
+            pick_name: "QuickCart Shop",
+            pick_address: "123 Đường ABC",
+            pick_province: "Hồ Chí Minh",
+            pick_district: "Quận 1",
+            pick_tel: "0900000000",
+
+            name: fullAddress.fullName,
+            address: fullAddress.area,
+            province: fullAddress.city,
+            district: fullAddress.state,
+            ward: fullAddress.ward,
+            hamlet: "Khác",
+            tel: fullAddress.phoneNumber,
+
+            is_freeship: "1",
+            pick_option: "cod",
+            note: "Giao hàng nhanh",
+            transport: "road",
+            value: finalAmount,
+            pick_money: finalAmount, // 🔥 THÊM DÒNG NÀY
+
+            products: updatedItems.map((item) => ({
+              name: item.sku,
+              weight: 500,
+              quantity: item.quantity,
+            })),
+          },
+        };
+
+        const ghtkRes = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/ghtk`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "createOrder",
+              payload: ghtkPayload,
+            }),
+          }
+        );
+
+        const ghtkData = await ghtkRes.json();
+        console.log("📦 GHTK response:", ghtkData);
+      } catch (err) {
+        console.error("❌ GHTK error:", err.message);
+      }
+    }
+
+    // Nếu thanh toán qua VNPAY
     let vnpayUrl = null;
     if (paymentMethod === "vnpay") {
       const vnp_TmnCode = process.env.VNP_TMN_CODE;
@@ -491,20 +555,17 @@ export async function POST(request) {
       };
 
       const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
-
       const sortedKeys = Object.keys(vnp_Params).sort();
       const signData = sortedKeys
         .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
         .join("&");
-      console.log("🔑 VNPAY Sign Data:", signData);
 
       const secureHash = crypto
         .createHmac("sha512", vnp_HashSecret)
         .update(signData, "utf8")
         .digest("hex");
-      console.log("🔒 VNPAY Generated Hash:", secureHash);
-
       vnp_Params.vnp_SecureHash = secureHash;
+
       vnpayUrl = `${vnp_Url}?${sortedKeys
         .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
         .join("&")}&vnp_SecureHash=${secureHash}`;

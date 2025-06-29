@@ -136,6 +136,7 @@ const GHTK_API_TOKEN =
 const callGhtkApi = async (endpoint, method, data) => {
   try {
     console.log("Calling GHTK API with token:", GHTK_API_TOKEN);
+    console.log("📤 GHTK Request Data:", JSON.stringify(data, null, 2));
     const response = await axios({
       method,
       url: `${GHTK_API_URL}${endpoint}`,
@@ -171,13 +172,35 @@ export async function POST(request) {
         endpoint = "/services/shipment/order";
         method = "POST";
         data = payload;
-        break;
+        const result = await callGhtkApi(endpoint, method, data);
+        if (result.success && result.order) {
+          return NextResponse.json({
+            success: true,
+            data: result,
+            message: "Order created successfully",
+          });
+        } else {
+          return NextResponse.json(
+            {
+              success: false,
+              message: result.message || "Failed to create order with GHTK",
+            },
+            { status: 400 }
+          );
+        }
       case "calculateFee":
         endpoint = "/services/shipment/fee";
         method = "POST";
         data = payload;
         break;
       case "trackOrder":
+        if (!payload.trackingCode || typeof payload.trackingCode !== "string") {
+          return NextResponse.json(
+            { success: false, message: "Invalid trackingCode" },
+            { status: 400 }
+          );
+        }
+        console.log("Tracking order with trackingCode:", payload.trackingCode);
         endpoint = `/services/shipment/v2/${payload.trackingCode}`;
         method = "GET";
         data = {};
@@ -247,7 +270,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("GHTK Error:", error.message);
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: `GHTK Error: ${error.message}` },
       { status: 500 }
     );
   }
