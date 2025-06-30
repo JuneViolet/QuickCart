@@ -281,13 +281,13 @@
 //     );
 //   }
 // }
-// /api/order/create
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
 import Promo from "@/models/Promo";
 import Order from "@/models/Order";
 import Variant from "@/models/Variants";
 import Address from "@/models/Address";
+import Specification from "@/models/Specification"; // Import Specification
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
@@ -363,7 +363,9 @@ export async function POST(request) {
         );
       }
 
-      const foundProduct = await Product.findById(product);
+      const foundProduct = await Product.findById(product).populate(
+        "specifications"
+      );
       const foundVariant = await Variant.findById(variantId);
 
       if (!foundProduct || !foundVariant) {
@@ -380,6 +382,12 @@ export async function POST(request) {
         );
       }
 
+      // Lấy weight từ specifications của Product
+      const weightSpec =
+        foundProduct.specifications.find((spec) => spec.key === "Trọng lượng")
+          ?.value || "500g";
+      const weight = parseFloat(weightSpec.replace("g", "")) || 500; // Chuyển sang gram, mặc định 500g
+
       subtotal += foundVariant.offerPrice * quantity;
       updatedItems.push({
         product: new mongoose.Types.ObjectId(product),
@@ -387,7 +395,7 @@ export async function POST(request) {
         quantity,
         brand: foundProduct.brand,
         sku: foundVariant.sku,
-        weight: foundVariant.weight || 500, // ✅ thêm weight nếu có, mặc định 500g
+        weight, // Sử dụng weight từ Product
       });
     }
 
@@ -462,50 +470,47 @@ export async function POST(request) {
         },
       }));
       await Variant.bulkWrite(bulkOps);
-    }
 
-    // ✅ GHTK: thêm order.weight tổng
-    if (paymentMethod === "cod") {
+      const totalWeight = updatedItems.reduce(
+        (sum, item) => sum + item.weight * item.quantity,
+        0
+      );
+
+      const ghtkPayload = {
+        id: trackingCode,
+        pick_name: "QuickCart Shop",
+        pick_address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
+        pick_province: "TP. Hồ Chí Minh",
+        pick_district: "Quận 1",
+        pick_ward: "Phường Bến Nghé",
+        pick_tel: "0900000000",
+        name: fullAddress.fullName,
+        address: fullAddress.area,
+        province: fullAddress.city,
+        district: fullAddress.state,
+        ward: fullAddress.ward,
+        tel: fullAddress.phoneNumber,
+        is_freeship: "0",
+        pick_option: "cod",
+        note: "Giao hàng nhanh",
+        transport: "road",
+        value: finalAmount,
+        weight: totalWeight,
+        products: updatedItems.map((item) => ({
+          name: item.sku,
+          weight: item.weight,
+          quantity: item.quantity,
+          product_code: item.sku,
+        })),
+      };
+
+      console.log(
+        "📤 GHTK createOrder payload:",
+        JSON.stringify(ghtkPayload, null, 2)
+      );
       try {
-        const totalWeight = updatedItems.reduce(
-          (total, item) => total + item.weight * item.quantity,
-          0
-        );
-
-        const ghtkPayload = {
-          order: {
-            id: trackingCode,
-            pick_name: "QuickCart Shop",
-            pick_address: "123 Đường ABC",
-            pick_province: "Hồ Chí Minh",
-            pick_district: "Quận 1",
-            pick_tel: "0900000000",
-
-            name: fullAddress.fullName,
-            address: fullAddress.area,
-            province: fullAddress.city,
-            district: fullAddress.state,
-            ward: fullAddress.ward,
-            hamlet: "Khác",
-            tel: fullAddress.phoneNumber,
-
-            is_freeship: "1",
-            pick_option: "cod",
-            note: "Giao hàng nhanh",
-            transport: "road",
-            value: finalAmount,
-            pick_money: finalAmount,
-            weight: totalWeight, // ✅ bắt buộc
-
-            products: updatedItems.map((item) => ({
-              name: item.sku,
-              weight: item.weight,
-              quantity: item.quantity,
-            })),
-          },
-        };
-
         const ghtkRes = await fetch(`${process.env.BASE_URL}/api/ghtk`, {
+          // Sử dụng BASE_URL
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -515,13 +520,19 @@ export async function POST(request) {
         });
 
         const ghtkData = await ghtkRes.json();
-        console.log("📦 GHTK response:", ghtkData);
+        if (!ghtkData.success) {
+          console.error("❌ GHTK createOrder failed:", ghtkData.message);
+          await Order.findByIdAndUpdate(orderId, { status: "ghtk_failed" });
+          throw new Error("GHTK order creation failed");
+        }
+        console.log("📦 GHTK createOrder response:", ghtkData);
       } catch (err) {
         console.error("❌ GHTK error:", err.message);
+        await Order.findByIdAndUpdate(orderId, { status: "ghtk_failed" });
+        throw err;
       }
     }
 
-    // ✅ VNPAY
     let vnpayUrl = null;
     if (paymentMethod === "vnpay") {
       const vnp_TmnCode = process.env.VNP_TMN_CODE;
