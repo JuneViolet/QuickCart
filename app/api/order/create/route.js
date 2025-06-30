@@ -287,7 +287,7 @@ import Promo from "@/models/Promo";
 import Order from "@/models/Order";
 import Variant from "@/models/Variants";
 import Address from "@/models/Address";
-import Specification from "@/models/Specification"; // Import Specification
+import Specification from "@/models/Specification";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
@@ -419,22 +419,36 @@ export async function POST(request) {
           ?.value?.trim() || "50g";
 
       let weight = 50;
-
       if (weightSpec.toLowerCase().includes("kg")) {
         const kgValue = parseFloat(
           weightSpec.toLowerCase().replace("kg", "").trim()
         );
-        weight = Math.round(kgValue * 1000); // chuyển từ kg sang gram và làm tròn
+        weight = Math.round(kgValue * 1000); // Chuyển từ kg sang gram
       } else if (weightSpec.toLowerCase().includes("g")) {
         const gValue = parseFloat(
           weightSpec.toLowerCase().replace("g", "").trim()
         );
-        weight = Math.round(gValue); // làm tròn gram
+        weight = Math.round(gValue); // Làm tròn gram
       } else {
         const rawValue = parseFloat(weightSpec);
         weight = isNaN(rawValue) ? 50 : Math.round(rawValue);
       }
+
+      // Gán giá trị vào updatedItems
+      subtotal += foundVariant.offerPrice * quantity;
+      updatedItems.push({
+        product: new mongoose.Types.ObjectId(product),
+        variantId: new mongoose.Types.ObjectId(variantId),
+        quantity,
+        brand: foundProduct.brand,
+        sku: foundVariant.sku,
+        weight,
+        offerPrice: foundVariant.offerPrice, // Thêm để debug
+      });
     }
+
+    console.log("Debug subtotal:", subtotal);
+    console.log("Debug updatedItems:", updatedItems);
 
     let calculatedDiscount = 0;
     if (promoCode) {
@@ -545,8 +559,8 @@ export async function POST(request) {
             product_code: item.sku,
           })),
         },
-        deliver_option: "none", // Bạn có thể giữ lại nếu muốn
-        service_type_id: 1, // Quan trọng: phải đặt ngoài `order`
+        deliver_option: "none",
+        service_type_id: 1,
       };
 
       console.log(
