@@ -500,17 +500,14 @@ export async function POST(request) {
           },
         };
 
-        const ghtkRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/ghtk`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "createOrder",
-              payload: ghtkPayload,
-            }),
-          }
-        );
+        const ghtkRes = await fetch(`${process.env.BASE_URL}/api/ghtk`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "createOrder",
+            payload: ghtkPayload,
+          }),
+        });
 
         const ghtkData = await ghtkRes.json();
         console.log("📦 GHTK response:", ghtkData);
