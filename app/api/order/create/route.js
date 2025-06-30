@@ -414,19 +414,26 @@ export async function POST(request) {
       }
 
       const weightSpec =
-        foundProduct.specifications.find((spec) => spec.key === "Trọng lượng")
-          ?.value || "50g";
-      const weight = parseFloat(weightSpec.replace("g", "")) || 50;
+        foundProduct.specifications
+          .find((spec) => spec.key === "Trọng lượng")
+          ?.value?.trim() || "50g";
 
-      subtotal += foundVariant.offerPrice * quantity;
-      updatedItems.push({
-        product: new mongoose.Types.ObjectId(product),
-        variantId: new mongoose.Types.ObjectId(variantId),
-        quantity,
-        brand: foundProduct.brand,
-        sku: foundVariant.sku,
-        weight,
-      });
+      let weight = 50;
+
+      if (weightSpec.toLowerCase().includes("kg")) {
+        const kgValue = parseFloat(
+          weightSpec.toLowerCase().replace("kg", "").trim()
+        );
+        weight = Math.round(kgValue * 1000); // chuyển từ kg sang gram và làm tròn
+      } else if (weightSpec.toLowerCase().includes("g")) {
+        const gValue = parseFloat(
+          weightSpec.toLowerCase().replace("g", "").trim()
+        );
+        weight = Math.round(gValue); // làm tròn gram
+      } else {
+        const rawValue = parseFloat(weightSpec);
+        weight = isNaN(rawValue) ? 50 : Math.round(rawValue);
+      }
     }
 
     let calculatedDiscount = 0;
