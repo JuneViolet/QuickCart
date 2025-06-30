@@ -112,61 +112,8 @@ export async function GET(request) {
     );
   }
 }
-// export async function GET(request) {
-//   try {
-//     const { userId } = getAuth(request);
-//     if (!userId) {
-//       return NextResponse.json(
-//         { success: false, message: "Unauthorized" },
-//         { status: 401 }
-//       );
-//     }
 
-//     await connectDB();
-//     const cart = await Cart.findOne({ userId })
-//       .populate("items.productId")
-//       .populate({
-//         path: "items.variantId",
-//         select: "offerPrice price stock image attributeRefs",
-//         populate: {
-//           path: "attributeRefs.attributeId",
-//           model: "Attribute",
-//           select: "name values",
-//         },
-//       });
-//     console.log("Fetched Cart:", cart);
 
-//     if (!cart) {
-//       return NextResponse.json(
-//         { success: true, cartItems: {} },
-//         { status: 200 }
-//       );
-//     }
-
-//     const cartItems = cart.items.reduce((obj, item) => {
-//       if (item.productId && item.variantId) {
-//         const key = `${item.productId._id.toString()}_${item.variantId._id.toString()}`;
-//         obj[key] = {
-//           productId: item.productId._id.toString(),
-//           variantId: item.variantId._id.toString(),
-//           quantity: item.quantity,
-//           name: item.productId.name,
-//           price: item.variantId.offerPrice || item.productId.offerPrice || 0,
-//           image: item.productId.images[0] || item.variantId.image || "",
-//         };
-//       }
-//       return obj;
-//     }, {});
-
-//     return NextResponse.json({ success: true, cartItems });
-//   } catch (error) {
-//     console.error("Get Cart Error:", error.message);
-//     return NextResponse.json(
-//       { success: false, message: "Server error: " + error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
 
 export async function POST(request) {
   try {
