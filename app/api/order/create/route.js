@@ -485,7 +485,7 @@ export async function POST(request) {
           })),
         },
         deliver_option: "none",
-        service_type_id: 2,
+        service_type_id: 1,
       };
 
       const ghtkRes = await fetch(`${process.env.BASE_URL}/api/ghtk`, {
@@ -493,7 +493,11 @@ export async function POST(request) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "createOrder",
-          payload: ghtkPayload,
+          payload: {
+            order: ghtkPayload,
+            deliver_option: "none",
+            service_type_id: 1,
+          },
         }),
       });
 
