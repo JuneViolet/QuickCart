@@ -385,8 +385,8 @@ export async function POST(request) {
       // Lấy weight từ specifications của Product
       const weightSpec =
         foundProduct.specifications.find((spec) => spec.key === "Trọng lượng")
-          ?.value || "500g";
-      const weight = parseFloat(weightSpec.replace("g", "")) || 500; // Chuyển sang gram, mặc định 500g
+          ?.value || "50g"; // Mặc định 50g
+      const weight = parseFloat(weightSpec.replace("g", "")) || 50; // Chuyển sang gram
 
       subtotal += foundVariant.offerPrice * quantity;
       updatedItems.push({
@@ -395,7 +395,7 @@ export async function POST(request) {
         quantity,
         brand: foundProduct.brand,
         sku: foundVariant.sku,
-        weight, // Sử dụng weight từ Product
+        weight,
       });
     }
 
@@ -495,6 +495,7 @@ export async function POST(request) {
         note: "Giao hàng nhanh",
         transport: "road",
         value: finalAmount,
+        pick_money: finalAmount, // Thêm để khớp với COD
         weight: totalWeight,
         products: updatedItems.map((item) => ({
           name: item.sku,
@@ -502,6 +503,8 @@ export async function POST(request) {
           quantity: item.quantity,
           product_code: item.sku,
         })),
+        // Thêm service_type nếu cần
+        // service_type: "standard", // Bỏ comment nếu muốn thử dịch vụ chuẩn
       };
 
       console.log(
@@ -510,7 +513,6 @@ export async function POST(request) {
       );
       try {
         const ghtkRes = await fetch(`${process.env.BASE_URL}/api/ghtk`, {
-          // Sử dụng BASE_URL
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
