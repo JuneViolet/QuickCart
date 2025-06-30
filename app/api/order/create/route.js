@@ -428,13 +428,12 @@ export async function POST(request) {
         const gValue = parseFloat(
           weightSpec.toLowerCase().replace("g", "").trim()
         );
-        weight = Math.round(gValue); // Làm tròn gram
+        weight = Math.max(10, Math.round(gValue)); // Đảm bảo tối thiểu 10g
       } else {
         const rawValue = parseFloat(weightSpec);
-        weight = isNaN(rawValue) ? 50 : Math.round(rawValue);
+        weight = isNaN(rawValue) ? 50 : Math.max(10, Math.round(rawValue));
       }
 
-      // Gán giá trị vào updatedItems
       subtotal += foundVariant.offerPrice * quantity;
       updatedItems.push({
         product: new mongoose.Types.ObjectId(product),
@@ -443,7 +442,7 @@ export async function POST(request) {
         brand: foundProduct.brand,
         sku: foundVariant.sku,
         weight,
-        offerPrice: foundVariant.offerPrice, // Thêm để debug
+        offerPrice: foundVariant.offerPrice,
       });
     }
 
@@ -531,34 +530,32 @@ export async function POST(request) {
       );
 
       const ghtkPayload = {
-        order: {
-          id: trackingCode,
-          pick_name: "QuickCart Shop",
-          pick_address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
-          pick_province: "TP. Hồ Chí Minh",
-          pick_district: "Quận 1",
-          pick_ward: "Phường Bến Nghé",
-          pick_tel: "0900000000",
-          name: fullAddress.fullName,
-          address: fullAddress.area,
-          province: fullAddress.city,
-          district: fullAddress.state,
-          ward: fullAddress.ward,
-          tel: fullAddress.phoneNumber,
-          is_freeship: "0",
-          pick_option: "cod",
-          note: "Giao hàng nhanh",
-          transport: "road",
-          value: finalAmount,
-          pick_money: finalAmount,
-          weight: totalWeight,
-          products: updatedItems.map((item) => ({
-            name: item.sku,
-            weight: item.weight,
-            quantity: item.quantity,
-            product_code: item.sku,
-          })),
-        },
+        id: trackingCode, // Đưa ra ngoài order object
+        pick_name: "QuickCart Shop",
+        pick_address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
+        pick_province: "TP. Hồ Chí Minh",
+        pick_district: "Quận 1",
+        pick_ward: "Phường Bến Nghé",
+        pick_tel: "0900000000",
+        name: fullAddress.fullName,
+        address: fullAddress.area,
+        province: fullAddress.city,
+        district: fullAddress.state,
+        ward: fullAddress.ward,
+        tel: fullAddress.phoneNumber,
+        is_freeship: "0",
+        pick_option: "cod",
+        note: "Giao hàng nhanh",
+        transport: "road",
+        value: finalAmount,
+        pick_money: finalAmount,
+        weight: totalWeight, // Đưa weight ra ngoài
+        products: updatedItems.map((item) => ({
+          name: item.sku,
+          weight: item.weight,
+          quantity: item.quantity,
+          product_code: item.sku,
+        })),
         deliver_option: "none",
         service_type_id: 1,
       };
