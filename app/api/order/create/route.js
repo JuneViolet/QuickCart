@@ -529,6 +529,11 @@ export async function POST(request) {
         0
       );
 
+      const currentTime = moment().tz("Asia/Ho_Chi_Minh");
+      const pickupTime = currentTime
+        .add(48, "hours")
+        .format("YYYY-MM-DD HH:mm:ss"); // Thêm 48 giờ
+
       const ghtkPayload = {
         id: trackingCode,
         pick_name: "QuickCart Shop",
@@ -556,11 +561,9 @@ export async function POST(request) {
           quantity: item.quantity,
           product_code: item.sku,
         })),
-        service_type_id: 1,
-        pickup_time: moment()
-          .tz("Asia/Ho_Chi_Minh")
-          .format("YYYY-MM-DD HH:mm:ss"), // Thêm thời gian lấy hàng
-        // Loại bỏ deliver_option
+        deliver_option: "none", // Đặt rõ ràng không sử dụng xfast
+        pickup_time: pickupTime,
+        order_date: currentTime.format("YYYY-MM-DD HH:mm:ss"),
       };
 
       console.log(
