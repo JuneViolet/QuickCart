@@ -423,12 +423,12 @@ export async function POST(request) {
         const kgValue = parseFloat(
           weightSpec.toLowerCase().replace("kg", "").trim()
         );
-        weight = Math.round(kgValue * 1000); // Chuyển từ kg sang gram
+        weight = Math.max(10, Math.round(kgValue * 1000)); // Chuyển từ kg sang gram, tối thiểu 10g
       } else if (weightSpec.toLowerCase().includes("g")) {
         const gValue = parseFloat(
           weightSpec.toLowerCase().replace("g", "").trim()
         );
-        weight = Math.max(10, Math.round(gValue)); // Đảm bảo tối thiểu 10g
+        weight = Math.max(10, Math.round(gValue)); // Làm tròn gram, tối thiểu 10g
       } else {
         const rawValue = parseFloat(weightSpec);
         weight = isNaN(rawValue) ? 50 : Math.max(10, Math.round(rawValue));
@@ -530,7 +530,7 @@ export async function POST(request) {
       );
 
       const ghtkPayload = {
-        id: trackingCode, // Đưa ra ngoài order object
+        id: trackingCode,
         pick_name: "QuickCart Shop",
         pick_address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
         pick_province: "TP. Hồ Chí Minh",
@@ -549,15 +549,18 @@ export async function POST(request) {
         transport: "road",
         value: finalAmount,
         pick_money: finalAmount,
-        weight: totalWeight, // Đưa weight ra ngoài
+        weight: totalWeight,
         products: updatedItems.map((item) => ({
           name: item.sku,
           weight: item.weight,
           quantity: item.quantity,
           product_code: item.sku,
         })),
-        deliver_option: "none",
         service_type_id: 1,
+        pickup_time: moment()
+          .tz("Asia/Ho_Chi_Minh")
+          .format("YYYY-MM-DD HH:mm:ss"), // Thêm thời gian lấy hàng
+        // Loại bỏ deliver_option
       };
 
       console.log(
