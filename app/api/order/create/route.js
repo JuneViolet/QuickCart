@@ -531,8 +531,11 @@ export async function POST(request) {
 
       const currentTime = moment().tz("Asia/Ho_Chi_Minh");
       const pickupTime = currentTime
-        .add(48, "hours")
-        .format("YYYY-MM-DD HH:mm:ss"); // Thêm 48 giờ
+        .clone()
+        .add(1, "day")
+        .set({ hour: 8, minute: 0, second: 0 })
+        .format("YYYY-MM-DD HH:mm:ss"); // 8:00 AM ngày tiếp theo
+      const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
 
       const ghtkPayload = {
         id: trackingCode,
@@ -561,10 +564,10 @@ export async function POST(request) {
           quantity: item.quantity,
           product_code: item.sku,
         })),
-        service_type_id: 2,
-        deliver_option: "none", // Đặt rõ ràng không sử dụng xfast
+        service_type_id: 2, // Cần xác minh với GHTK
+        deliver_option: "none",
         pickup_time: pickupTime,
-        order_date: currentTime.format("YYYY-MM-DD HH:mm:ss"),
+        order_date: orderDateStr,
       };
 
       console.log(
@@ -572,14 +575,18 @@ export async function POST(request) {
         JSON.stringify(ghtkPayload, null, 2)
       );
       try {
-        const ghtkRes = await fetch(`${process.env.BASE_URL}/api/ghtk`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "createOrder",
-            payload: ghtkPayload,
-          }),
-        });
+        const ghtkRes = await fetch(
+          `${process.env.GHTK_API_URL}/services/shipment/order`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Token: process.env.GHTK_API_TOKEN,
+              // Bỏ X-Client-Source để thử nghiệm
+            },
+            body: JSON.stringify(ghtkPayload),
+          }
+        );
 
         const ghtkData = await ghtkRes.json();
         if (!ghtkData.success) {
