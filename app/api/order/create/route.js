@@ -565,7 +565,6 @@ export async function POST(request) {
           product_code: item.sku,
         })),
         service_type_id: 1, // Cần xác minh với GHTK
-        deliver_option: "none",
         pickup_time: pickupTime,
         order_date: orderDateStr,
       };
