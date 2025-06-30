@@ -561,6 +561,7 @@ export async function POST(request) {
           quantity: item.quantity,
           product_code: item.sku,
         })),
+        service_type_id: 2,
         deliver_option: "none", // Đặt rõ ràng không sử dụng xfast
         pickup_time: pickupTime,
         order_date: currentTime.format("YYYY-MM-DD HH:mm:ss"),
