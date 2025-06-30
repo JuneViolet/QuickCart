@@ -281,14 +281,13 @@
 //     );
 //   }
 // }
-// ✅ /api/order/create (đã sửa lỗi GHTK "EXPRESS")
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
 import Promo from "@/models/Promo";
 import Order from "@/models/Order";
 import Variant from "@/models/Variants";
 import Address from "@/models/Address";
-import Specification from "@/models/Specification";
+import Specification from "@/models/Specification"; // Import Specification
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
@@ -304,71 +303,115 @@ export async function POST(request) {
     const { address, items, promoCode, trackingCode, paymentMethod } =
       await request.json();
 
-    if (!userId)
+    console.log("📥 Received payload:", {
+      address,
+      items,
+      promoCode,
+      trackingCode,
+      paymentMethod,
+    });
+
+    if (!userId) {
+      console.log("❌ Error: Chưa đăng nhập");
       return NextResponse.json(
         { success: false, message: "Chưa đăng nhập" },
         { status: 401 }
       );
+    }
+
     if (
       !trackingCode ||
       !address ||
       !items ||
       !Array.isArray(items) ||
       items.length === 0
-    )
+    ) {
+      console.log("❌ Error: Dữ liệu đơn hàng không hợp lệ", {
+        trackingCode,
+        address,
+        items,
+      });
       return NextResponse.json(
         { success: false, message: "Dữ liệu đơn hàng không hợp lệ" },
         { status: 400 }
       );
-    if (!mongoose.Types.ObjectId.isValid(address))
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(address)) {
+      console.log("❌ Error: Địa chỉ không hợp lệ", { address });
       return NextResponse.json(
         { success: false, message: "Địa chỉ không hợp lệ" },
         { status: 400 }
       );
+    }
 
     const existing = await Order.findOne({ trackingCode });
-    if (existing)
+    if (existing) {
+      console.log("❌ Error: Mã đơn hàng đã tồn tại", { trackingCode });
       return NextResponse.json(
         { success: false, message: "Mã đơn hàng đã tồn tại" },
         { status: 400 }
       );
+    }
 
     const fullAddress = await Address.findById(address);
-    if (!fullAddress)
+    if (!fullAddress) {
+      console.log("❌ Error: Không tìm thấy địa chỉ", { address });
       return NextResponse.json(
         { success: false, message: "Không tìm thấy địa chỉ" },
         { status: 404 }
       );
+    }
 
     let subtotal = 0;
     const updatedItems = [];
 
     for (const item of items) {
       const { product, variantId, quantity } = item;
+
       if (
         !mongoose.Types.ObjectId.isValid(product) ||
         !mongoose.Types.ObjectId.isValid(variantId) ||
         quantity <= 0
-      )
+      ) {
+        console.log("❌ Error: Sản phẩm không hợp lệ", {
+          product,
+          variantId,
+          quantity,
+        });
         return NextResponse.json(
           { success: false, message: "Sản phẩm không hợp lệ" },
           { status: 400 }
         );
+      }
 
       const foundProduct = await Product.findById(product).populate(
         "specifications"
       );
       const foundVariant = await Variant.findById(variantId);
-      if (!foundProduct || !foundVariant)
+
+      if (!foundProduct || !foundVariant) {
+        console.log("❌ Error: Không tìm thấy sản phẩm/phiên bản", {
+          product,
+          variantId,
+        });
         return NextResponse.json(
           { success: false, message: "Không tìm thấy sản phẩm/phiên bản" },
           { status: 404 }
         );
-      if (foundVariant.stock < quantity)
+      }
+
+      if (foundVariant.stock < quantity) {
+        console.log("❌ Error: Phiên bản không đủ hàng", {
+          variantId,
+          stock: foundVariant.stock,
+          quantity,
+        });
         return NextResponse.json(
           { success: false, message: "Phiên bản không đủ hàng" },
           { status: 400 }
         );
+      }
 
       const weightSpec =
         foundProduct.specifications.find((spec) => spec.key === "Trọng lượng")
@@ -386,23 +429,37 @@ export async function POST(request) {
       });
     }
 
-    const tax = Math.floor(subtotal * 0.02);
-    const discount = await Promo.findOne({
-      code: promoCode?.toUpperCase(),
-      isActive: true,
-    });
     let calculatedDiscount = 0;
-    if (
-      discount &&
-      (!discount.expiresAt || new Date(discount.expiresAt) >= new Date())
-    ) {
+    if (promoCode) {
+      const promo = await Promo.findOne({
+        code: promoCode.toUpperCase(),
+        isActive: true,
+      });
+
+      if (
+        !promo ||
+        (promo.expiresAt && new Date(promo.expiresAt) < new Date())
+      ) {
+        console.log("❌ Error: Mã giảm giá không hợp lệ hoặc đã hết hạn", {
+          promoCode,
+        });
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Mã giảm giá không hợp lệ hoặc đã hết hạn",
+          },
+          { status: 400 }
+        );
+      }
+
       calculatedDiscount =
-        discount.discountType === "percentage"
-          ? (subtotal * discount.discount) / 100
-          : discount.discount;
+        promo.discountType === "percentage"
+          ? (subtotal * promo.discount) / 100
+          : promo.discount;
       calculatedDiscount = Math.min(calculatedDiscount, subtotal);
     }
 
+    const tax = Math.floor(subtotal * 0.02);
     const finalAmount = Math.max(
       0,
       Math.floor(subtotal + tax - calculatedDiscount)
@@ -420,6 +477,7 @@ export async function POST(request) {
     });
 
     const orderId = order._id;
+
     await inngest.send({
       name: "order/created",
       id: `order-created-${orderId}`,
@@ -438,14 +496,13 @@ export async function POST(request) {
     });
 
     if (paymentMethod === "cod") {
-      await Variant.bulkWrite(
-        updatedItems.map((item) => ({
-          updateOne: {
-            filter: { _id: item.variantId },
-            update: { $inc: { stock: -item.quantity } },
-          },
-        }))
-      );
+      const bulkOps = updatedItems.map((item) => ({
+        updateOne: {
+          filter: { _id: item.variantId },
+          update: { $inc: { stock: -item.quantity } },
+        },
+      }));
+      await Variant.bulkWrite(bulkOps);
 
       const totalWeight = updatedItems.reduce(
         (sum, item) => sum + item.weight * item.quantity,
@@ -453,79 +510,95 @@ export async function POST(request) {
       );
 
       const ghtkPayload = {
-        order: {
-          id: trackingCode,
-          pick_name: "QuickCart Shop",
-          pick_address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
-          pick_province: "TP. Hồ Chí Minh",
-          pick_district: "Quận 1",
-          pick_ward: "Phường Bến Nghé",
-          pick_tel: "0900000000",
-
-          name: fullAddress.fullName,
-          address: fullAddress.area,
-          province: fullAddress.city,
-          district: fullAddress.state,
-          ward: fullAddress.ward,
-          tel: fullAddress.phoneNumber,
-
-          is_freeship: "0",
-          pick_option: "cod",
-          note: "Giao hàng nhanh",
-          transport: "road",
-          value: finalAmount,
-          pick_money: finalAmount,
-          weight: totalWeight,
-
-          products: updatedItems.map((item) => ({
-            name: item.sku,
-            weight: item.weight,
-            quantity: item.quantity,
-            product_code: item.sku,
-          })),
-        },
-        deliver_option: "none",
-        service_type_id: 2,
+        id: trackingCode,
+        pick_name: "QuickCart Shop",
+        pick_address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
+        pick_province: "TP. Hồ Chí Minh",
+        pick_district: "Quận 1",
+        pick_ward: "Phường Bến Nghé",
+        pick_tel: "0900000000",
+        name: fullAddress.fullName,
+        address: fullAddress.area,
+        province: fullAddress.city,
+        district: fullAddress.state,
+        ward: fullAddress.ward,
+        tel: fullAddress.phoneNumber,
+        is_freeship: "0",
+        pick_option: "cod",
+        note: "Giao hàng nhanh",
+        transport: "road",
+        value: finalAmount,
+        pick_money: finalAmount,
+        weight: totalWeight,
+        products: updatedItems.map((item) => ({
+          name: item.sku,
+          weight: item.weight,
+          quantity: item.quantity,
+          product_code: item.sku,
+        })),
+        service_type_id: 1,
       };
 
-      const ghtkRes = await fetch(`${process.env.BASE_URL}/api/ghtk`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "createOrder",
-          payload: ghtkPayload,
-        }),
-      });
+      console.log(
+        "📤 GHTK createOrder payload:",
+        JSON.stringify(ghtkPayload, null, 2)
+      );
+      try {
+        const ghtkRes = await fetch(`${process.env.BASE_URL}/api/ghtk`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "createOrder",
+            payload: ghtkPayload,
+          }),
+        });
 
-      const ghtkData = await ghtkRes.json();
-      if (!ghtkData.success) {
+        const ghtkData = await ghtkRes.json();
+        if (!ghtkData.success) {
+          console.error("❌ GHTK createOrder failed:", ghtkData.message);
+          await Order.findByIdAndUpdate(orderId, { status: "ghtk_failed" });
+        } else {
+          console.log("📦 GHTK createOrder response:", ghtkData);
+          await Order.findByIdAndUpdate(orderId, { status: "ghtk_success" });
+        }
+      } catch (err) {
+        console.error("❌ GHTK error:", err.message);
         await Order.findByIdAndUpdate(orderId, { status: "ghtk_failed" });
-        throw new Error("GHTK order creation failed");
       }
     }
 
     let vnpayUrl = null;
     if (paymentMethod === "vnpay") {
-      const { VNP_TMN_CODE, VNP_HASH_SECRET, VNP_URL, VNP_RETURN_URL } =
-        process.env;
-      if (!VNP_TMN_CODE || !VNP_HASH_SECRET || !VNP_URL || !VNP_RETURN_URL)
+      const vnp_TmnCode = process.env.VNP_TMN_CODE;
+      const vnp_HashSecret = process.env.VNP_HASH_SECRET;
+      const vnp_Url = process.env.VNP_URL;
+      const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
+
+      if (!vnp_TmnCode || !vnp_HashSecret || !vnp_Url || !vnp_ReturnUrl) {
         throw new Error("Thiếu cấu hình VNPAY trong .env");
+      }
 
       const now = moment().tz("Asia/Ho_Chi_Minh");
+      const vnp_CreateDate = now.format("YYYYMMDDHHmmss");
+      const vnp_ExpireDate = now
+        .clone()
+        .add(15, "minutes")
+        .format("YYYYMMDDHHmmss");
+
       const vnp_Params = {
         vnp_Version: "2.1.0",
         vnp_Command: "pay",
-        vnp_TmnCode: VNP_TMN_CODE,
+        vnp_TmnCode,
         vnp_Locale: "vn",
         vnp_CurrCode: "VND",
         vnp_TxnRef: trackingCode,
         vnp_OrderInfo: "Thanh toán đơn hàng từ QuickCart",
         vnp_OrderType: "other",
         vnp_Amount: finalAmount * 100,
-        vnp_ReturnUrl: VNP_RETURN_URL,
+        vnp_ReturnUrl,
         vnp_IpAddr: request.headers.get("x-forwarded-for") || "127.0.0.1",
-        vnp_CreateDate: now.format("YYYYMMDDHHmmss"),
-        vnp_ExpireDate: now.clone().add(15, "minutes").format("YYYYMMDDHHmmss"),
+        vnp_CreateDate,
+        vnp_ExpireDate,
       };
 
       const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
@@ -533,13 +606,14 @@ export async function POST(request) {
       const signData = sortedKeys
         .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
         .join("&");
+
       const secureHash = crypto
-        .createHmac("sha512", VNP_HASH_SECRET)
+        .createHmac("sha512", vnp_HashSecret)
         .update(signData, "utf8")
         .digest("hex");
-
       vnp_Params.vnp_SecureHash = secureHash;
-      vnpayUrl = `${VNP_URL}?${sortedKeys
+
+      vnpayUrl = `${vnp_Url}?${sortedKeys
         .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
         .join("&")}&vnp_SecureHash=${secureHash}`;
     }
@@ -547,7 +621,12 @@ export async function POST(request) {
     return NextResponse.json({
       success: true,
       message: "Đặt hàng thành công",
-      order: { id: order._id, amount: finalAmount, trackingCode, vnpayUrl },
+      order: {
+        id: order._id,
+        amount: finalAmount,
+        trackingCode,
+        vnpayUrl,
+      },
     });
   } catch (error) {
     console.error("❌ Order creation error:", error);
