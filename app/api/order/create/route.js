@@ -281,6 +281,7 @@
 //     );
 //   }
 // }
+// /api/order/create
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
 import Promo from "@/models/Promo";
@@ -337,7 +338,6 @@ export async function POST(request) {
       );
     }
 
-    // ✅ Lấy địa chỉ chi tiết
     const fullAddress = await Address.findById(address);
     if (!fullAddress) {
       return NextResponse.json(
@@ -387,6 +387,7 @@ export async function POST(request) {
         quantity,
         brand: foundProduct.brand,
         sku: foundVariant.sku,
+        weight: foundVariant.weight || 500, // ✅ thêm weight nếu có, mặc định 500g
       });
     }
 
@@ -436,7 +437,6 @@ export async function POST(request) {
 
     const orderId = order._id;
 
-    // Gửi event
     await inngest.send({
       name: "order/created",
       id: `order-created-${orderId}`,
@@ -454,7 +454,6 @@ export async function POST(request) {
       },
     });
 
-    // Trừ hàng nếu COD
     if (paymentMethod === "cod") {
       const bulkOps = updatedItems.map((item) => ({
         updateOne: {
@@ -465,9 +464,14 @@ export async function POST(request) {
       await Variant.bulkWrite(bulkOps);
     }
 
-    // Tạo đơn hàng trên GHTK nếu là COD
+    // ✅ GHTK: thêm order.weight tổng
     if (paymentMethod === "cod") {
       try {
+        const totalWeight = updatedItems.reduce(
+          (total, item) => total + item.weight * item.quantity,
+          0
+        );
+
         const ghtkPayload = {
           order: {
             id: trackingCode,
@@ -490,11 +494,12 @@ export async function POST(request) {
             note: "Giao hàng nhanh",
             transport: "road",
             value: finalAmount,
-            pick_money: finalAmount, // 🔥 THÊM DÒNG NÀY
+            pick_money: finalAmount,
+            weight: totalWeight, // ✅ bắt buộc
 
             products: updatedItems.map((item) => ({
               name: item.sku,
-              weight: 500,
+              weight: item.weight,
               quantity: item.quantity,
             })),
           },
@@ -516,7 +521,7 @@ export async function POST(request) {
       }
     }
 
-    // Nếu thanh toán qua VNPAY
+    // ✅ VNPAY
     let vnpayUrl = null;
     if (paymentMethod === "vnpay") {
       const vnp_TmnCode = process.env.VNP_TMN_CODE;
