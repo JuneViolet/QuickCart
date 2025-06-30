@@ -1,4 +1,3 @@
-//test biến thể
 "use client";
 import React, { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
@@ -156,7 +155,7 @@ const Cart = () => {
           fetchDefaultAddress(),
           fetchSpecificationsAndVariants(),
         ]);
-        setIsDataReady(true); // Đánh dấu dữ liệu đã sẵn sàng
+        setIsDataReady(true);
       } catch (error) {
         console.error("Fetch Data Error:", error.message);
         toast.error("Lỗi khi tải dữ liệu giỏ hàng!");
@@ -183,7 +182,7 @@ const Cart = () => {
           return;
         }
 
-        const itemIds = Object.keys(cartItems).map((key) => key.split("_")[0]); // Lấy productId
+        const itemIds = Object.keys(cartItems).map((key) => key.split("_")[0]);
         if (
           itemIds.some(
             (id) => !specifications[id] || !specifications[id].length
@@ -198,12 +197,12 @@ const Cart = () => {
 
         try {
           const totalWeight = Object.values(cartItems).reduce((sum, item) => {
-            const productId = item.productId; // Sử dụng productId từ cartItems
+            const productId = item.productId;
             const variant = variants[productId]?.find(
               (v) => v._id.toString() === item.variantId
             );
             const specs = specifications[productId] || [];
-            let weight = 100;
+            let weight = 50; // Mặc định 50g
             const weightSpec = specs.find(
               (s) => s.key.toLowerCase() === "trọng lượng"
             );
@@ -222,7 +221,7 @@ const Cart = () => {
                 weight * quantity
               }g`
             );
-            return sum + (variant?.weight || weight) * quantity;
+            return sum + weight * quantity;
           }, 0);
 
           console.log("Total Weight Calculated:", totalWeight, "g");
@@ -256,14 +255,15 @@ const Cart = () => {
             weight: totalWeight,
             value: totalValue,
             transport: "road",
-            deliver_option: "none",
+            // Bỏ deliver_option: "none"
+            service_type_id: 1, // Thêm để yêu cầu dịch vụ chuẩn
             products: Object.values(cartItems).map((item) => {
               const productId = item.productId;
               const variant = variants[productId]?.find(
                 (v) => v._id.toString() === item.variantId
               );
               const specs = specifications[productId] || [];
-              let weight = 100;
+              let weight = 50;
               const weightSpec = specs.find(
                 (s) => s.key.toLowerCase() === "trọng lượng"
               );
@@ -281,7 +281,7 @@ const Cart = () => {
               )?.value;
               return {
                 name: item.name,
-                weight: variant?.weight || weight,
+                weight: weight,
                 quantity: item.quantity || 1,
                 sku: variant?.sku,
                 attributes: {
@@ -365,6 +365,24 @@ const Cart = () => {
     console.log("Variants fetched:", JSON.stringify(variants, null, 2));
     console.log("Default Address:", JSON.stringify(defaultAddress, null, 2));
   }, [cartItems, specifications, variants, defaultAddress]);
+
+  // Kiểm tra trước khi chuyển sang /checkout
+  const handleCheckout = () => {
+    if (!defaultAddress) {
+      toast.error("Vui lòng thêm địa chỉ giao hàng trước khi thanh toán!");
+      router.push("/add-address");
+      return;
+    }
+    if (Object.keys(cartItems).length === 0) {
+      toast.error("Giỏ hàng trống, vui lòng thêm sản phẩm!");
+      return;
+    }
+    if (!shippingFee && shippingFee !== 0) {
+      toast.error("Vui lòng đợi tính phí vận chuyển trước khi thanh toán!");
+      return;
+    }
+    router.push("/checkout");
+  };
 
   return (
     <>
@@ -523,11 +541,12 @@ const Cart = () => {
         </div>
         <div>
           <OrderSummary shippingFee={shippingFee} />
-          <Link href="/checkout">
-            <button className="mt-4 w-full px-6 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
-              Thanh Toán
-            </button>
-          </Link>
+          <button
+            onClick={handleCheckout}
+            className="mt-4 w-full px-6 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+          >
+            Thanh Toán
+          </button>
         </div>
       </div>
     </>
