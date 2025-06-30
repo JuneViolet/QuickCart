@@ -544,7 +544,7 @@ export async function POST(request) {
         pick_province: "TP. Hồ Chí Minh",
         pick_district: "Quận 1",
         pick_ward: "Phường Bến Nghé",
-        pick_tel: "0900000000",
+        pick_tel: "0564873090",
         name: fullAddress.fullName,
         address: fullAddress.area,
         province: fullAddress.city,
@@ -564,7 +564,7 @@ export async function POST(request) {
           quantity: item.quantity,
           product_code: item.sku,
         })),
-        service_type_id: 2, // Cần xác minh với GHTK
+        service_type_id: 1, // Cần xác minh với GHTK
         deliver_option: "none",
         pickup_time: pickupTime,
         order_date: orderDateStr,
