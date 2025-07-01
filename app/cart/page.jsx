@@ -255,8 +255,7 @@ const Cart = () => {
             weight: totalWeight,
             value: totalValue,
             transport: "road",
-            // Bỏ deliver_option: "none"
-            service_type_id: 1, // Thêm để yêu cầu dịch vụ chuẩn
+          
             products: Object.values(cartItems).map((item) => {
               const productId = item.productId;
               const variant = variants[productId]?.find(
