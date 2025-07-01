@@ -470,6 +470,14 @@ export async function POST(request) {
       );
     }
 
+    // Tối ưu: Lấy tất cả sản phẩm và biến thể cùng lúc
+    const productIds = items.map((item) => item.product);
+    const variantIds = items.map((item) => item.variantId);
+    const products = await Product.find({ _id: { $in: productIds } }).populate(
+      "specifications"
+    );
+    const variants = await Variant.find({ _id: { $in: variantIds } });
+
     let subtotal = 0;
     const updatedItems = [];
 
@@ -492,10 +500,8 @@ export async function POST(request) {
         );
       }
 
-      const foundProduct = await Product.findById(product).populate(
-        "specifications"
-      );
-      const foundVariant = await Variant.findById(variantId);
+      const foundProduct = products.find((p) => p._id.equals(product));
+      const foundVariant = variants.find((v) => v._id.equals(variantId));
 
       if (!foundProduct || !foundVariant) {
         console.log("❌ Error: Không tìm thấy sản phẩm/phiên bản", {
@@ -530,12 +536,12 @@ export async function POST(request) {
         const kgValue = parseFloat(
           weightSpec.toLowerCase().replace("kg", "").trim()
         );
-        weight = Math.max(10, Math.round(kgValue * 1000)); // Chuyển từ kg sang gram, tối thiểu 10g
+        weight = Math.max(10, Math.round(kgValue * 1000)); // Chuyển từ kg sang gram
       } else if (weightSpec.toLowerCase().includes("g")) {
         const gValue = parseFloat(
           weightSpec.toLowerCase().replace("g", "").trim()
         );
-        weight = Math.max(10, Math.round(gValue)); // Làm tròn gram, tối thiểu 10g
+        weight = Math.max(10, Math.round(gValue)); // Làm tròn gram
       } else {
         const rawValue = parseFloat(weightSpec);
         weight = isNaN(rawValue) ? 50 : Math.max(10, Math.round(rawValue));
@@ -622,6 +628,7 @@ export async function POST(request) {
       },
     });
 
+    let ghtkTrackingCode = null;
     if (paymentMethod === "cod") {
       const bulkOps = updatedItems.map((item) => ({
         updateOne: {
@@ -644,26 +651,22 @@ export async function POST(request) {
         .format("YYYY-MM-DD HH:mm:ss");
       const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
 
-      // Tạm thời sử dụng dịch vụ chuẩn để tránh lỗi
       let serviceTypeId = 1; // Standard service
       let deliverOption = "none";
 
-      // Nếu GHTK xác nhận hỗ trợ EXPRESS, bỏ comment dưới và kiểm tra lại
-      /*
       if (finalAmount >= 50000 && finalAmount <= 20000000) {
         serviceTypeId = 2; // Express service
         deliverOption = "xteam";
       }
-      */
 
       const ghtkPayload = {
-        id: trackingCode,
-        pick_name: "QuickCart Store", // Cập nhật tên kho
-        pick_address: "590 CMT8, P.11, Q.3, TP. HCM", // Cập nhật địa chỉ kho
+        id: trackingCode, // Sử dụng trackingCode nội bộ tạm thời
+        pick_name: "QuickCart Store",
+        pick_address: "590 CMT8, P.11, Q.3, TP. HCM",
         pick_province: "TP. Hồ Chí Minh",
         pick_district: "Quận 3",
         pick_ward: "Phường 11",
-        pick_tel: "0911222333", // Cập nhật số điện thoại
+        pick_tel: "0911222333",
         name: fullAddress.fullName,
         address: fullAddress.area,
         province: fullAddress.city,
@@ -676,10 +679,10 @@ export async function POST(request) {
         transport: "road",
         value: finalAmount,
         pick_money: finalAmount,
-        weight: Math.max(totalWeight, 50), // GHTK yêu cầu tối thiểu 50g
+        weight: Math.max(totalWeight, 50),
         products: updatedItems.map((item) => ({
           name: item.sku,
-          weight: Math.max(item.weight, 50), // Đảm bảo mỗi sản phẩm >= 50g
+          weight: Math.max(item.weight, 50),
           quantity: item.quantity,
           product_code: item.sku,
           cost: item.offerPrice,
@@ -717,16 +720,22 @@ export async function POST(request) {
             status: "ghtk_failed",
             ghtkError: ghtkData.message,
           });
-
-          console.log(
-            "⚠️ Đơn hàng được tạo nhưng GHTK failed, cần xử lý thủ công"
+          // Rollback: Hủy đơn hàng nếu GHTK thất bại
+          await Order.findByIdAndDelete(orderId);
+          return NextResponse.json(
+            {
+              success: false,
+              message: `GHTK thất bại: ${ghtkData.message}`,
+            },
+            { status: 400 }
           );
         } else {
           console.log("✅ GHTK createOrder success:", ghtkData);
+          ghtkTrackingCode = ghtkData.order?.label_id; // Lấy mã GHTK
           await Order.findByIdAndUpdate(orderId, {
             status: "ghtk_success",
             ghtkOrderId: ghtkData.order?.partner_id,
-            ghtkLabel: ghtkData.order?.label_id,
+            trackingCode: ghtkTrackingCode, // Cập nhật trackingCode với mã GHTK
           });
         }
       } catch (err) {
@@ -735,9 +744,11 @@ export async function POST(request) {
           status: "ghtk_failed",
           ghtkError: err.message,
         });
-
-        console.log(
-          "⚠️ Đơn hàng được tạo nhưng GHTK API error, cần xử lý thủ công"
+        // Rollback: Hủy đơn hàng nếu GHTK API lỗi
+        await Order.findByIdAndDelete(orderId);
+        return NextResponse.json(
+          { success: false, message: `Lỗi GHTK API: ${err.message}` },
+          { status: 500 }
         );
       }
     }
@@ -799,7 +810,7 @@ export async function POST(request) {
       order: {
         id: order._id,
         amount: finalAmount,
-        trackingCode,
+        trackingCode: ghtkTrackingCode || trackingCode, // Sử dụng mã GHTK nếu có
         vnpayUrl,
       },
     });

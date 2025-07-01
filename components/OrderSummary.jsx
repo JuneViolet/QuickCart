@@ -456,7 +456,7 @@ const OrderSummary = ({ shippingFee }) => {
       if (!cartItemsArray) return;
 
       const token = await getToken();
-      const trackingCode = `ORDER-${Date.now()}`;
+      const internalTrackingCode = `ORDER-${Date.now()}`; // Mã nội bộ để debug
       const total = calculateFinalTotal();
 
       const response = await axios.post(
@@ -465,7 +465,7 @@ const OrderSummary = ({ shippingFee }) => {
           address: selectedAddress._id,
           items: cartItemsArray,
           promoCode: promoCode || null,
-          trackingCode,
+          trackingCode: internalTrackingCode, // Gửi mã nội bộ, GHTK sẽ trả label_id
           paymentMethod,
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -477,6 +477,18 @@ const OrderSummary = ({ shippingFee }) => {
         throw new Error(data.message || "Tạo đơn hàng thất bại");
       }
 
+      // Lấy mã GHTK từ response
+      const ghtkTrackingCode = data.data?.label_id || data.data?.order_code;
+      if (ghtkTrackingCode) {
+        console.log("Mã theo dõi GHTK:", ghtkTrackingCode);
+        // Lưu hoặc hiển thị mã GHTK ở đây nếu cần (ví dụ: redirect với params)
+      } else {
+        console.warn(
+          "Không tìm thấy mã GHTK, sử dụng mã nội bộ:",
+          internalTrackingCode
+        );
+      }
+
       if (paymentMethod === "vnpay" && data.order?.vnpayUrl) {
         window.location.href = data.order.vnpayUrl;
       } else {
@@ -484,7 +496,11 @@ const OrderSummary = ({ shippingFee }) => {
         setCartItems({});
         setPromoCode("");
         setDiscount(0);
-        router.push("/order-placed");
+        router.push(
+          `/order-placed?trackingCode=${
+            ghtkTrackingCode || internalTrackingCode
+          }`
+        );
       }
     } catch (error) {
       console.error("Đặt hàng lỗi:", error); // Log chi tiết
