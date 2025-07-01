@@ -644,24 +644,26 @@ export async function POST(request) {
         .format("YYYY-MM-DD HH:mm:ss");
       const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
 
-      // Xác định service_type_id dựa trên giá trị đơn hàng
-      let serviceTypeId = 1; // Standard service (mặc định)
+      // Tạm thời sử dụng dịch vụ chuẩn để tránh lỗi
+      let serviceTypeId = 1; // Standard service
       let deliverOption = "none";
 
-      // Chỉ sử dụng EXPRESS cho đơn hàng có giá trị từ 50,000đ đến 20,000,000đ
+      // Nếu GHTK xác nhận hỗ trợ EXPRESS, bỏ comment dưới và kiểm tra lại
+      /*
       if (finalAmount >= 50000 && finalAmount <= 20000000) {
         serviceTypeId = 2; // Express service
         deliverOption = "xteam";
       }
+      */
 
       const ghtkPayload = {
         id: trackingCode,
-        pick_name: "QuickCart Shop",
-        pick_address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
+        pick_name: "QuickCart Store", // Cập nhật tên kho
+        pick_address: "590 CMT8, P.11, Q.3, TP. HCM", // Cập nhật địa chỉ kho
         pick_province: "TP. Hồ Chí Minh",
-        pick_district: "Quận 1",
-        pick_ward: "Phường Bến Nghé",
-        pick_tel: "0564873090",
+        pick_district: "Quận 3",
+        pick_ward: "Phường 11",
+        pick_tel: "0911222333", // Cập nhật số điện thoại
         name: fullAddress.fullName,
         address: fullAddress.area,
         province: fullAddress.city,
@@ -715,7 +717,6 @@ export async function POST(request) {
             ghtkError: ghtkData.message,
           });
 
-          // Không return error, vẫn cho phép đơn hàng được tạo
           console.log(
             "⚠️ Đơn hàng được tạo nhưng GHTK failed, cần xử lý thủ công"
           );
@@ -734,7 +735,6 @@ export async function POST(request) {
           ghtkError: err.message,
         });
 
-        // Không return error, vẫn cho phép đơn hàng được tạo
         console.log(
           "⚠️ Đơn hàng được tạo nhưng GHTK API error, cần xử lý thủ công"
         );
