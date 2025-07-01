@@ -419,7 +419,6 @@ export async function POST(request) {
     });
 
     if (!userId) {
-      console.log("❌ Error: Chưa đăng nhập");
       return NextResponse.json(
         { success: false, message: "Chưa đăng nhập" },
         { status: 401 }
@@ -433,11 +432,6 @@ export async function POST(request) {
       !Array.isArray(items) ||
       items.length === 0
     ) {
-      console.log("❌ Error: Dữ liệu đơn hàng không hợp lệ", {
-        trackingCode,
-        address,
-        items,
-      });
       return NextResponse.json(
         { success: false, message: "Dữ liệu đơn hàng không hợp lệ" },
         { status: 400 }
@@ -445,7 +439,6 @@ export async function POST(request) {
     }
 
     if (!mongoose.Types.ObjectId.isValid(address)) {
-      console.log("❌ Error: Địa chỉ không hợp lệ", { address });
       return NextResponse.json(
         { success: false, message: "Địa chỉ không hợp lệ" },
         { status: 400 }
@@ -454,7 +447,6 @@ export async function POST(request) {
 
     const existing = await Order.findOne({ trackingCode });
     if (existing) {
-      console.log("❌ Error: Mã đơn hàng đã tồn tại", { trackingCode });
       return NextResponse.json(
         { success: false, message: "Mã đơn hàng đã tồn tại" },
         { status: 400 }
@@ -463,20 +455,11 @@ export async function POST(request) {
 
     const fullAddress = await Address.findById(address);
     if (!fullAddress) {
-      console.log("❌ Error: Không tìm thấy địa chỉ", { address });
       return NextResponse.json(
         { success: false, message: "Không tìm thấy địa chỉ" },
         { status: 404 }
       );
     }
-
-    // Tối ưu: Lấy tất cả sản phẩm và biến thể cùng lúc
-    const productIds = items.map((item) => item.product);
-    const variantIds = items.map((item) => item.variantId);
-    const products = await Product.find({ _id: { $in: productIds } }).populate(
-      "specifications"
-    );
-    const variants = await Variant.find({ _id: { $in: variantIds } });
 
     let subtotal = 0;
     const updatedItems = [];
@@ -489,25 +472,18 @@ export async function POST(request) {
         !mongoose.Types.ObjectId.isValid(variantId) ||
         quantity <= 0
       ) {
-        console.log("❌ Error: Sản phẩm không hợp lệ", {
-          product,
-          variantId,
-          quantity,
-        });
         return NextResponse.json(
           { success: false, message: "Sản phẩm không hợp lệ" },
           { status: 400 }
         );
       }
 
-      const foundProduct = products.find((p) => p._id.equals(product));
-      const foundVariant = variants.find((v) => v._id.equals(variantId));
+      const foundProduct = await Product.findById(product).populate(
+        "specifications"
+      );
+      const foundVariant = await Variant.findById(variantId);
 
       if (!foundProduct || !foundVariant) {
-        console.log("❌ Error: Không tìm thấy sản phẩm/phiên bản", {
-          product,
-          variantId,
-        });
         return NextResponse.json(
           { success: false, message: "Không tìm thấy sản phẩm/phiên bản" },
           { status: 404 }
@@ -515,11 +491,6 @@ export async function POST(request) {
       }
 
       if (foundVariant.stock < quantity) {
-        console.log("❌ Error: Phiên bản không đủ hàng", {
-          variantId,
-          stock: foundVariant.stock,
-          quantity,
-        });
         return NextResponse.json(
           { success: false, message: "Phiên bản không đủ hàng" },
           { status: 400 }
@@ -530,21 +501,17 @@ export async function POST(request) {
         foundProduct.specifications
           .find((spec) => spec.key === "Trọng lượng")
           ?.value?.trim() || "50g";
-
       let weight = 50;
       if (weightSpec.toLowerCase().includes("kg")) {
-        const kgValue = parseFloat(
-          weightSpec.toLowerCase().replace("kg", "").trim()
+        weight = Math.max(
+          10,
+          Math.round(parseFloat(weightSpec.replace("kg", "")) * 1000)
         );
-        weight = Math.max(10, Math.round(kgValue * 1000)); // Chuyển từ kg sang gram
       } else if (weightSpec.toLowerCase().includes("g")) {
-        const gValue = parseFloat(
-          weightSpec.toLowerCase().replace("g", "").trim()
+        weight = Math.max(
+          10,
+          Math.round(parseFloat(weightSpec.replace("g", "")))
         );
-        weight = Math.max(10, Math.round(gValue)); // Làm tròn gram
-      } else {
-        const rawValue = parseFloat(weightSpec);
-        weight = isNaN(rawValue) ? 50 : Math.max(10, Math.round(rawValue));
       }
 
       subtotal += foundVariant.offerPrice * quantity;
@@ -559,23 +526,16 @@ export async function POST(request) {
       });
     }
 
-    console.log("Debug subtotal:", subtotal);
-    console.log("Debug updatedItems:", updatedItems);
-
     let calculatedDiscount = 0;
     if (promoCode) {
       const promo = await Promo.findOne({
         code: promoCode.toUpperCase(),
         isActive: true,
       });
-
       if (
         !promo ||
         (promo.expiresAt && new Date(promo.expiresAt) < new Date())
       ) {
-        console.log("❌ Error: Mã giảm giá không hợp lệ hoặc đã hết hạn", {
-          promoCode,
-        });
         return NextResponse.json(
           {
             success: false,
@@ -584,7 +544,6 @@ export async function POST(request) {
           { status: 400 }
         );
       }
-
       calculatedDiscount =
         promo.discountType === "percentage"
           ? (subtotal * promo.discount) / 100
@@ -628,21 +587,22 @@ export async function POST(request) {
       },
     });
 
-    let ghtkTrackingCode = null;
+    let actualTrackingCode = trackingCode;
+
     if (paymentMethod === "cod") {
-      const bulkOps = updatedItems.map((item) => ({
-        updateOne: {
-          filter: { _id: item.variantId },
-          update: { $inc: { stock: -item.quantity } },
-        },
-      }));
-      await Variant.bulkWrite(bulkOps);
+      await Variant.bulkWrite(
+        updatedItems.map((item) => ({
+          updateOne: {
+            filter: { _id: item.variantId },
+            update: { $inc: { stock: -item.quantity } },
+          },
+        }))
+      );
 
       const totalWeight = updatedItems.reduce(
         (sum, item) => sum + item.weight * item.quantity,
         0
       );
-
       const currentTime = moment().tz("Asia/Ho_Chi_Minh");
       const pickupTime = currentTime
         .clone()
@@ -651,16 +611,8 @@ export async function POST(request) {
         .format("YYYY-MM-DD HH:mm:ss");
       const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
 
-      let serviceTypeId = 1; // Standard service
-      let deliverOption = "none";
-
-      if (finalAmount >= 50000 && finalAmount <= 20000000) {
-        serviceTypeId = 2; // Express service
-        deliverOption = "xteam";
-      }
-
       const ghtkPayload = {
-        id: trackingCode, // Sử dụng trackingCode nội bộ tạm thời
+        id: trackingCode,
         pick_name: "QuickCart Store",
         pick_address: "590 CMT8, P.11, Q.3, TP. HCM",
         pick_province: "TP. Hồ Chí Minh",
@@ -687,16 +639,11 @@ export async function POST(request) {
           product_code: item.sku,
           cost: item.offerPrice,
         })),
-        service_type_id: serviceTypeId,
-        deliver_option: deliverOption,
+        service_type_id: 1,
+        deliver_option: "none",
         pickup_time: pickupTime,
         order_date: orderDateStr,
       };
-
-      console.log(
-        "📤 GHTK createOrder payload:",
-        JSON.stringify(ghtkPayload, null, 2)
-      );
 
       try {
         const ghtkRes = await fetch(
@@ -712,44 +659,25 @@ export async function POST(request) {
         );
 
         const ghtkData = await ghtkRes.json();
-        console.log("📦 GHTK createOrder response:", ghtkData);
 
-        if (!ghtkData.success) {
-          console.error("❌ GHTK createOrder failed:", ghtkData.message);
+        if (ghtkData.success) {
+          await Order.findByIdAndUpdate(orderId, {
+            status: "ghtk_success",
+            ghtkOrderId: ghtkData.order?.partner_id,
+            ghtkLabel: ghtkData.order?.label_id,
+          });
+          actualTrackingCode = ghtkData.order?.label_id || trackingCode;
+        } else {
           await Order.findByIdAndUpdate(orderId, {
             status: "ghtk_failed",
             ghtkError: ghtkData.message,
           });
-          // Rollback: Hủy đơn hàng nếu GHTK thất bại
-          await Order.findByIdAndDelete(orderId);
-          return NextResponse.json(
-            {
-              success: false,
-              message: `GHTK thất bại: ${ghtkData.message}`,
-            },
-            { status: 400 }
-          );
-        } else {
-          console.log("✅ GHTK createOrder success:", ghtkData);
-          ghtkTrackingCode = ghtkData.order?.label_id; // Lấy mã GHTK
-          await Order.findByIdAndUpdate(orderId, {
-            status: "ghtk_success",
-            ghtkOrderId: ghtkData.order?.partner_id,
-            trackingCode: ghtkTrackingCode, // Cập nhật trackingCode với mã GHTK
-          });
         }
       } catch (err) {
-        console.error("❌ GHTK API error:", err.message);
         await Order.findByIdAndUpdate(orderId, {
           status: "ghtk_failed",
           ghtkError: err.message,
         });
-        // Rollback: Hủy đơn hàng nếu GHTK API lỗi
-        await Order.findByIdAndDelete(orderId);
-        return NextResponse.json(
-          { success: false, message: `Lỗi GHTK API: ${err.message}` },
-          { status: 500 }
-        );
       }
     }
 
@@ -759,10 +687,6 @@ export async function POST(request) {
       const vnp_HashSecret = process.env.VNP_HASH_SECRET;
       const vnp_Url = process.env.VNP_URL;
       const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
-
-      if (!vnp_TmnCode || !vnp_HashSecret || !vnp_Url || !vnp_ReturnUrl) {
-        throw new Error("Thiếu cấu hình VNPAY trong .env");
-      }
 
       const now = moment().tz("Asia/Ho_Chi_Minh");
       const vnp_CreateDate = now.format("YYYYMMDDHHmmss");
@@ -792,7 +716,6 @@ export async function POST(request) {
       const signData = sortedKeys
         .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
         .join("&");
-
       const secureHash = crypto
         .createHmac("sha512", vnp_HashSecret)
         .update(signData, "utf8")
@@ -810,12 +733,11 @@ export async function POST(request) {
       order: {
         id: order._id,
         amount: finalAmount,
-        trackingCode: ghtkTrackingCode || trackingCode, // Sử dụng mã GHTK nếu có
+        trackingCode: actualTrackingCode,
         vnpayUrl,
       },
     });
   } catch (error) {
-    console.error("❌ Order creation error:", error);
     return NextResponse.json(
       { success: false, message: "Lỗi server: " + error.message },
       { status: 500 }
