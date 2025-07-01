@@ -329,6 +329,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "@/context/AppContext";
+import { useUser } from "@clerk/nextjs"; // Thêm để lấy isLoaded
 
 const OrderSummary = ({ shippingFee }) => {
   const {
@@ -345,6 +346,7 @@ const OrderSummary = ({ shippingFee }) => {
     variants,
   } = useAppContext();
 
+  const { isLoaded } = useUser(); // Sử dụng useUser để lấy isLoaded
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userAddresses, setUserAddresses] = useState([]);
@@ -353,15 +355,16 @@ const OrderSummary = ({ shippingFee }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [bankCode, setBankCode] = useState("");
-  const { isLoaded } = useAppContext(); // Giả sử từ context hoặc dùng useUser
 
   useEffect(() => {
-    if (!isLoaded || !user) {
-      console.log("Đang đợi tải dữ liệu người dùng...");
+    if (!isLoaded) {
+      console.log("Đang đợi Clerk tải dữ liệu người dùng...");
       return;
     }
-    fetchUserAddresses();
-  }, [user, isLoaded]);
+    if (user) {
+      fetchUserAddresses();
+    }
+  }, [user, isLoaded]); // Thêm isLoaded để tránh chạy khi chưa tải xong
 
   const fetchUserAddresses = async () => {
     try {
@@ -375,11 +378,14 @@ const OrderSummary = ({ shippingFee }) => {
           setSelectedAddress(
             data.addresses.find((a) => a.isDefault) || data.addresses[0]
           );
+        } else {
+          toast.info("Bạn chưa có địa chỉ. Vui lòng thêm địa chỉ mới.");
         }
       } else {
         toast.error(data.message || "Không thể tải địa chỉ");
       }
     } catch (error) {
+      console.error("Lỗi khi tải địa chỉ:", error); // Log chi tiết
       toast.error("Lỗi khi tải địa chỉ: " + error.message);
     }
   };
@@ -405,6 +411,7 @@ const OrderSummary = ({ shippingFee }) => {
         toast.error(data.message || "Mã giảm giá không hợp lệ");
       }
     } catch (error) {
+      console.error("Lỗi khi áp dụng mã:", error); // Log chi tiết
       setDiscount(0);
       toast.error("Lỗi khi áp dụng mã: " + error.message);
     }
@@ -425,22 +432,15 @@ const OrderSummary = ({ shippingFee }) => {
     }
 
     const cartItemsArray = Object.entries(cartItems)
-      .map(([key, item]) => {
-        const [productId, variantId] = key.split("_");
-        if (!item.offerPrice || item.quantity <= 0) {
-          console.warn(`Sản phẩm không hợp lệ: ${key}`);
-          return null;
-        }
-        return {
-          productId,
-          variantId: variantId || null,
-          quantity: item.quantity,
-        };
-      })
-      .filter((item) => item !== null);
+      .map(([key, item]) => ({
+        product: key.split("_")[0],
+        variantId: key.split("_")[1],
+        quantity: item.quantity || 1,
+      }))
+      .filter((item) => item.quantity > 0);
 
     if (cartItemsArray.length === 0) {
-      toast.error("Giỏ hàng trống hoặc chứa sản phẩm không hợp lệ");
+      toast.error("Giỏ hàng trống");
       return false;
     }
 
@@ -458,7 +458,6 @@ const OrderSummary = ({ shippingFee }) => {
       const token = await getToken();
       const trackingCode = `ORDER-${Date.now()}`;
       const total = calculateFinalTotal();
-      const tax = Math.floor(getCartAmount() * 0.02);
 
       const response = await axios.post(
         "/api/order/create",
@@ -468,10 +467,6 @@ const OrderSummary = ({ shippingFee }) => {
           promoCode: promoCode || null,
           trackingCode,
           paymentMethod,
-          shippingFee: shippingFee || 0,
-          discount,
-          tax,
-          total,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -484,16 +479,6 @@ const OrderSummary = ({ shippingFee }) => {
 
       if (paymentMethod === "vnpay" && data.order?.vnpayUrl) {
         window.location.href = data.order.vnpayUrl;
-        // Thêm polling hoặc callback để kiểm tra trạng thái thanh toán
-        const checkPaymentStatus = async () => {
-          const res = await axios.get(`/api/order/status/${trackingCode}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (res.data.success && res.data.status === "paid") {
-            router.push("/order-placed");
-          }
-        };
-        setTimeout(checkPaymentStatus, 5000); // Kiểm tra sau 5s
       } else {
         toast.success(data.message || "Đặt hàng thành công");
         setCartItems({});
@@ -502,7 +487,7 @@ const OrderSummary = ({ shippingFee }) => {
         router.push("/order-placed");
       }
     } catch (error) {
-      console.error("Đặt hàng lỗi:", error);
+      console.error("Đặt hàng lỗi:", error); // Log chi tiết
       toast.error(
         error.message.includes("31106")
           ? "Lỗi GHTK: Giá trị hàng hóa không hợp lệ cho EXPRESS. Vui lòng chọn dịch vụ khác."
