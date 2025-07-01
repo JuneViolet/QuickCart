@@ -651,7 +651,7 @@ export async function POST(request) {
       // Chỉ sử dụng EXPRESS cho đơn hàng có giá trị từ 50,000đ đến 20,000,000đ
       if (finalAmount >= 50000 && finalAmount <= 20000000) {
         serviceTypeId = 2; // Express service
-        deliverOption = "xfast";
+        deliverOption = "xteam";
       }
 
       const ghtkPayload = {
