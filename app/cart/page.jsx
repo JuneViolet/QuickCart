@@ -239,8 +239,10 @@ const Cart = () => {
 
           const payload = {
             pick_province: "TP. Hồ Chí Minh",
-            pick_district: "Quận 3",
-            pick_address: "123 Đường Lấy Hàng, Quận 3",
+            pick_district: "Quận 1",
+            pick_address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
+            pick_ward: "Phường Bến Nghé",
+            pick_tel: "0564873090",
             province:
               defaultAddress.city === "Hồ Chí Minh"
                 ? "TP. Hồ Chí Minh"
@@ -255,7 +257,7 @@ const Cart = () => {
             weight: totalWeight,
             value: totalValue,
             transport: "road",
-          
+
             products: Object.values(cartItems).map((item) => {
               const productId = item.productId;
               const variant = variants[productId]?.find(

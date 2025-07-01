@@ -125,169 +125,6 @@
 //     );
 //   }
 // }
-// /api/ghtk
-
-// import { NextResponse } from "next/server";
-// import axios from "axios";
-
-// const GHTK_API_URL =
-//   process.env.GHTK_API_URL || "https://services.giaohangtietkiem.vn";
-// const GHTK_API_TOKEN =
-//   process.env.GHTK_API_TOKEN || "1ZB8bG2GkwWhUlD2o5OeveavkdmDxg3OyalVGba";
-
-// // Hàm gọi GHTK API
-// const callGhtkApi = async (endpoint, method, data) => {
-//   try {
-//     const url = `${GHTK_API_URL}${endpoint}`;
-//     console.log("✅ Calling GHTK API:", url);
-//     console.log("📤 GHTK Request Data:", JSON.stringify(data, null, 2));
-
-//     const response = await axios({
-//       method,
-//       url,
-//       headers: {
-//         Token: GHTK_API_TOKEN,
-//         "Content-Type": "application/json",
-//       },
-//       data: method === "POST" ? data : undefined,
-//       params: method === "GET" ? data : undefined,
-//     });
-
-//     console.log("📥 GHTK Response:", JSON.stringify(response.data, null, 2));
-//     return response.data;
-//   } catch (error) {
-//     console.error("❌ GHTK API Error:", error.response?.data || error.message);
-//     throw new Error(error.response?.data?.message || "GHTK API request failed");
-//   }
-// };
-
-// export async function POST(request) {
-//   try {
-//     const body = await request.json();
-//     const { action, payload } = body;
-
-//     let endpoint = "";
-//     let method = "GET";
-//     let data = {};
-
-//     switch (action) {
-//       case "createOrder":
-//         endpoint = "/services/shipment/order";
-//         method = "POST";
-//         data = payload;
-
-//         const createRes = await callGhtkApi(endpoint, method, data);
-//         if (createRes.success) {
-//           return NextResponse.json({
-//             success: true,
-//             data: createRes,
-//             message: "Tạo đơn hàng thành công",
-//           });
-//         } else {
-//           return NextResponse.json(
-//             {
-//               success: false,
-//               message: createRes.message || "Tạo đơn thất bại",
-//             },
-//             { status: 400 }
-//           );
-//         }
-
-//       case "calculateFee":
-//         endpoint = "/services/shipment/fee";
-//         method = "POST";
-//         data = payload;
-
-//         const feeRes = await callGhtkApi(endpoint, method, data);
-//         if (feeRes.success && feeRes.fee) {
-//           return NextResponse.json({
-//             success: true,
-//             data: feeRes,
-//             message: "Tính phí thành công",
-//           });
-//         } else {
-//           return NextResponse.json(
-//             {
-//               success: false,
-//               message: feeRes.message || "Tính phí thất bại",
-//             },
-//             { status: 400 }
-//           );
-//         }
-
-//       case "trackOrder":
-//         if (!payload.trackingCode || typeof payload.trackingCode !== "string") {
-//           return NextResponse.json(
-//             { success: false, message: "Thiếu mã trackingCode" },
-//             { status: 400 }
-//           );
-//         }
-//         endpoint = `/services/shipment/v2/${payload.trackingCode}`;
-//         method = "GET";
-//         break;
-
-//       case "cancelOrder":
-//         if (!payload.trackingCode || typeof payload.trackingCode !== "string") {
-//           return NextResponse.json(
-//             { success: false, message: "Thiếu mã trackingCode" },
-//             { status: 400 }
-//           );
-//         }
-//         endpoint = `/services/shipment/cancel/${payload.trackingCode}`;
-//         method = "GET";
-//         break;
-
-//       case "getAddress":
-//         endpoint = "/services/address/list";
-//         method = "GET";
-//         break;
-
-//       default:
-//         return NextResponse.json(
-//           { success: false, message: "Hành động không hợp lệ" },
-//           { status: 400 }
-//         );
-//     }
-
-//     const result = await callGhtkApi(endpoint, method, data);
-
-//     if (action === "getAddress") {
-//       const provinces = result.province || [];
-//       const districts = result.district || [];
-//       const wards = result.ward || [];
-
-//       const processed = provinces.map((prov) => {
-//         const provDistricts = districts.filter(
-//           (d) => d.province_id === prov.province_id
-//         );
-//         return {
-//           name: prov.province_name,
-//           districts: provDistricts.map((dist) => {
-//             const distWards = wards.filter(
-//               (w) => w.district_id === dist.district_id
-//             );
-//             return {
-//               name: dist.district_name,
-//               wards: distWards.map((w) => ({ name: w.ward_name })),
-//             };
-//           }),
-//         };
-//       });
-
-//       return NextResponse.json({ success: true, data: processed });
-//     }
-
-//     return NextResponse.json({ success: true, data: result });
-//   } catch (error) {
-//     console.error("❌ GHTK Error:", error.message);
-//     return NextResponse.json(
-//       { success: false, message: `Lỗi: ${error.message}` },
-//       { status: 500 }
-//     );
-//   }
-// }
-// /api/ghtk
-
 import { NextResponse } from "next/server";
 import axios from "axios";
 
@@ -314,6 +151,7 @@ const validateCreateOrderPayload = (payload) => {
     "tel",
     "value",
     "weight",
+    "deliver_option", // Thêm vì bắt buộc theo tài liệu
   ];
 
   for (const field of required) {
@@ -327,6 +165,14 @@ const validateCreateOrderPayload = (payload) => {
     return { valid: false, message: "Trọng lượng tối thiểu là 50g" };
   }
 
+  // Validate deliver_option
+  if (!["none", "xteam"].includes(payload.deliver_option)) {
+    return {
+      valid: false,
+      message: "deliver_option phải là 'none' hoặc 'xteam'",
+    };
+  }
+
   // Validate value range for service types
   if (payload.service_type_id === 2) {
     // Express
@@ -336,6 +182,9 @@ const validateCreateOrderPayload = (payload) => {
         message: "Dịch vụ EXPRESS yêu cầu giá trị từ 1đ đến 20,000,000đ",
       };
     }
+  } else if (payload.value < 0 || payload.value > 100000000) {
+    // Standard
+    return { valid: false, message: "Giá trị hàng hóa vượt quá 100,000,000đ" };
   }
 
   // Validate products array
@@ -395,7 +244,6 @@ const callGhtkApi = async (endpoint, method, data, retries = 2) => {
         message: error.message,
       });
 
-      // Nếu là lần thử cuối cùng hoặc lỗi không thể retry
       if (attempt === retries || error.response?.status === 400) {
         const errorMessage =
           error.response?.data?.message ||
@@ -405,7 +253,6 @@ const callGhtkApi = async (endpoint, method, data, retries = 2) => {
         throw new Error(errorMessage);
       }
 
-      // Đợi trước khi retry
       await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
     }
   }
@@ -446,7 +293,6 @@ export async function POST(request) {
           );
         }
 
-        // Validate payload
         const validation = validateCreateOrderPayload(payload);
         if (!validation.valid) {
           return NextResponse.json(
@@ -459,7 +305,6 @@ export async function POST(request) {
         method = "POST";
         data = {
           ...payload,
-          // Ensure minimum weight
           weight: Math.max(payload.weight, 50),
           products:
             payload.products?.map((product) => ({
@@ -495,10 +340,20 @@ export async function POST(request) {
         }
 
         endpoint = "/services/shipment/fee";
-        method = "POST";
+        method = "GET"; // Sửa từ POST sang GET theo tài liệu
         data = {
           ...payload,
-          weight: Math.max(payload.weight || 50, 50), // Ensure minimum 50g
+          weight: Math.max(payload.weight || 50, 50),
+          pick_province: payload.pick_province,
+          pick_district: payload.pick_district,
+          pick_address: payload.pick_address,
+          province: payload.province,
+          district: payload.district,
+          ward: payload.ward,
+          address: payload.address,
+          value: payload.value || 0,
+          transport: payload.transport || "road",
+          deliver_option: payload.deliver_option || "none",
         };
 
         const feeRes = await callGhtkApi(endpoint, method, data);
@@ -583,7 +438,6 @@ export async function POST(request) {
 
     const result = await callGhtkApi(endpoint, method, data);
 
-    // Special handling for address data
     if (action === "getAddress") {
       const provinces = result.province || [];
       const districts = result.district || [];
@@ -619,7 +473,6 @@ export async function POST(request) {
       });
     }
 
-    // Special handling for tracking
     if (action === "trackOrder" || action === "getOrderStatus") {
       return NextResponse.json({
         success: true,
@@ -638,7 +491,6 @@ export async function POST(request) {
   } catch (error) {
     console.error("❌ GHTK API Error:", error.message);
 
-    // Parse error message if it's JSON
     let errorMessage = error.message;
     try {
       const parsedError = JSON.parse(error.message);
