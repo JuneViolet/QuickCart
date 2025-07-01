@@ -151,7 +151,7 @@ const validateCreateOrderPayload = (payload) => {
     "tel",
     "value",
     "weight",
-    "deliver_option", // Thêm vì bắt buộc theo tài liệu
+    "deliver_option",
   ];
 
   for (const field of required) {
@@ -160,12 +160,10 @@ const validateCreateOrderPayload = (payload) => {
     }
   }
 
-  // Validate weight (GHTK requires minimum 50g)
   if (payload.weight < 50) {
     return { valid: false, message: "Trọng lượng tối thiểu là 50g" };
   }
 
-  // Validate deliver_option
   if (!["none", "xteam"].includes(payload.deliver_option)) {
     return {
       valid: false,
@@ -173,21 +171,65 @@ const validateCreateOrderPayload = (payload) => {
     };
   }
 
-  // Validate value range for service types
   if (payload.service_type_id === 2) {
-    // Express
     if (payload.value < 1 || payload.value > 20000000) {
       return {
         valid: false,
         message: "Dịch vụ EXPRESS yêu cầu giá trị từ 1đ đến 20,000,000đ",
       };
     }
+    if (payload.pick_option === "cod") {
+      console.warn(
+        "Cảnh báo: Dịch vụ EXPRESS với pick_option 'cod' có thể gây lỗi 31106. Xác minh với GHTK."
+      );
+    }
   } else if (payload.value < 0 || payload.value > 100000000) {
-    // Standard
     return { valid: false, message: "Giá trị hàng hóa vượt quá 100,000,000đ" };
   }
 
-  // Validate products array
+  if (payload.products && Array.isArray(payload.products)) {
+    for (const product of payload.products) {
+      if (!product.name || !product.weight || !product.quantity) {
+        return {
+          valid: false,
+          message: "Sản phẩm phải có đầy đủ: name, weight, quantity",
+        };
+      }
+      if (product.weight < 50) {
+        return {
+          valid: false,
+          message: `Sản phẩm "${product.name}" có trọng lượng < 50g`,
+        };
+      }
+    }
+  }
+
+  return { valid: true };
+};
+
+const validateCalculateFeePayload = (payload) => {
+  const required = [
+    "pick_province",
+    "pick_district",
+    "pick_address",
+    "province",
+    "district",
+    "ward",
+    "address",
+    "weight",
+    "value",
+  ];
+
+  for (const field of required) {
+    if (!payload[field]) {
+      return { valid: false, message: `Thiếu trường bắt buộc: ${field}` };
+    }
+  }
+
+  if (payload.weight < 50) {
+    return { valid: false, message: "Trọng lượng tối thiểu là 50g" };
+  }
+
   if (payload.products && Array.isArray(payload.products)) {
     for (const product of payload.products) {
       if (!product.name || !product.weight || !product.quantity) {
@@ -281,7 +323,7 @@ export async function POST(request) {
     }
 
     let endpoint = "";
-    let method = "GET";
+    let method = "POST"; // Mặc định là POST, sửa sau nếu cần
     let data = {};
 
     switch (action) {
@@ -293,16 +335,15 @@ export async function POST(request) {
           );
         }
 
-        const validation = validateCreateOrderPayload(payload);
-        if (!validation.valid) {
+        const createValidation = validateCreateOrderPayload(payload);
+        if (!createValidation.valid) {
           return NextResponse.json(
-            { success: false, message: validation.message },
+            { success: false, message: createValidation.message },
             { status: 400 }
           );
         }
 
         endpoint = "/services/shipment/order";
-        method = "POST";
         data = {
           ...payload,
           weight: Math.max(payload.weight, 50),
@@ -313,23 +354,7 @@ export async function POST(request) {
             })) || [],
         };
 
-        const createRes = await callGhtkApi(endpoint, method, data);
-        if (createRes.success) {
-          return NextResponse.json({
-            success: true,
-            data: createRes,
-            message: "Tạo đơn hàng GHTK thành công",
-          });
-        } else {
-          return NextResponse.json(
-            {
-              success: false,
-              message: createRes.message || "Tạo đơn GHTK thất bại",
-              error: createRes,
-            },
-            { status: 400 }
-          );
-        }
+        break;
 
       case "calculateFee":
         if (!payload) {
@@ -339,8 +364,15 @@ export async function POST(request) {
           );
         }
 
+        const feeValidation = validateCalculateFeePayload(payload);
+        if (!feeValidation.valid) {
+          return NextResponse.json(
+            { success: false, message: feeValidation.message },
+            { status: 400 }
+          );
+        }
+
         endpoint = "/services/shipment/fee";
-        method = "GET"; // Sửa từ POST sang GET theo tài liệu
         data = {
           ...payload,
           weight: Math.max(payload.weight || 50, 50),
@@ -356,25 +388,10 @@ export async function POST(request) {
           deliver_option: payload.deliver_option || "none",
         };
 
-        const feeRes = await callGhtkApi(endpoint, method, data);
-        if (feeRes.success && feeRes.fee) {
-          return NextResponse.json({
-            success: true,
-            data: feeRes,
-            message: "Tính phí giao hàng thành công",
-          });
-        } else {
-          return NextResponse.json(
-            {
-              success: false,
-              message: feeRes.message || "Tính phí thất bại",
-              error: feeRes,
-            },
-            { status: 400 }
-          );
-        }
+        break;
 
       case "trackOrder":
+      case "getOrderStatus":
         if (
           !payload?.trackingCode ||
           typeof payload.trackingCode !== "string"
@@ -407,17 +424,6 @@ export async function POST(request) {
         method = "GET";
         break;
 
-      case "getOrderStatus":
-        if (!payload?.trackingCode) {
-          return NextResponse.json(
-            { success: false, message: "Thiếu mã trackingCode" },
-            { status: 400 }
-          );
-        }
-        endpoint = `/services/shipment/v2/${payload.trackingCode}`;
-        method = "GET";
-        break;
-
       case "printLabel":
         if (!payload?.trackingCode) {
           return NextResponse.json(
@@ -437,6 +443,44 @@ export async function POST(request) {
     }
 
     const result = await callGhtkApi(endpoint, method, data);
+
+    if (action === "createOrder") {
+      if (result.success) {
+        return NextResponse.json({
+          success: true,
+          data: result,
+          message: "Tạo đơn hàng GHTK thành công",
+        });
+      } else {
+        return NextResponse.json(
+          {
+            success: false,
+            message: result.message || "Tạo đơn GHTK thất bại",
+            error: result,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (action === "calculateFee") {
+      if (result.success && result.fee) {
+        return NextResponse.json({
+          success: true,
+          data: result,
+          message: "Tính phí giao hàng thành công",
+        });
+      } else {
+        return NextResponse.json(
+          {
+            success: false,
+            message: result.message || "Tính phí thất bại",
+            error: result,
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     if (action === "getAddress") {
       const provinces = result.province || [];

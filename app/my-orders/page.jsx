@@ -1,3 +1,4 @@
+// //bản an toàn
 // "use client";
 // import React, { useEffect, useState } from "react";
 // import { assets } from "@/assets/assets";
@@ -11,7 +12,7 @@
 // import { useUser } from "@clerk/nextjs";
 
 // const MyOrders = () => {
-//   const { currency, getToken, user, formatCurrency, router } = useAppContext();
+//   const { currency, getToken, user, formatCurrency, router } = useAppContext(); // Loại bỏ variants và fetchAllVariants
 //   const { isLoaded } = useUser();
 //   const [orders, setOrders] = useState([]);
 //   const [loading, setLoading] = useState(true);
@@ -70,6 +71,22 @@
 //     }
 //   };
 
+//   const getVariantName = (variant) => {
+//     if (
+//       !variant ||
+//       !variant.attributeRefs ||
+//       variant.attributeRefs.length === 0
+//     ) {
+//       console.log("No attributeRefs found for variant:", variant);
+//       return "";
+//     }
+//     // Tạo chuỗi biến thể từ attributeRefs (ví dụ: "(Trắng, 64GB)")
+//     const variantDetails = variant.attributeRefs
+//       .map((ref) => ref.value)
+//       .join(", ");
+//     return ` (${variantDetails})`;
+//   };
+
 //   useEffect(() => {
 //     if (!isLoaded) {
 //       console.log("Đang đợi Clerk tải dữ liệu người dùng...");
@@ -109,11 +126,21 @@
 //                       <p className="flex flex-col gap-3">
 //                         <span className="font-medium text-base">
 //                           {order.items
-//                             .map((item) =>
-//                               item.product?.name
-//                                 ? `${item.product.name} x ${item.quantity}`
-//                                 : `Sản phẩm không xác định x ${item.quantity}`
-//                             )
+//                             .map((item) => {
+//                               const product = item.product;
+//                               if (!product?.name || !item.variantId) {
+//                                 console.log("Missing data:", { product, item });
+//                                 return `${
+//                                   product?.name || "Sản phẩm không xác định"
+//                                 } x ${item.quantity}`;
+//                               }
+//                               const productName =
+//                                 product?.name || "Sản phẩm không xác định";
+//                               const variantName = getVariantName(
+//                                 item.variantId
+//                               ); // Sử dụng object Variant từ populate
+//                               return `${productName}${variantName} x ${item.quantity}`;
+//                             })
 //                             .join(", ")}
 //                         </span>
 //                         <span>Sản Phẩm: {order.items.length}</span>
@@ -128,6 +155,9 @@
 //                         <span>{order.address?.area || "N/A"}</span>
 //                         <br />
 //                         <span>
+//                           {order.address?.ward && order.address?.ward !== "Khác"
+//                             ? `${order.address.ward}, `
+//                             : ""}
 //                           {order.address?.city && order.address?.state
 //                             ? `${order.address.city}, ${order.address.state}`
 //                             : "N/A"}
@@ -146,7 +176,8 @@
 //                           Ngày: {new Date(order.date).toLocaleDateString()}
 //                         </span>
 //                         <span>
-//                           Trạng thái: {order.ghtkStatus || order.status}
+//                           Trạng thái:{" "}
+//                           {order.ghtkStatus || order.status || "Chưa cập nhật"}
 //                         </span>
 //                       </p>
 //                     </div>
@@ -176,15 +207,15 @@ import toast from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
 
 const MyOrders = () => {
-  const { currency, getToken, user, formatCurrency, router } = useAppContext(); // Loại bỏ variants và fetchAllVariants
-  const { isLoaded } = useUser();
+  const { currency, getToken, user, formatCurrency, router } = useAppContext();
+  const { isLoaded, isSignedIn } = useUser();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchOrders = async () => {
     try {
       const token = await getToken();
-      if (!token) {
+      if (!token || !isSignedIn) {
         toast.error("Vui lòng đăng nhập để xem đơn hàng của bạn");
         router.push("/sign-in");
         return;
@@ -198,14 +229,23 @@ const MyOrders = () => {
             if (order.trackingCode) {
               try {
                 const { data: ghtkData } = await axios.post("/api/ghtk", {
-                  action: "trackOrder",
+                  action: "getOrderStatus",
                   payload: { trackingCode: order.trackingCode },
                 });
-                if (ghtkData.success) {
-                  return { ...order, ghtkStatus: ghtkData.data.status };
-                }
+                return {
+                  ...order,
+                  ghtkStatus: ghtkData.success ? ghtkData.data.status : null,
+                  ghtkStatusText: ghtkData.success
+                    ? ghtkData.data.status_text
+                    : "Chưa cập nhật",
+                };
               } catch (error) {
                 console.error("Track Order Error:", error.message);
+                return {
+                  ...order,
+                  ghtkStatus: null,
+                  ghtkStatusText: "Lỗi truy vấn",
+                };
               }
             }
             return order;
@@ -225,10 +265,12 @@ const MyOrders = () => {
     } catch (error) {
       console.error("Lỗi khi lấy đơn hàng:", error);
       if (error.response?.status === 401) {
-        toast.error("Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.");
+        toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+        // Đề xuất logout nếu có
+        // await useUser().signOut();
         router.push("/sign-in");
       } else {
-        toast.error(error.message);
+        toast.error("Lỗi khi tải đơn hàng: " + error.message);
       }
     } finally {
       setLoading(false);
@@ -244,7 +286,10 @@ const MyOrders = () => {
       console.log("No attributeRefs found for variant:", variant);
       return "";
     }
-    // Tạo chuỗi biến thể từ attributeRefs (ví dụ: "(Trắng, 64GB)")
+    if (typeof variant === "string" || !variant._id) {
+      console.log("Invalid variant format:", variant);
+      return "";
+    }
     const variantDetails = variant.attributeRefs
       .map((ref) => ref.value)
       .join(", ");
@@ -256,12 +301,12 @@ const MyOrders = () => {
       console.log("Đang đợi Clerk tải dữ liệu người dùng...");
       return;
     }
-    if (user) {
+    if (user && isSignedIn) {
       fetchOrders();
     } else {
       router.push("/sign-in");
     }
-  }, [user, isLoaded]);
+  }, [user, isLoaded, isSignedIn]);
 
   return (
     <>
@@ -302,7 +347,7 @@ const MyOrders = () => {
                                 product?.name || "Sản phẩm không xác định";
                               const variantName = getVariantName(
                                 item.variantId
-                              ); // Sử dụng object Variant từ populate
+                              );
                               return `${productName}${variantName} x ${item.quantity}`;
                             })
                             .join(", ")}
@@ -340,8 +385,7 @@ const MyOrders = () => {
                           Ngày: {new Date(order.date).toLocaleDateString()}
                         </span>
                         <span>
-                          Trạng thái:{" "}
-                          {order.ghtkStatus || order.status || "Chưa cập nhật"}
+                          Trạng thái: {order.ghtkStatusText || "Chưa cập nhật"}
                         </span>
                       </p>
                     </div>

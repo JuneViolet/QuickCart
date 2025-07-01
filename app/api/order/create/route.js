@@ -682,6 +682,7 @@ export async function POST(request) {
           weight: Math.max(item.weight, 50), // Đảm bảo mỗi sản phẩm >= 50g
           quantity: item.quantity,
           product_code: item.sku,
+          cost: item.offerPrice,
         })),
         service_type_id: serviceTypeId,
         deliver_option: deliverOption,
