@@ -52,8 +52,11 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
+import Variant from "@/models/Variants"; // Thêm để giảm stock
+import Address from "@/models/Address"; // Đã có nhưng đảm bảo import
 import crypto from "crypto";
-import axios from "axios"; // Thêm axios để gọi GHN
+import axios from "axios";
+import moment from "moment-timezone"; // Thêm để sử dụng moment
 
 export async function GET(req) {
   try {
@@ -124,7 +127,16 @@ export async function GET(req) {
       order.vnp_TransactionNo = vnp_TransactionNo;
       await order.save();
 
-      // Gọi API GHN như trong luồng COD
+      // Giảm stock như trong luồng COD
+      const bulkOps = order.items.map((item) => ({
+        updateOne: {
+          filter: { _id: item.variantId },
+          update: { $inc: { stock: -item.quantity } },
+        },
+      }));
+      await Variant.bulkWrite(bulkOps);
+
+      // Gọi API GHN
       const fullAddress = await Address.findById(order.address);
       const totalWeight = order.items.reduce(
         (sum, item) => sum + item.weight * item.quantity,
@@ -139,7 +151,7 @@ export async function GET(req) {
       const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
 
       const ghnPayload = {
-        payment_type_id: 2, // COD (dù đã thanh toán VNPay, GHN vẫn cần COD nếu cấu hình)
+        payment_type_id: 1, // Sử dụng Prepaid cho VNPay
         note: "Giao hàng QuickCart",
         required_note: "KHONGCHOXEMHANG",
         return_phone: "0911222333",
@@ -152,7 +164,7 @@ export async function GET(req) {
         to_address: fullAddress.area,
         to_ward_code: fullAddress.wardCode,
         to_district_id: fullAddress.districtId,
-        cod_amount: Math.round(order.amount), // Sử dụng amount đã thanh toán
+        cod_amount: 0, // Không cần COD vì đã thanh toán VNPay
         weight: Math.max(totalWeight, 50),
         service_type_id: 2, // Express
         items: order.items.map((item) => ({
@@ -168,6 +180,7 @@ export async function GET(req) {
         JSON.stringify(ghnPayload, null, 2)
       );
 
+      let ghnTrackingCode = null;
       try {
         const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
           headers: {
@@ -181,7 +194,7 @@ export async function GET(req) {
         console.log("📦 GHN createOrder response from IPN:", ghnData);
 
         if (ghnData.code === 200) {
-          const ghnTrackingCode = ghnData.data.order_code;
+          ghnTrackingCode = ghnData.data.order_code;
           await Order.findByIdAndUpdate(order._id, {
             status: "ghn_success",
             ghnOrderId: ghnData.data.order_id,
@@ -198,7 +211,20 @@ export async function GET(req) {
           "❌ GHN API error in IPN:",
           err.response?.data || err.message
         );
-        // Không rollback vì đã thanh toán, chỉ log lỗi
+        // Rollback stock nếu GHN thất bại
+        await Variant.bulkWrite(
+          order.items.map((item) => ({
+            updateOne: {
+              filter: { _id: item.variantId },
+              update: { $inc: { stock: item.quantity } },
+            },
+          }))
+        );
+        // Cập nhật trạng thái lỗi GHN
+        await Order.findByIdAndUpdate(order._id, {
+          status: "ghn_failed",
+          ghnError: err.response?.data?.message || err.message,
+        });
       }
 
       console.log(`✅ Payment confirmed for: ${vnp_TxnRef}`);
