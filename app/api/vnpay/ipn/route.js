@@ -55,6 +55,7 @@ import connectDB from "@/config/db";
 import Order from "@/models/Order";
 import crypto from "crypto";
 import axios from "axios";
+import moment from "moment-timezone"; // Thêm để xử lý thời gian
 
 export async function GET(req) {
   await connectDB();
@@ -110,7 +111,92 @@ export async function GET(req) {
       await order.save();
       console.log("✅ Payment confirmed for:", vnp_TxnRef);
 
-      // Gọi GHN (thêm logic GHN nếu cần)
+      // Thêm logic gọi GHN
+      const totalWeight = order.items.reduce(
+        (sum, item) => sum + item.weight * item.quantity,
+        0
+      );
+      const currentTime = moment().tz("Asia/Ho_Chi_Minh");
+      const pickupTime = currentTime
+        .clone()
+        .add(1, "day")
+        .set({ hour: 8, minute: 0, second: 0 })
+        .format("YYYY-MM-DD HH:mm:ss");
+      const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
+
+      const fullAddress = await Address.findById(order.address);
+      if (!fullAddress) {
+        console.warn("⚠️ Address not found for order:", vnp_TxnRef);
+        return NextResponse.json({
+          RspCode: "03",
+          Message: "Address Not Found",
+        });
+      }
+
+      const ghnPayload = {
+        payment_type_id: 1, // Prepaid vì đã thanh toán VNPay
+        note: "Giao hàng QuickCart",
+        required_note: "KHONGCHOXEMHANG",
+        return_phone: "0911222333",
+        return_address: "590 CMT8, P.11, Q.3, TP. HCM",
+        return_district_id: null,
+        return_ward_code: "",
+        client_order_code: vnp_TxnRef,
+        to_name: fullAddress.fullName,
+        to_phone: fullAddress.phoneNumber,
+        to_address: fullAddress.area,
+        to_ward_code: fullAddress.wardCode,
+        to_district_id: fullAddress.districtId,
+        cod_amount: 0, // Không cần COD vì đã thanh toán
+        weight: Math.max(totalWeight, 50),
+        service_type_id: 2, // Express
+        items: order.items.map((item) => ({
+          name: item.sku,
+          quantity: item.quantity,
+          price: item.offerPrice,
+          weight: Math.max(item.weight, 50),
+        })),
+      };
+
+      console.log(
+        "📤 GHN createOrder payload:",
+        JSON.stringify(ghnPayload, null, 2)
+      );
+
+      try {
+        const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
+          headers: {
+            "Content-Type": "application/json",
+            Token: process.env.GHN_TOKEN,
+            ShopId: process.env.GHN_SHOP_ID,
+          },
+        });
+
+        const ghnData = ghnRes.data;
+        console.log("📦 GHN createOrder response:", ghnData);
+
+        if (ghnData.code === 200) {
+          const ghnTrackingCode = ghnData.data.order_code;
+          await Order.findByIdAndUpdate(order._id, {
+            status: "ghn_success",
+            ghnOrderId: ghnData.data.order_id,
+            trackingCode: ghnTrackingCode,
+          });
+          console.log(
+            `✅ GHN order created for: ${vnp_TxnRef}, tracking: ${ghnTrackingCode}`
+          );
+        } else {
+          throw new Error(ghnData.message || "GHN request failed");
+        }
+      } catch (err) {
+        console.error("❌ GHN API error:", err.response?.data || err.message);
+        // Không rollback stock ở đây vì đã giảm trong luồng khác (nếu có), chỉ cập nhật trạng thái
+        await Order.findByIdAndUpdate(order._id, {
+          status: "ghn_failed",
+          ghnError: err.response?.data?.message || err.message,
+        });
+      }
+
       return NextResponse.json({ RspCode: "00", Message: "Confirm Success" });
     } else {
       order.status = "failed";
