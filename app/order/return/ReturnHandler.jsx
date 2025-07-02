@@ -41,12 +41,13 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { getToken } from "@/context/AppContext"; // Giả sử bạn có hàm này
+import { useAppContext } from "@/context/AppContext"; // Import context
 
 export default function ReturnHandler() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const { getToken } = useAppContext(); // Lấy getToken từ context
 
   useEffect(() => {
     const handlePaymentResult = async () => {
@@ -57,7 +58,14 @@ export default function ReturnHandler() {
 
       if (vnp_ResponseCode !== null) {
         try {
-          const token = await getToken();
+          let token = null;
+          try {
+            token = await getToken(); // Thử lấy token
+          } catch (tokenError) {
+            console.warn("Failed to get token:", tokenError);
+            // Tiếp tục mà không cần token nếu không bắt buộc
+          }
+
           const headers = token ? { Authorization: `Bearer ${token}` } : {};
           const response = await axios.post(
             "/api/order/verify-payment",
@@ -87,7 +95,7 @@ export default function ReturnHandler() {
     };
 
     handlePaymentResult();
-  }, [searchParams, router]);
+  }, [searchParams, router, getToken]); // Thêm getToken vào dependencies
 
   return (
     <div className="text-center py-10 text-lg font-semibold">

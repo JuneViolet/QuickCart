@@ -7,10 +7,15 @@ export async function POST(request) {
 
   try {
     const { trackingCode, responseCode } = await request.json();
+    console.log("Received verify-payment request:", {
+      trackingCode,
+      responseCode,
+    });
 
     const order = await Order.findOne({ trackingCode });
 
     if (!order) {
+      console.warn("Order not found:", trackingCode);
       return NextResponse.json(
         { success: false, message: "Order not found" },
         { status: 404 }
@@ -18,12 +23,14 @@ export async function POST(request) {
     }
 
     if (responseCode === "00") {
-      order.status = "paid"; // Cập nhật tạm thời, IPN sẽ xác nhận cuối cùng
+      order.status = "paid";
       await order.save();
+      console.log("Payment verified for order:", trackingCode);
       return NextResponse.json({ success: true, message: "Payment verified" });
     } else {
       order.status = "failed";
       await order.save();
+      console.log("Payment failed for order:", trackingCode);
       return NextResponse.json(
         { success: false, message: "Payment failed" },
         { status: 400 }
