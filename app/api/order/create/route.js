@@ -401,6 +401,8 @@ import mongoose from "mongoose";
 import crypto from "crypto";
 import moment from "moment-timezone";
 import { inngest } from "@/config/inngest";
+import axios from "axios"; // Sử dụng axios để gọi API GHN
+require("dotenv").config(); // Đảm bảo đọc biến môi trường
 
 export async function POST(request) {
   await connectDB();
@@ -419,6 +421,7 @@ export async function POST(request) {
     });
 
     if (!userId) {
+      console.log("❌ Error: Chưa đăng nhập");
       return NextResponse.json(
         { success: false, message: "Chưa đăng nhập" },
         { status: 401 }
@@ -432,6 +435,11 @@ export async function POST(request) {
       !Array.isArray(items) ||
       items.length === 0
     ) {
+      console.log("❌ Error: Dữ liệu đơn hàng không hợp lệ", {
+        trackingCode,
+        address,
+        items,
+      });
       return NextResponse.json(
         { success: false, message: "Dữ liệu đơn hàng không hợp lệ" },
         { status: 400 }
@@ -439,6 +447,7 @@ export async function POST(request) {
     }
 
     if (!mongoose.Types.ObjectId.isValid(address)) {
+      console.log("❌ Error: Địa chỉ không hợp lệ", { address });
       return NextResponse.json(
         { success: false, message: "Địa chỉ không hợp lệ" },
         { status: 400 }
@@ -447,6 +456,7 @@ export async function POST(request) {
 
     const existing = await Order.findOne({ trackingCode });
     if (existing) {
+      console.log("❌ Error: Mã đơn hàng đã tồn tại", { trackingCode });
       return NextResponse.json(
         { success: false, message: "Mã đơn hàng đã tồn tại" },
         { status: 400 }
@@ -455,11 +465,19 @@ export async function POST(request) {
 
     const fullAddress = await Address.findById(address);
     if (!fullAddress) {
+      console.log("❌ Error: Không tìm thấy địa chỉ", { address });
       return NextResponse.json(
         { success: false, message: "Không tìm thấy địa chỉ" },
         { status: 404 }
       );
     }
+
+    const productIds = items.map((item) => item.product);
+    const variantIds = items.map((item) => item.variantId);
+    const products = await Product.find({ _id: { $in: productIds } }).populate(
+      "specifications"
+    );
+    const variants = await Variant.find({ _id: { $in: variantIds } });
 
     let subtotal = 0;
     const updatedItems = [];
@@ -472,18 +490,25 @@ export async function POST(request) {
         !mongoose.Types.ObjectId.isValid(variantId) ||
         quantity <= 0
       ) {
+        console.log("❌ Error: Sản phẩm không hợp lệ", {
+          product,
+          variantId,
+          quantity,
+        });
         return NextResponse.json(
           { success: false, message: "Sản phẩm không hợp lệ" },
           { status: 400 }
         );
       }
 
-      const foundProduct = await Product.findById(product).populate(
-        "specifications"
-      );
-      const foundVariant = await Variant.findById(variantId);
+      const foundProduct = products.find((p) => p._id.equals(product));
+      const foundVariant = variants.find((v) => v._id.equals(variantId));
 
       if (!foundProduct || !foundVariant) {
+        console.log("❌ Error: Không tìm thấy sản phẩm/phiên bản", {
+          product,
+          variantId,
+        });
         return NextResponse.json(
           { success: false, message: "Không tìm thấy sản phẩm/phiên bản" },
           { status: 404 }
@@ -491,6 +516,11 @@ export async function POST(request) {
       }
 
       if (foundVariant.stock < quantity) {
+        console.log("❌ Error: Phiên bản không đủ hàng", {
+          variantId,
+          stock: foundVariant.stock,
+          quantity,
+        });
         return NextResponse.json(
           { success: false, message: "Phiên bản không đủ hàng" },
           { status: 400 }
@@ -501,17 +531,21 @@ export async function POST(request) {
         foundProduct.specifications
           .find((spec) => spec.key === "Trọng lượng")
           ?.value?.trim() || "50g";
+
       let weight = 50;
       if (weightSpec.toLowerCase().includes("kg")) {
-        weight = Math.max(
-          10,
-          Math.round(parseFloat(weightSpec.replace("kg", "")) * 1000)
+        const kgValue = parseFloat(
+          weightSpec.toLowerCase().replace("kg", "").trim()
         );
+        weight = Math.max(10, Math.round(kgValue * 1000));
       } else if (weightSpec.toLowerCase().includes("g")) {
-        weight = Math.max(
-          10,
-          Math.round(parseFloat(weightSpec.replace("g", "")))
+        const gValue = parseFloat(
+          weightSpec.toLowerCase().replace("g", "").trim()
         );
+        weight = Math.max(10, Math.round(gValue));
+      } else {
+        const rawValue = parseFloat(weightSpec);
+        weight = isNaN(rawValue) ? 50 : Math.max(10, Math.round(rawValue));
       }
 
       subtotal += foundVariant.offerPrice * quantity;
@@ -526,16 +560,23 @@ export async function POST(request) {
       });
     }
 
+    console.log("Debug subtotal:", subtotal);
+    console.log("Debug updatedItems:", updatedItems);
+
     let calculatedDiscount = 0;
     if (promoCode) {
       const promo = await Promo.findOne({
         code: promoCode.toUpperCase(),
         isActive: true,
       });
+
       if (
         !promo ||
         (promo.expiresAt && new Date(promo.expiresAt) < new Date())
       ) {
+        console.log("❌ Error: Mã giảm giá không hợp lệ hoặc đã hết hạn", {
+          promoCode,
+        });
         return NextResponse.json(
           {
             success: false,
@@ -544,6 +585,7 @@ export async function POST(request) {
           { status: 400 }
         );
       }
+
       calculatedDiscount =
         promo.discountType === "percentage"
           ? (subtotal * promo.discount) / 100
@@ -587,22 +629,21 @@ export async function POST(request) {
       },
     });
 
-    let actualTrackingCode = trackingCode;
-
+    let ghnTrackingCode = null; // Thay ghtkTrackingCode bằng ghnTrackingCode
     if (paymentMethod === "cod") {
-      await Variant.bulkWrite(
-        updatedItems.map((item) => ({
-          updateOne: {
-            filter: { _id: item.variantId },
-            update: { $inc: { stock: -item.quantity } },
-          },
-        }))
-      );
+      const bulkOps = updatedItems.map((item) => ({
+        updateOne: {
+          filter: { _id: item.variantId },
+          update: { $inc: { stock: -item.quantity } },
+        },
+      }));
+      await Variant.bulkWrite(bulkOps);
 
       const totalWeight = updatedItems.reduce(
         (sum, item) => sum + item.weight * item.quantity,
         0
       );
+
       const currentTime = moment().tz("Asia/Ho_Chi_Minh");
       const pickupTime = currentTime
         .clone()
@@ -611,73 +652,75 @@ export async function POST(request) {
         .format("YYYY-MM-DD HH:mm:ss");
       const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
 
-      const ghtkPayload = {
-        id: trackingCode,
-        pick_name: "QuickCart Store",
-        pick_address: "590 CMT8, P.11, Q.3, TP. HCM",
-        pick_province: "TP. Hồ Chí Minh",
-        pick_district: "Quận 3",
-        pick_ward: "Phường 11",
-        pick_tel: "0911222333",
-        name: fullAddress.fullName,
-        address: fullAddress.area,
-        province: fullAddress.city,
-        district: fullAddress.state,
-        ward: fullAddress.ward,
-        tel: fullAddress.phoneNumber,
-        is_freeship: "0",
-        pick_option: "cod",
+      const ghnPayload = {
+        payment_type_id: 2, // COD
         note: "Giao hàng QuickCart",
-        transport: "road",
-        value: finalAmount,
-        pick_money: finalAmount,
+        required_note: "KHONGCHOXEMHANG",
+        return_phone: "0911222333",
+        return_address: "590 CMT8, P.11, Q.3, TP. HCM",
+        return_district_id: null,
+        return_ward_code: "",
+        client_order_code: trackingCode,
+        to_name: fullAddress.fullName,
+        to_phone: fullAddress.phoneNumber,
+        to_address: fullAddress.area,
+        to_ward_code: fullAddress.wardCode, // Sử dụng wardCode từ address
+        to_district_id: fullAddress.districtId, // Sử dụng districtId từ address
+        cod_amount: Math.round(finalAmount),
         weight: Math.max(totalWeight, 50),
-        products: updatedItems.map((item) => ({
+        service_type_id: 2, // Express
+        items: updatedItems.map((item) => ({
           name: item.sku,
-          weight: Math.max(item.weight, 50),
           quantity: item.quantity,
-          product_code: item.sku,
-          cost: item.offerPrice,
+          price: item.offerPrice,
+          weight: Math.max(item.weight, 50),
         })),
-        service_type_id: 1,
-        deliver_option: "none",
-        pickup_time: pickupTime,
-        order_date: orderDateStr,
       };
 
+      console.log(
+        "📤 GHN createOrder payload:",
+        JSON.stringify(ghnPayload, null, 2)
+      );
+
       try {
-        const ghtkRes = await fetch(
-          `${process.env.GHTK_API_URL}/services/shipment/order`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Token: process.env.GHTK_API_TOKEN,
-            },
-            body: JSON.stringify(ghtkPayload),
-          }
-        );
+        const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
+          headers: {
+            "Content-Type": "application/json",
+            Token: process.env.GHN_TOKEN,
+            ShopId: process.env.GHN_SHOP_ID,
+          },
+        });
 
-        const ghtkData = await ghtkRes.json();
+        const ghnData = ghnRes.data;
+        console.log("📦 GHN createOrder response:", ghnData);
 
-        if (ghtkData.success) {
+        if (ghnData.code === 200) {
+          console.log("✅ GHN createOrder success:", ghnData);
+          ghnTrackingCode = ghnData.data.order_code; // Lấy order_code từ GHN
           await Order.findByIdAndUpdate(orderId, {
-            status: "ghtk_success",
-            ghtkOrderId: ghtkData.order?.partner_id,
-            ghtkLabel: ghtkData.order?.label_id,
+            status: "ghn_success",
+            ghnOrderId: ghnData.data.order_id,
+            trackingCode: ghnTrackingCode,
           });
-          actualTrackingCode = ghtkData.order?.label_id || trackingCode;
         } else {
-          await Order.findByIdAndUpdate(orderId, {
-            status: "ghtk_failed",
-            ghtkError: ghtkData.message,
-          });
+          throw new Error(ghnData.message || "GHN request failed");
         }
       } catch (err) {
+        console.error("❌ GHN API error:", err.response?.data || err.message);
         await Order.findByIdAndUpdate(orderId, {
-          status: "ghtk_failed",
-          ghtkError: err.message,
+          status: "ghn_failed",
+          ghnError: err.response?.data?.message || err.message,
         });
+        await Order.findByIdAndDelete(orderId); // Rollback
+        return NextResponse.json(
+          {
+            success: false,
+            message: `GHN thất bại: ${
+              err.response?.data?.message || err.message
+            }`,
+          },
+          { status: 400 }
+        );
       }
     }
 
@@ -687,6 +730,10 @@ export async function POST(request) {
       const vnp_HashSecret = process.env.VNP_HASH_SECRET;
       const vnp_Url = process.env.VNP_URL;
       const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
+
+      if (!vnp_TmnCode || !vnp_HashSecret || !vnp_Url || !vnp_ReturnUrl) {
+        throw new Error("Thiếu cấu hình VNPAY trong .env");
+      }
 
       const now = moment().tz("Asia/Ho_Chi_Minh");
       const vnp_CreateDate = now.format("YYYYMMDDHHmmss");
@@ -716,6 +763,7 @@ export async function POST(request) {
       const signData = sortedKeys
         .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
         .join("&");
+
       const secureHash = crypto
         .createHmac("sha512", vnp_HashSecret)
         .update(signData, "utf8")
@@ -733,11 +781,12 @@ export async function POST(request) {
       order: {
         id: order._id,
         amount: finalAmount,
-        trackingCode: actualTrackingCode,
+        trackingCode: ghnTrackingCode || trackingCode,
         vnpayUrl,
       },
     });
   } catch (error) {
+    console.error("❌ Order creation error:", error);
     return NextResponse.json(
       { success: false, message: "Lỗi server: " + error.message },
       { status: 500 }

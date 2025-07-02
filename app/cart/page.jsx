@@ -170,8 +170,8 @@ const Cart = () => {
       const calculateShippingFee = async () => {
         if (
           !defaultAddress ||
-          !defaultAddress.city ||
-          !defaultAddress.state ||
+          !defaultAddress.districtId ||
+          !defaultAddress.wardCode ||
           !defaultAddress.area ||
           Object.keys(cartItems).length === 0
         ) {
@@ -238,101 +238,44 @@ const Cart = () => {
           console.log("Total Value Calculated:", totalValue, "VNĐ");
 
           const payload = {
-            pick_province: "TP. Hồ Chí Minh",
-            pick_district: "Quận 3",
-            pick_address: "590 CMT8, P.11, Q.3, TP. HCM",
-            pick_ward: "Phường 11",
-            pick_tel: "0911222333",
-            province:
-              defaultAddress.city === "Hồ Chí Minh"
-                ? "TP. Hồ Chí Minh"
-                : defaultAddress.city || "TP. Hồ Chí Minh",
-            district: defaultAddress.state.startsWith("Quận")
-              ? defaultAddress.state
-              : `Quận ${defaultAddress.state}` || "Quận 1",
-            ward: defaultAddress.ward?.startsWith("Phường")
-              ? defaultAddress.ward
-              : `Phường ${defaultAddress.ward || "1"}`,
-            address: defaultAddress.area || "123 Nguyễn Chí Thanh",
-            weight: totalWeight,
-            value: totalValue,
-            transport: "road",
-            products: Object.values(cartItems).map((item) => {
-              const productId = item.productId;
-              const variant = variants[productId]?.find(
-                (v) => v._id.toString() === item.variantId
-              );
-              const specs = specifications[productId] || [];
-              let weight = 50;
-              const weightSpec = specs.find(
-                (s) => s.key.toLowerCase() === "trọng lượng"
-              );
-              if (weightSpec) {
-                const weightValue = parseFloat(
-                  weightSpec.value.replace(/[^0-9.]/g, "")
-                );
-                if (!isNaN(weightValue)) weight = weightValue;
-              }
-              const color = variant?.attributeRefs?.find(
-                (ref) => ref.attributeId.name === "Màu sắc"
-              )?.value;
-              const storage = variant?.attributeRefs?.find(
-                (ref) => ref.attributeId.name === "Dung lượng"
-              )?.value;
-              return {
-                name: item.name,
-                weight: weight,
-                quantity: item.quantity || 1,
-                sku: variant?.sku,
-                attributes: {
-                  color: color || "N/A",
-                  storage: storage || "N/A",
-                },
-              };
-            }),
+            service_type_id: 2, // Express, có thể thay đổi (2: Nhanh, 1: Tiết kiệm)
+            to_district_id: defaultAddress.districtId, // Sử dụng mã quận/huyện từ GHN
+            to_ward_code: defaultAddress.wardCode, // Sử dụng mã phường/xã từ GHN
+            to_address: defaultAddress.area || "123 Nguyễn Chí Thanh",
+            weight: Math.max(totalWeight, 50), // GHN yêu cầu tối thiểu 50g
+            cod_amount: totalValue, // Giá trị COD
+            service_id: 0, // 0: Tự động chọn dịch vụ, có thể thay đổi
+            from_district_id: 1444, // Mã quận 3, TP.HCM (cần thay bằng mã thực tế)
+            from_ward_code: "20308", // Mã phường 11, Q.3 (cần thay bằng mã thực tế)
           };
 
-          console.log(
-            "Payload sent to GHTK:",
-            JSON.stringify(payload, null, 2)
-          );
+          console.log("Payload sent to GHN:", JSON.stringify(payload, null, 2));
 
           const token = await getToken();
-          const headers = token ? { Authorization: `Bearer ${token}` } : {};
+          const headers = {
+            "Content-Type": "application/json",
+            Token: process.env.GHN_TOKEN, // Sử dụng token từ .env
+            ShopId: process.env.GHN_SHOP_ID,
+          };
           const response = await axios.post(
-            "/api/ghtk",
-            {
-              action: "calculateFee",
-              payload,
-            },
+            "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+            payload,
             { headers }
           );
 
-          if (!response.data) {
-            throw new Error("GHTK response is empty");
-          }
-
           console.log(
-            "GHTK Response from Client:",
+            "GHN Response from Client:",
             JSON.stringify(response.data, null, 2)
           );
-          if (response.data.success && response.data.data?.success) {
-            if (response.data.data.fee?.fee) {
-              setShippingFee(response.data.data.fee.fee);
-              console.log(
-                "Shipping Fee Calculated:",
-                response.data.data.fee.fee
-              );
-            } else {
-              throw new Error("GHTK response missing fee data");
-            }
+          if (response.data.code === 200) {
+            const fee = response.data.data.total || 0;
+            setShippingFee(fee);
+            console.log("Shipping Fee Calculated:", fee);
           } else {
             const errorMessage =
-              response.data.data?.message ||
-              response.data.message ||
-              "GHTK failed to calculate fee";
+              response.data.message || "GHN failed to calculate fee";
             console.log(
-              "GHTK Error Response:",
+              "GHN Error Response:",
               JSON.stringify(response.data, null, 2)
             );
             throw new Error(errorMessage);

@@ -465,7 +465,7 @@ const OrderSummary = ({ shippingFee }) => {
           address: selectedAddress._id,
           items: cartItemsArray,
           promoCode: promoCode || null,
-          trackingCode: internalTrackingCode, // Gửi mã nội bộ, GHTK sẽ trả label_id
+          trackingCode: internalTrackingCode,
           paymentMethod,
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -477,14 +477,13 @@ const OrderSummary = ({ shippingFee }) => {
         throw new Error(data.message || "Tạo đơn hàng thất bại");
       }
 
-      // Lấy mã GHTK từ response
-      const ghtkTrackingCode = data.data?.label_id || data.data?.order_code;
-      if (ghtkTrackingCode) {
-        console.log("Mã theo dõi GHTK:", ghtkTrackingCode);
-        // Lưu hoặc hiển thị mã GHTK ở đây nếu cần (ví dụ: redirect với params)
+      // Lấy mã GHN từ response
+      const ghnTrackingCode = data.order?.trackingCode; // Thay vì label_id, dùng trackingCode từ GHN
+      if (ghnTrackingCode) {
+        console.log("Mã theo dõi GHN:", ghnTrackingCode);
       } else {
         console.warn(
-          "Không tìm thấy mã GHTK, sử dụng mã nội bộ:",
+          "Không tìm thấy mã GHN, sử dụng mã nội bộ:",
           internalTrackingCode
         );
       }
@@ -498,16 +497,14 @@ const OrderSummary = ({ shippingFee }) => {
         setDiscount(0);
         router.push(
           `/order-placed?trackingCode=${
-            ghtkTrackingCode || internalTrackingCode
+            ghnTrackingCode || internalTrackingCode
           }`
         );
       }
     } catch (error) {
       console.error("Đặt hàng lỗi:", error); // Log chi tiết
       toast.error(
-        error.message.includes("31106")
-          ? "Lỗi GHTK: Giá trị hàng hóa không hợp lệ cho EXPRESS. Vui lòng chọn dịch vụ khác."
-          : error.message || "Lỗi khi đặt hàng"
+        error.response?.data?.message || error.message || "Lỗi khi đặt hàng"
       );
     } finally {
       setIsSubmitting(false);

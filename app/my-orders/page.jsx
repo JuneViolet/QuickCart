@@ -228,23 +228,29 @@ const MyOrders = () => {
           data.orders.map(async (order) => {
             if (order.trackingCode) {
               try {
-                const { data: ghtkData } = await axios.post("/api/ghtk", {
-                  action: "getOrderStatus",
-                  payload: { trackingCode: order.trackingCode },
-                });
+                const headers = {
+                  "Content-Type": "application/json",
+                  Token: process.env.GHN_TOKEN,
+                  ShopId: process.env.GHN_SHOP_ID,
+                };
+                const { data: ghnData } = await axios.get(
+                  `https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail`,
+                  {
+                    headers,
+                    params: { order_code: order.trackingCode },
+                  }
+                );
                 return {
                   ...order,
-                  ghtkStatus: ghtkData.success ? ghtkData.data.status : null,
-                  ghtkStatusText: ghtkData.success
-                    ? ghtkData.data.status_text
-                    : "Chưa cập nhật",
+                  ghnStatus: ghnData.data?.status || null,
+                  ghnStatusText: ghnData.data?.status_name || "Chưa cập nhật",
                 };
               } catch (error) {
                 console.error("Track Order Error:", error.message);
                 return {
                   ...order,
-                  ghtkStatus: null,
-                  ghtkStatusText: "Lỗi truy vấn",
+                  ghnStatus: null,
+                  ghnStatusText: "Lỗi truy vấn",
                 };
               }
             }
@@ -385,7 +391,7 @@ const MyOrders = () => {
                           Ngày: {new Date(order.date).toLocaleDateString()}
                         </span>
                         <span>
-                          Trạng thái: {order.ghtkStatusText || "Chưa cập nhật"}
+                          Trạng thái: {order.ghnStatusText || "Chưa cập nhật"}
                         </span>
                       </p>
                     </div>
