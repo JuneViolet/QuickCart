@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
-import axios from "axios"; // Thêm để gọi GHN
-import moment from "moment-timezone"; // Thêm để xử lý thời gian
-import Address from "@/models/Address"; // Thêm để lấy thông tin địa chỉ
+import axios from "axios";
+import moment from "moment-timezone";
+import Address from "@/models/Address";
 
 export async function POST(request) {
   await connectDB();
 
   try {
-    // Lấy token từ header (từ Clerk qua AppContext)
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       console.warn("Unauthorized request: Missing or invalid token");
@@ -26,7 +25,7 @@ export async function POST(request) {
       responseCode,
     });
 
-    const order = await Order.findOne({ trackingCode });
+    const order = await Order.findOne({ trackingCode }).populate("address");
 
     if (!order) {
       console.warn("Order not found:", trackingCode);
@@ -36,7 +35,6 @@ export async function POST(request) {
       );
     }
 
-    // Kiểm tra trạng thái hiện tại để tránh cập nhật không cần thiết
     if (order.status === "paid" || order.status === "ghn_success") {
       console.log("Order already processed:", trackingCode);
       return NextResponse.json({
@@ -51,10 +49,9 @@ export async function POST(request) {
       await order.save();
       console.log("Payment verified for order:", trackingCode);
 
-      // Gọi API GHN để tạo đơn vận chuyển (tương tự luồng IPN)
-      const fullAddress = await Address.findById(order.address);
+      const fullAddress = order.address;
       const totalWeight = order.items.reduce(
-        (sum, item) => sum + item.weight * item.quantity,
+        (sum, item) => sum + (item.weight || 50) * item.quantity,
         0
       );
       const currentTime = moment().tz("Asia/Ho_Chi_Minh");
@@ -63,10 +60,17 @@ export async function POST(request) {
         .add(1, "day")
         .set({ hour: 8, minute: 0, second: 0 })
         .format("YYYY-MM-DD HH:mm:ss");
-      const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
+
+      if (!fullAddress) {
+        console.warn("⚠️ Address not found for order:", trackingCode);
+        return NextResponse.json(
+          { success: false, message: "Address not found" },
+          { status: 400 }
+        );
+      }
 
       const ghnPayload = {
-        payment_type_id: 1, // Prepaid vì đã thanh toán VNPay
+        payment_type_id: 1,
         note: "Giao hàng QuickCart",
         required_note: "KHONGCHOXEMHANG",
         return_phone: "0911222333",
@@ -79,14 +83,14 @@ export async function POST(request) {
         to_address: fullAddress.area,
         to_ward_code: fullAddress.wardCode,
         to_district_id: fullAddress.districtId,
-        cod_amount: 0, // Không cần COD vì đã thanh toán
+        cod_amount: 0,
         weight: Math.max(totalWeight, 50),
-        service_type_id: 2, // Express
+        service_type_id: 2,
         items: order.items.map((item) => ({
           name: item.sku,
           quantity: item.quantity,
           price: item.offerPrice,
-          weight: Math.max(item.weight, 50),
+          weight: Math.max(item.weight || 50, 50),
         })),
       };
 
@@ -127,7 +131,6 @@ export async function POST(request) {
         }
       } catch (err) {
         console.error("❌ GHN API error:", err.response?.data || err.message);
-        // Không rollback stock ở đây vì đã giảm trong IPN, chỉ cập nhật trạng thái lỗi
         await Order.findByIdAndUpdate(order._id, {
           status: "ghn_failed",
           ghnError: err.response?.data?.message || err.message,
