@@ -329,9 +329,9 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "@/context/AppContext";
-import { useUser } from "@clerk/nextjs"; // Thêm để lấy isLoaded
+import { useUser } from "@clerk/nextjs";
 
-const OrderSummary = ({ shippingFee }) => {
+const OrderSummary = () => {
   const {
     currency,
     router,
@@ -346,7 +346,7 @@ const OrderSummary = ({ shippingFee }) => {
     variants,
   } = useAppContext();
 
-  const { isLoaded } = useUser(); // Sử dụng useUser để lấy isLoaded
+  const { isLoaded } = useUser();
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userAddresses, setUserAddresses] = useState([]);
@@ -355,6 +355,7 @@ const OrderSummary = ({ shippingFee }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [bankCode, setBankCode] = useState("");
+  const [shippingFee, setShippingFee] = useState(null);
 
   useEffect(() => {
     if (!isLoaded) {
@@ -364,7 +365,15 @@ const OrderSummary = ({ shippingFee }) => {
     if (user) {
       fetchUserAddresses();
     }
-  }, [user, isLoaded]); // Thêm isLoaded để tránh chạy khi chưa tải xong
+  }, [user, isLoaded]);
+
+  useEffect(() => {
+    if (selectedAddress && cartItems && Object.keys(cartItems).length > 0) {
+      calculateShippingFee();
+    } else {
+      setShippingFee(0);
+    }
+  }, [selectedAddress, cartItems]);
 
   const fetchUserAddresses = async () => {
     try {
@@ -385,7 +394,7 @@ const OrderSummary = ({ shippingFee }) => {
         toast.error(data.message || "Không thể tải địa chỉ");
       }
     } catch (error) {
-      console.error("Lỗi khi tải địa chỉ:", error); // Log chi tiết
+      console.error("Lỗi khi tải địa chỉ:", error);
       toast.error("Lỗi khi tải địa chỉ: " + error.message);
     }
   };
@@ -411,9 +420,71 @@ const OrderSummary = ({ shippingFee }) => {
         toast.error(data.message || "Mã giảm giá không hợp lệ");
       }
     } catch (error) {
-      console.error("Lỗi khi áp dụng mã:", error); // Log chi tiết
+      console.error("Lỗi khi áp dụng mã:", error);
       setDiscount(0);
       toast.error("Lỗi khi áp dụng mã: " + error.message);
+    }
+  };
+
+  const calculateShippingFee = async () => {
+    if (
+      !selectedAddress ||
+      !selectedAddress.districtId ||
+      !selectedAddress.wardCode ||
+      !cartItems ||
+      Object.keys(cartItems).length === 0
+    ) {
+      console.log("Skipping shipping fee calculation: Invalid data");
+      setShippingFee(0);
+      return;
+    }
+
+    try {
+      const totalWeight = Object.values(cartItems).reduce((sum, item) => {
+        const productId = item.productId || item.key.split("_")[0];
+        const variant = variants[productId]?.find(
+          (v) => v._id.toString() === item.variantId
+        );
+        const specs = specifications[productId] || [];
+        let weight = 50;
+        const weightSpec = specs.find(
+          (s) => s.key.toLowerCase() === "trọng lượng"
+        );
+        if (weightSpec) {
+          const weightValue = parseFloat(
+            weightSpec.value.replace(/[^0-9.]/g, "")
+          );
+          if (!isNaN(weightValue)) weight = weightValue;
+        }
+        const quantity = item.quantity || 1;
+        return sum + weight * quantity;
+      }, 0);
+
+      const totalValue = getCartAmount() || 0;
+
+      const payload = {
+        districtId: selectedAddress.districtId,
+        wardCode: selectedAddress.wardCode,
+        address: selectedAddress.area || "123 Nguyễn Chí Thanh",
+        weight: Math.max(totalWeight, 50),
+        value: totalValue,
+      };
+
+      const token = await getToken();
+      const { data } = await axios.post("/api/shipping/fee", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (data.success) {
+        setShippingFee(data.data.fee || 0);
+        console.log("Shipping Fee Calculated:", data.data.fee);
+      } else {
+        throw new Error(data.message || "Failed to calculate shipping fee");
+      }
+    } catch (error) {
+      console.error("Calculate Shipping Fee Error:", error.message);
+      setShippingFee(0);
+      toast.error("Không thể tính phí vận chuyển: " + error.message);
     }
   };
 
@@ -456,8 +527,11 @@ const OrderSummary = ({ shippingFee }) => {
       if (!cartItemsArray) return;
 
       const token = await getToken();
-      const internalTrackingCode = `ORDER-${Date.now()}`; // Mã nội bộ để debug
-      const total = calculateFinalTotal();
+      const internalTrackingCode = `ORDER-${Date.now()}`;
+      const subtotal = getCartAmount() || 0;
+      const tax = Math.floor(subtotal * 0.02);
+      const shippingFeeValue = await calculateShippingFee();
+      const total = subtotal + tax + shippingFeeValue - discount;
 
       const response = await axios.post(
         "/api/order/create",
@@ -467,6 +541,7 @@ const OrderSummary = ({ shippingFee }) => {
           promoCode: promoCode || null,
           trackingCode: internalTrackingCode,
           paymentMethod,
+          amount: total,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -477,8 +552,7 @@ const OrderSummary = ({ shippingFee }) => {
         throw new Error(data.message || "Tạo đơn hàng thất bại");
       }
 
-      // Lấy mã GHN từ response
-      const ghnTrackingCode = data.order?.trackingCode; // Thay vì label_id, dùng trackingCode từ GHN
+      const ghnTrackingCode = data.order?.trackingCode;
       if (ghnTrackingCode) {
         console.log("Mã theo dõi GHN:", ghnTrackingCode);
       } else {
@@ -502,7 +576,7 @@ const OrderSummary = ({ shippingFee }) => {
         );
       }
     } catch (error) {
-      console.error("Đặt hàng lỗi:", error); // Log chi tiết
+      console.error("Đặt hàng lỗi:", error);
       toast.error(
         error.response?.data?.message || error.message || "Lỗi khi đặt hàng"
       );

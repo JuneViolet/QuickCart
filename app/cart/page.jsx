@@ -9,7 +9,6 @@ import axios from "axios";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
-import mongoose from "mongoose";
 
 const Cart = () => {
   const {
@@ -28,6 +27,7 @@ const Cart = () => {
   const [specifications, setSpecifications] = useState({});
   const [variants, setVariants] = useState({});
   const [isDataReady, setIsDataReady] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -168,41 +168,30 @@ const Cart = () => {
   useEffect(() => {
     if (isDataReady && defaultAddress && Object.keys(cartItems).length > 0) {
       const calculateShippingFee = async () => {
-        if (
-          !defaultAddress ||
-          !defaultAddress.districtId ||
-          !defaultAddress.wardCode ||
-          !defaultAddress.area ||
-          Object.keys(cartItems).length === 0
-        ) {
-          console.log(
-            "Skipping shipping fee calculation: No valid address or cart items",
-            { defaultAddress }
-          );
-          return;
-        }
-
-        const itemIds = Object.keys(cartItems).map((key) => key.split("_")[0]);
-        if (
-          itemIds.some(
-            (id) => !specifications[id] || !specifications[id].length
-          )
-        ) {
-          console.log(
-            "Skipping shipping fee calculation: Specifications not fully fetched",
-            { specifications }
-          );
-          return;
-        }
-
+        setLoading(true);
         try {
+          if (
+            !defaultAddress ||
+            !defaultAddress.districtId ||
+            !defaultAddress.wardCode ||
+            !defaultAddress.area ||
+            Object.keys(cartItems).length === 0
+          ) {
+            console.log(
+              "Skipping shipping fee calculation: No valid address or cart items",
+              { defaultAddress }
+            );
+            setShippingFee(0);
+            return;
+          }
+
           const totalWeight = Object.values(cartItems).reduce((sum, item) => {
-            const productId = item.productId;
+            const productId = item.productId || item.key.split("_")[0];
             const variant = variants[productId]?.find(
               (v) => v._id.toString() === item.variantId
             );
             const specs = specifications[productId] || [];
-            let weight = 50; // Mặc định 50g
+            let weight = 50;
             const weightSpec = specs.find(
               (s) => s.key.toLowerCase() === "trọng lượng"
             );
@@ -213,18 +202,8 @@ const Cart = () => {
               if (!isNaN(weightValue)) weight = weightValue;
             }
             const quantity = item.quantity || 1;
-            console.log(
-              `Product: ${item.name}, Variant: ${
-                variant?.attributeRefs?.map((ref) => ref.value).join("/") ||
-                "N/A"
-              }, Weight: ${weight}g, Quantity: ${quantity}, Subtotal Weight: ${
-                weight * quantity
-              }g`
-            );
             return sum + weight * quantity;
           }, 0);
-
-          console.log("Total Weight Calculated:", totalWeight, "g");
 
           if (totalWeight <= 0) {
             throw new Error("Total weight must be greater than 0");
@@ -235,55 +214,40 @@ const Cart = () => {
             0
           );
 
-          console.log("Total Value Calculated:", totalValue, "VNĐ");
-
           const payload = {
-            service_type_id: 2, // Express, có thể thay đổi (2: Nhanh, 1: Tiết kiệm)
-            to_district_id: defaultAddress.districtId, // Sử dụng mã quận/huyện từ GHN
-            to_ward_code: defaultAddress.wardCode, // Sử dụng mã phường/xã từ GHN
-            to_address: defaultAddress.area || "123 Nguyễn Chí Thanh",
-            weight: Math.max(totalWeight, 50), // GHN yêu cầu tối thiểu 50g
-            cod_amount: totalValue, // Giá trị COD
-            service_id: 0, // 0: Tự động chọn dịch vụ, có thể thay đổi
-            from_district_id: 1444, // Mã quận 3, TP.HCM (cần thay bằng mã thực tế)
-            from_ward_code: "20308", // Mã phường 11, Q.3 (cần thay bằng mã thực tế)
+            districtId: parseInt(defaultAddress.districtId), // Chuyển đổi sang số nguyên
+            wardCode: defaultAddress.wardCode, // Có thể cần parseInt nếu là string
+            address: defaultAddress.area || "123 Nguyễn Chí Thanh",
+            weight: Math.max(totalWeight, 50),
+            value: totalValue,
           };
-
-          console.log("Payload sent to GHN:", JSON.stringify(payload, null, 2));
-
-          const token = await getToken();
-          const headers = {
-            "Content-Type": "application/json",
-            Token: process.env.GHN_TOKEN, // Sử dụng token từ .env
-            ShopId: process.env.GHN_SHOP_ID,
-          };
-          const response = await axios.post(
-            "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
-            payload,
-            { headers }
-          );
 
           console.log(
-            "GHN Response from Client:",
-            JSON.stringify(response.data, null, 2)
+            "Payload sent to /api/shipping/fee:",
+            JSON.stringify(payload, null, 2)
           );
-          if (response.data.code === 200) {
-            const fee = response.data.data.total || 0;
+
+          const token = await getToken();
+          const headers = { Authorization: `Bearer ${token}` };
+          const response = await axios.post("/api/shipping/fee", payload, {
+            headers,
+          });
+
+          if (response.data.success) {
+            const fee = response.data.data.fee || 0;
             setShippingFee(fee);
             console.log("Shipping Fee Calculated:", fee);
           } else {
-            const errorMessage =
-              response.data.message || "GHN failed to calculate fee";
-            console.log(
-              "GHN Error Response:",
-              JSON.stringify(response.data, null, 2)
+            throw new Error(
+              response.data.message || "Failed to calculate shipping fee"
             );
-            throw new Error(errorMessage);
           }
         } catch (error) {
           console.error("Calculate Shipping Fee Error:", error.message);
           setShippingFee(0);
           toast.error("Không thể tính phí vận chuyển: " + error.message);
+        } finally {
+          setLoading(false);
         }
       };
 
@@ -309,7 +273,6 @@ const Cart = () => {
     console.log("Default Address:", JSON.stringify(defaultAddress, null, 2));
   }, [cartItems, specifications, variants, defaultAddress]);
 
-  // Kiểm tra trước khi chuyển sang /checkout
   const handleCheckout = () => {
     if (!defaultAddress) {
       toast.error("Vui lòng thêm địa chỉ giao hàng trước khi thanh toán!");
@@ -320,7 +283,7 @@ const Cart = () => {
       toast.error("Giỏ hàng trống, vui lòng thêm sản phẩm!");
       return;
     }
-    if (!shippingFee && shippingFee !== 0) {
+    if (loading || (shippingFee === null && !loading)) {
       toast.error("Vui lòng đợi tính phí vận chuyển trước khi thanh toán!");
       return;
     }
@@ -483,13 +446,21 @@ const Cart = () => {
           </button>
         </div>
         <div>
-          <OrderSummary shippingFee={shippingFee} />
-          <button
-            onClick={handleCheckout}
-            className="mt-4 w-full px-6 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-          >
-            Thanh Toán
-          </button>
+          {loading ? (
+            <div className="w-full h-64 flex items-center justify-center">
+              <p className="text-gray-600">Đang tính phí vận chuyển...</p>
+            </div>
+          ) : (
+            <>
+              <OrderSummary shippingFee={shippingFee} />
+              <button
+                onClick={handleCheckout}
+                className="mt-4 w-full px-6 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+              >
+                Thanh Toán
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>

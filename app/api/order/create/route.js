@@ -725,13 +725,65 @@ export async function POST(request) {
     }
 
     let vnpayUrl = null;
+    // if (paymentMethod === "vnpay") {
+    //   const vnp_TmnCode = process.env.VNP_TMN_CODE;
+    //   const vnp_HashSecret = process.env.VNP_HASH_SECRET;
+    //   const vnp_Url = process.env.VNP_URL;
+    //   const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
+
+    //   if (!vnp_TmnCode || !vnp_HashSecret || !vnp_Url || !vnp_ReturnUrl) {
+    //     throw new Error("Thiếu cấu hình VNPAY trong .env");
+    //   }
+
+    //   const now = moment().tz("Asia/Ho_Chi_Minh");
+    //   const vnp_CreateDate = now.format("YYYYMMDDHHmmss");
+    //   const vnp_ExpireDate = now
+    //     .clone()
+    //     .add(15, "minutes")
+    //     .format("YYYYMMDDHHmmss");
+
+    //   const vnp_Params = {
+    //     vnp_Version: "2.1.0",
+    //     vnp_Command: "pay",
+    //     vnp_TmnCode,
+    //     vnp_Locale: "vn",
+    //     vnp_CurrCode: "VND",
+    //     vnp_TxnRef: trackingCode,
+    //     vnp_OrderInfo: "Thanh toán đơn hàng từ QuickCart",
+    //     vnp_OrderType: "other",
+    //     vnp_Amount: finalAmount * 100,
+    //     vnp_ReturnUrl,
+    //     vnp_IpAddr: request.headers.get("x-forwarded-for") || "127.0.0.1",
+    //     vnp_CreateDate,
+    //     vnp_ExpireDate,
+    //   };
+
+    //   const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
+    //   const sortedKeys = Object.keys(vnp_Params).sort();
+    //   const signData = sortedKeys
+    //     .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
+    //     .join("&");
+
+    //   const secureHash = crypto
+    //     .createHmac("sha512", vnp_HashSecret)
+    //     .update(signData, "utf8")
+    //     .digest("hex");
+    //   vnp_Params.vnp_SecureHash = secureHash;
+
+    //   vnpayUrl = `${vnp_Url}?${sortedKeys
+    //     .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
+    //     .join("&")}&vnp_SecureHash=${secureHash}`;
+    // }
     if (paymentMethod === "vnpay") {
       const vnp_TmnCode = process.env.VNP_TMN_CODE;
       const vnp_HashSecret = process.env.VNP_HASH_SECRET;
-      const vnp_Url = process.env.VNP_URL;
+      const vnp_Url =
+        process.env.VNP_URL ||
+        "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
       const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
+      const vnp_IpnUrl = process.env.VNP_IPN_URL;
 
-      if (!vnp_TmnCode || !vnp_HashSecret || !vnp_Url || !vnp_ReturnUrl) {
+      if (!vnp_TmnCode || !vnp_HashSecret || !vnp_ReturnUrl || !vnp_IpnUrl) {
         throw new Error("Thiếu cấu hình VNPAY trong .env");
       }
 
@@ -753,6 +805,7 @@ export async function POST(request) {
         vnp_OrderType: "other",
         vnp_Amount: finalAmount * 100,
         vnp_ReturnUrl,
+        vnp_IpnUrl,
         vnp_IpAddr: request.headers.get("x-forwarded-for") || "127.0.0.1",
         vnp_CreateDate,
         vnp_ExpireDate,
@@ -774,7 +827,6 @@ export async function POST(request) {
         .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
         .join("&")}&vnp_SecureHash=${secureHash}`;
     }
-
     return NextResponse.json({
       success: true,
       message: "Đặt hàng thành công",
