@@ -55,7 +55,7 @@ import connectDB from "@/config/db";
 import Order from "@/models/Order";
 import crypto from "crypto";
 import axios from "axios";
-import moment from "moment-timezone"; // Thêm để xử lý thời gian
+import moment from "moment-timezone";
 
 export async function GET(req) {
   await connectDB();
@@ -66,11 +66,13 @@ export async function GET(req) {
     console.log("🌐 IPN Request Params:", JSON.stringify(params, null, 2));
 
     const receivedSecureHash = params.vnp_SecureHash;
-    const vnp_HashSecret = process.env.VNP_HASH_SECRET?.trim();
+    const vnp_HashSecret = process.env.VNP_HASH_SECRET; // Loại bỏ .trim() để khớp với ban đầu
 
+    // Xóa các tham số không cần thiết
     delete params.vnp_SecureHash;
     delete params.vnp_SecureHashType;
 
+    // Sắp xếp và tạo signData giống logic ban đầu
     const sortedKeys = Object.keys(params).sort();
     const signData = sortedKeys
       .map(
@@ -91,7 +93,9 @@ export async function GET(req) {
     }
 
     const { vnp_TxnRef, vnp_ResponseCode } = params;
-    const order = await Order.findOne({ trackingCode: vnp_TxnRef });
+    const order = await Order.findOne({ trackingCode: vnp_TxnRef }).populate(
+      "address"
+    );
 
     if (!order) {
       console.warn("⚠️ Order not found:", vnp_TxnRef);
@@ -113,18 +117,17 @@ export async function GET(req) {
 
       // Thêm logic gọi GHN
       const totalWeight = order.items.reduce(
-        (sum, item) => sum + item.weight * item.quantity,
+        (sum, item) => sum + (item.weight || 50) * item.quantity,
         0
-      );
+      ); // Sử dụng weight mặc định 50 nếu null
       const currentTime = moment().tz("Asia/Ho_Chi_Minh");
       const pickupTime = currentTime
         .clone()
         .add(1, "day")
         .set({ hour: 8, minute: 0, second: 0 })
         .format("YYYY-MM-DD HH:mm:ss");
-      const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
 
-      const fullAddress = await Address.findById(order.address);
+      const fullAddress = order.address; // Đã populate
       if (!fullAddress) {
         console.warn("⚠️ Address not found for order:", vnp_TxnRef);
         return NextResponse.json({
@@ -147,14 +150,14 @@ export async function GET(req) {
         to_address: fullAddress.area,
         to_ward_code: fullAddress.wardCode,
         to_district_id: fullAddress.districtId,
-        cod_amount: 0, // Không cần COD vì đã thanh toán
-        weight: Math.max(totalWeight, 50),
-        service_type_id: 2, // Express
+        cod_amount: 0,
+        weight: Math.max(totalWeight, 50), // Đảm bảo weight tối thiểu 50
+        service_type_id: 2,
         items: order.items.map((item) => ({
           name: item.sku,
           quantity: item.quantity,
           price: item.offerPrice,
-          weight: Math.max(item.weight, 50),
+          weight: Math.max(item.weight || 50, 50), // Đảm bảo weight không null
         })),
       };
 
@@ -190,7 +193,6 @@ export async function GET(req) {
         }
       } catch (err) {
         console.error("❌ GHN API error:", err.response?.data || err.message);
-        // Không rollback stock ở đây vì đã giảm trong luồng khác (nếu có), chỉ cập nhật trạng thái
         await Order.findByIdAndUpdate(order._id, {
           status: "ghn_failed",
           ghnError: err.response?.data?.message || err.message,
