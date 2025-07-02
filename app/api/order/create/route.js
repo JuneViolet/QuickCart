@@ -730,6 +730,7 @@ export async function POST(request) {
       const vnp_HashSecret = process.env.VNP_HASH_SECRET;
       const vnp_Url = process.env.VNP_URL;
       const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
+      const vnp_IpnUrl = process.env.VNP_IPN_URL; // Thêm nếu đã cấu hình
 
       if (!vnp_TmnCode || !vnp_HashSecret || !vnp_Url || !vnp_ReturnUrl) {
         throw new Error("Thiếu cấu hình VNPAY trong .env");
@@ -756,6 +757,7 @@ export async function POST(request) {
         vnp_IpAddr: request.headers.get("x-forwarded-for") || "127.0.0.1",
         vnp_CreateDate,
         vnp_ExpireDate,
+        ...(vnp_IpnUrl && { vnp_IpnUrl }), // Thêm vnp_IpnUrl nếu có
       };
 
       const encode = (str) => encodeURIComponent(str).replace(/%20/g, "+");
