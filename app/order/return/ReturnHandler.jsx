@@ -98,7 +98,9 @@ export default function ReturnHandler() {
             if (vnp_ResponseCode === "00") {
               toast.success("🎉 Thanh toán thành công!");
               if (response.data.trackingCode) {
-                setTrackingInfo(response.data.trackingCode); // Sử dụng trackingCode mới từ GHN
+                setTrackingInfo(response.data.trackingCode); // Cập nhật mã GHN
+              } else {
+                toast.error("Không nhận được mã vận đơn GHN.");
               }
               router.replace("/order-placed");
             } else {

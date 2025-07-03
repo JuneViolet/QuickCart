@@ -66,17 +66,18 @@ const orderSchema = new mongoose.Schema({
     ref: "Address",
     required: true,
   },
-  trackingCode: { type: String, required: true, unique: true }, // ✅ giữ lại unique ở đây
+  trackingCode: { type: String, required: true, unique: true }, // Sẽ là mã GHN
   status: {
     type: String,
-    enum: ["pending", "paid", "confirmed", "shipped", "delivered", "canceled"], // Thêm "paid"
+    enum: ["pending", "paid", "confirmed", "shipped", "delivered", "canceled"],
     default: "pending",
   },
+  paymentMethod: { type: String, default: "COD" },
   date: { type: Date, default: Date.now, required: true },
 });
 
-// ❌ XÓA dòng index bên dưới vì đã có unique ở trackingCode
-// orderSchema.index({ trackingCode: 1 }, { unique: true });
+// Xóa index thừa
+// orderSchema.index({ trackingCode: 1 }, { unique: true }); // ❌ Đã xóa
 
 let Order;
 try {

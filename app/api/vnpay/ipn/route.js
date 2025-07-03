@@ -159,7 +159,7 @@ export async function GET(req) {
       return NextResponse.json({ RspCode: "01", Message: "Order Not Found" });
     }
 
-    if (order.status === "paid") {
+    if (order.status === "paid" || order.status === "ghn_success") {
       console.log(`ℹ️ Order already confirmed: ${vnp_TxnRef}`);
       return NextResponse.json({
         RspCode: "02",
@@ -181,7 +181,6 @@ export async function GET(req) {
       await order.save();
       console.log(`✅ Payment confirmed for: ${vnp_TxnRef}`);
 
-      // Logic GHN trực tiếp
       const totalWeight = order.items.reduce(
         (sum, item) => sum + (item.weight || 50) * item.quantity,
         0
@@ -203,7 +202,7 @@ export async function GET(req) {
       }
 
       const ghnPayload = {
-        payment_type_id: 1,
+        payment_type_id: 1, // Thanh toán trước (VNPay)
         note: "Giao hàng QuickCart",
         required_note: "KHONGCHOXEMHANG",
         return_phone: "0911222333",
@@ -249,7 +248,7 @@ export async function GET(req) {
           await Order.findByIdAndUpdate(order._id, {
             status: "ghn_success",
             ghnOrderId: ghnData.data.order_id,
-            trackingCode: ghnTrackingCode,
+            trackingCode: ghnTrackingCode, // Cập nhật trackingCode bằng mã GHN
           });
           console.log(
             `✅ GHN order created for: ${vnp_TxnRef}, tracking: ${ghnTrackingCode}`
@@ -263,6 +262,7 @@ export async function GET(req) {
           status: "ghn_failed",
           ghnError: err.response?.data?.message || err.message,
         });
+        // Không rollback vì thanh toán đã thành công, chỉ ghi nhận lỗi GHN
       }
 
       return NextResponse.json({ RspCode: "00", Message: "Confirm Success" });

@@ -1,4 +1,3 @@
-// //bản an toàn
 // "use client";
 // import React, { useEffect, useState } from "react";
 // import { assets } from "@/assets/assets";
@@ -12,15 +11,15 @@
 // import { useUser } from "@clerk/nextjs";
 
 // const MyOrders = () => {
-//   const { currency, getToken, user, formatCurrency, router } = useAppContext(); // Loại bỏ variants và fetchAllVariants
-//   const { isLoaded } = useUser();
+//   const { currency, getToken, user, formatCurrency, router } = useAppContext();
+//   const { isLoaded, isSignedIn } = useUser();
 //   const [orders, setOrders] = useState([]);
 //   const [loading, setLoading] = useState(true);
 
 //   const fetchOrders = async () => {
 //     try {
 //       const token = await getToken();
-//       if (!token) {
+//       if (!token || !isSignedIn) {
 //         toast.error("Vui lòng đăng nhập để xem đơn hàng của bạn");
 //         router.push("/sign-in");
 //         return;
@@ -33,15 +32,30 @@
 //           data.orders.map(async (order) => {
 //             if (order.trackingCode) {
 //               try {
-//                 const { data: ghtkData } = await axios.post("/api/ghtk", {
-//                   action: "trackOrder",
-//                   payload: { trackingCode: order.trackingCode },
-//                 });
-//                 if (ghtkData.success) {
-//                   return { ...order, ghtkStatus: ghtkData.data.status };
-//                 }
+//                 const headers = {
+//                   "Content-Type": "application/json",
+//                   Token: process.env.GHN_TOKEN,
+//                   ShopId: process.env.GHN_SHOP_ID,
+//                 };
+//                 const { data: ghnData } = await axios.get(
+//                   `https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail`,
+//                   {
+//                     headers,
+//                     params: { order_code: order.trackingCode },
+//                   }
+//                 );
+//                 return {
+//                   ...order,
+//                   ghnStatus: ghnData.data?.status || null,
+//                   ghnStatusText: ghnData.data?.status_name || "Chưa cập nhật",
+//                 };
 //               } catch (error) {
 //                 console.error("Track Order Error:", error.message);
+//                 return {
+//                   ...order,
+//                   ghnStatus: null,
+//                   ghnStatusText: "Lỗi truy vấn",
+//                 };
 //               }
 //             }
 //             return order;
@@ -61,10 +75,12 @@
 //     } catch (error) {
 //       console.error("Lỗi khi lấy đơn hàng:", error);
 //       if (error.response?.status === 401) {
-//         toast.error("Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.");
+//         toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+//         // Đề xuất logout nếu có
+//         // await useUser().signOut();
 //         router.push("/sign-in");
 //       } else {
-//         toast.error(error.message);
+//         toast.error("Lỗi khi tải đơn hàng: " + error.message);
 //       }
 //     } finally {
 //       setLoading(false);
@@ -80,7 +96,10 @@
 //       console.log("No attributeRefs found for variant:", variant);
 //       return "";
 //     }
-//     // Tạo chuỗi biến thể từ attributeRefs (ví dụ: "(Trắng, 64GB)")
+//     if (typeof variant === "string" || !variant._id) {
+//       console.log("Invalid variant format:", variant);
+//       return "";
+//     }
 //     const variantDetails = variant.attributeRefs
 //       .map((ref) => ref.value)
 //       .join(", ");
@@ -92,12 +111,12 @@
 //       console.log("Đang đợi Clerk tải dữ liệu người dùng...");
 //       return;
 //     }
-//     if (user) {
+//     if (user && isSignedIn) {
 //       fetchOrders();
 //     } else {
 //       router.push("/sign-in");
 //     }
-//   }, [user, isLoaded]);
+//   }, [user, isLoaded, isSignedIn]);
 
 //   return (
 //     <>
@@ -138,7 +157,7 @@
 //                                 product?.name || "Sản phẩm không xác định";
 //                               const variantName = getVariantName(
 //                                 item.variantId
-//                               ); // Sử dụng object Variant từ populate
+//                               );
 //                               return `${productName}${variantName} x ${item.quantity}`;
 //                             })
 //                             .join(", ")}
@@ -176,8 +195,7 @@
 //                           Ngày: {new Date(order.date).toLocaleDateString()}
 //                         </span>
 //                         <span>
-//                           Trạng thái:{" "}
-//                           {order.ghtkStatus || order.status || "Chưa cập nhật"}
+//                           Trạng thái: {order.ghnStatusText || "Chưa cập nhật"}
 //                         </span>
 //                       </p>
 //                     </div>
@@ -272,8 +290,6 @@ const MyOrders = () => {
       console.error("Lỗi khi lấy đơn hàng:", error);
       if (error.response?.status === 401) {
         toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        // Đề xuất logout nếu có
-        // await useUser().signOut();
         router.push("/sign-in");
       } else {
         toast.error("Lỗi khi tải đơn hàng: " + error.message);
@@ -300,6 +316,17 @@ const MyOrders = () => {
       .map((ref) => ref.value)
       .join(", ");
     return ` (${variantDetails})`;
+  };
+
+  const getPaymentMethodText = (method) => {
+    switch (method?.toLowerCase()) {
+      case "vnpay":
+        return "Thanh toán qua VNPAY";
+      case "cod":
+        return "Thanh toán khi nhận hàng (COD)";
+      default:
+        return "Phương thức không xác định";
+    }
   };
 
   useEffect(() => {
@@ -386,7 +413,10 @@ const MyOrders = () => {
                     </p>
                     <div>
                       <p className="flex flex-col">
-                        <span>Phương thức: COD</span>
+                        <span>
+                          Phương thức:{" "}
+                          {getPaymentMethodText(order.paymentMethod)}
+                        </span>
                         <span>
                           Ngày: {new Date(order.date).toLocaleDateString()}
                         </span>

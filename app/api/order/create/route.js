@@ -401,22 +401,20 @@ import mongoose from "mongoose";
 import crypto from "crypto";
 import moment from "moment-timezone";
 import { inngest } from "@/config/inngest";
-import axios from "axios"; // Sử dụng axios để gọi API GHN
-require("dotenv").config(); // Đảm bảo đọc biến môi trường
+import axios from "axios";
+require("dotenv").config();
 
 export async function POST(request) {
   await connectDB();
 
   try {
     const { userId } = getAuth(request);
-    const { address, items, promoCode, trackingCode, paymentMethod } =
-      await request.json();
+    const { address, items, promoCode, paymentMethod } = await request.json();
 
     console.log("📥 Received payload:", {
       address,
       items,
       promoCode,
-      trackingCode,
       paymentMethod,
     });
 
@@ -428,15 +426,8 @@ export async function POST(request) {
       );
     }
 
-    if (
-      !trackingCode ||
-      !address ||
-      !items ||
-      !Array.isArray(items) ||
-      items.length === 0
-    ) {
+    if (!address || !items || !Array.isArray(items) || items.length === 0) {
       console.log("❌ Error: Dữ liệu đơn hàng không hợp lệ", {
-        trackingCode,
         address,
         items,
       });
@@ -450,15 +441,6 @@ export async function POST(request) {
       console.log("❌ Error: Địa chỉ không hợp lệ", { address });
       return NextResponse.json(
         { success: false, message: "Địa chỉ không hợp lệ" },
-        { status: 400 }
-      );
-    }
-
-    const existing = await Order.findOne({ trackingCode });
-    if (existing) {
-      console.log("❌ Error: Mã đơn hàng đã tồn tại", { trackingCode });
-      return NextResponse.json(
-        { success: false, message: "Mã đơn hàng đã tồn tại" },
         { status: 400 }
       );
     }
@@ -599,14 +581,16 @@ export async function POST(request) {
       Math.floor(subtotal + tax - calculatedDiscount)
     );
     const orderDate = new Date();
+    const tempTrackingCode = `TEMP-${Date.now()}`; // Mã tạm thời
 
     const order = await Order.create({
       userId,
       items: updatedItems,
       amount: finalAmount,
       address: new mongoose.Types.ObjectId(address),
-      trackingCode,
+      trackingCode: tempTrackingCode, // Sử dụng mã tạm thời
       status: "pending",
+      paymentMethod: paymentMethod || "COD", // Gán paymentMethod
       date: orderDate,
     });
 
@@ -624,12 +608,12 @@ export async function POST(request) {
         tax,
         discount: calculatedDiscount,
         amount: finalAmount,
-        trackingCode,
+        trackingCode: tempTrackingCode,
         date: orderDate,
       },
     });
 
-    let ghnTrackingCode = null; // Thay ghtkTrackingCode bằng ghnTrackingCode
+    let ghnTrackingCode = null;
     if (paymentMethod === "cod") {
       const bulkOps = updatedItems.map((item) => ({
         updateOne: {
@@ -650,7 +634,6 @@ export async function POST(request) {
         .add(1, "day")
         .set({ hour: 8, minute: 0, second: 0 })
         .format("YYYY-MM-DD HH:mm:ss");
-      const orderDateStr = currentTime.format("YYYY-MM-DD HH:mm:ss");
 
       const ghnPayload = {
         payment_type_id: 2, // COD
@@ -660,12 +643,12 @@ export async function POST(request) {
         return_address: "590 CMT8, P.11, Q.3, TP. HCM",
         return_district_id: null,
         return_ward_code: "",
-        client_order_code: trackingCode,
+        client_order_code: tempTrackingCode, // Dùng mã tạm thời cho GHN
         to_name: fullAddress.fullName,
         to_phone: fullAddress.phoneNumber,
         to_address: fullAddress.area,
-        to_ward_code: fullAddress.wardCode, // Sử dụng wardCode từ address
-        to_district_id: fullAddress.districtId, // Sử dụng districtId từ address
+        to_ward_code: fullAddress.wardCode,
+        to_district_id: fullAddress.districtId,
         cod_amount: Math.round(finalAmount),
         weight: Math.max(totalWeight, 50),
         service_type_id: 2, // Express
@@ -695,13 +678,13 @@ export async function POST(request) {
         console.log("📦 GHN createOrder response:", ghnData);
 
         if (ghnData.code === 200) {
-          console.log("✅ GHN createOrder success:", ghnData);
-          ghnTrackingCode = ghnData.data.order_code; // Lấy order_code từ GHN
+          ghnTrackingCode = ghnData.data.order_code;
           await Order.findByIdAndUpdate(orderId, {
             status: "ghn_success",
             ghnOrderId: ghnData.data.order_id,
-            trackingCode: ghnTrackingCode,
+            trackingCode: ghnTrackingCode, // Cập nhật bằng mã GHN
           });
+          console.log("✅ GHN createOrder success:", ghnTrackingCode);
         } else {
           throw new Error(ghnData.message || "GHN request failed");
         }
@@ -748,7 +731,7 @@ export async function POST(request) {
         vnp_TmnCode,
         vnp_Locale: "vn",
         vnp_CurrCode: "VND",
-        vnp_TxnRef: trackingCode,
+        vnp_TxnRef: tempTrackingCode, // Dùng mã tạm thời cho VNPay
         vnp_OrderInfo: "Thanh toán đơn hàng từ QuickCart",
         vnp_OrderType: "other",
         vnp_Amount: finalAmount * 100,
@@ -781,7 +764,7 @@ export async function POST(request) {
       order: {
         id: order._id,
         amount: finalAmount,
-        trackingCode: ghnTrackingCode || trackingCode,
+        trackingCode: ghnTrackingCode || tempTrackingCode, // Trả về mã GHN nếu có, nếu không thì mã tạm
         vnpayUrl,
       },
     });

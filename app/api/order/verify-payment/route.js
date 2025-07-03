@@ -184,10 +184,8 @@ export async function POST(request) {
       responseCode,
     });
 
-    // Tìm đơn hàng với cả trackingCode ban đầu và mã GHN mới
-    const order = await Order.findOne({
-      $or: [{ trackingCode: trackingCode }, { trackingCode: trackingCode }],
-    }).populate("address");
+    // Tìm đơn hàng với trackingCode ban đầu
+    const order = await Order.findOne({ trackingCode }).populate("address");
 
     if (!order) {
       console.warn("Order not found:", trackingCode);
@@ -232,7 +230,7 @@ export async function POST(request) {
       }
 
       const ghnPayload = {
-        payment_type_id: 1,
+        payment_type_id: 1, // Thanh toán trước
         note: "Giao hàng QuickCart",
         required_note: "KHONGCHOXEMHANG",
         return_phone: "0911222333",
@@ -278,7 +276,7 @@ export async function POST(request) {
           await Order.findByIdAndUpdate(order._id, {
             status: "ghn_success",
             ghnOrderId: ghnData.data.order_id,
-            trackingCode: ghnTrackingCode,
+            trackingCode: ghnTrackingCode, // Cập nhật bằng mã GHN
           });
           console.log(
             `✅ GHN order created for: ${trackingCode}, tracking: ${ghnTrackingCode}`
