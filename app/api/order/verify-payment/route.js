@@ -184,12 +184,11 @@ export async function POST(request) {
       responseCode,
     });
 
-    // Tìm đơn hàng với trackingCode ban đầu, mã tạm thời, hoặc ghnOrderId
     let order = await Order.findOne({
       $or: [
-        { trackingCode: trackingCode }, // Tìm bằng mã tạm thời
-        { trackingCode: { $regex: /^TEMP-/ } }, // Tìm các mã tạm thời
-        { ghnOrderId: { $exists: true } }, // Tìm bằng ghnOrderId nếu đã tạo GHN
+        { trackingCode: trackingCode },
+        { trackingCode: { $regex: /^TEMP-/ } },
+        { ghnOrderId: { $exists: true } },
       ],
     }).populate("address");
 
@@ -198,8 +197,7 @@ export async function POST(request) {
         "Order not found with trackingCode or ghnOrderId:",
         trackingCode
       );
-      // Thử tìm lại bằng userId và thời gian gần nhất
-      const userId = (await request.headers.get("user-id")) || ""; // Giả định lấy userId từ header
+      const userId = (await request.headers.get("user-id")) || "";
       if (userId) {
         order = await Order.findOne({
           userId: userId,
@@ -228,7 +226,7 @@ export async function POST(request) {
       return NextResponse.json({
         success: true,
         message: "Order already processed",
-        trackingCode: order.trackingCode, // Trả về trackingCode hiện tại
+        trackingCode: order.trackingCode,
       });
     }
 
@@ -269,7 +267,7 @@ export async function POST(request) {
         to_name: fullAddress.fullName,
         to_phone: fullAddress.phoneNumber,
         to_address: fullAddress.area,
-        to_ward_code: fullAddress.wardCode,
+        to_ward_code: fullAddress.wardCode || "20602", // Đảm bảo truyền wardCode
         to_district_id: fullAddress.districtId,
         cod_amount: 0,
         weight: Math.max(totalWeight, 50),

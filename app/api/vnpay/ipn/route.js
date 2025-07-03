@@ -213,7 +213,7 @@ export async function GET(req) {
         to_name: fullAddress.fullName,
         to_phone: fullAddress.phoneNumber,
         to_address: fullAddress.area,
-        to_ward_code: fullAddress.wardCode,
+        to_ward_code: fullAddress.wardCode || "20602",
         to_district_id: fullAddress.districtId,
         cod_amount: 0,
         weight: Math.max(totalWeight, 50),
@@ -247,7 +247,7 @@ export async function GET(req) {
           const ghnTrackingCode = ghnData.data.order_code;
           await Order.findByIdAndUpdate(order._id, {
             status: "ghn_success",
-            trackingCode: ghnTrackingCode,// Cập nhật trackingCode bằng mã GHN
+            trackingCode: ghnTrackingCode, // Cập nhật trackingCode bằng mã GHN
             ghnOrderId: ghnData.data.order_id, // Lưu ghnOrderId
           });
           console.log(
