@@ -98,16 +98,20 @@ export default function ReturnHandler() {
             if (vnp_ResponseCode === "00") {
               toast.success("🎉 Thanh toán thành công!");
               if (response.data.trackingCode) {
-                setTrackingInfo(response.data.trackingCode); // Cập nhật mã GHN
+                setTrackingInfo(response.data.trackingCode); // Cập nhật mã GHN từ response
+                router.replace("/order-placed");
               } else {
-                toast.error("Không nhận được mã vận đơn GHN.");
+                toast.error(
+                  "Thanh toán thành công nhưng không tạo được mã GHN."
+                );
+                router.replace("/my-orders");
               }
-              router.replace("/order-placed");
             } else {
               toast.error(`❌ Thanh toán thất bại. Mã: ${vnp_ResponseCode}`);
               router.replace("/cart");
             }
           } else {
+            console.log("Response data:", response.data); // Debug
             toast.error("Lỗi xác nhận thanh toán: " + response.data.message);
             router.replace("/cart");
           }
@@ -135,7 +139,7 @@ export default function ReturnHandler() {
         "⏳ Đang xử lý kết quả thanh toán..."
       ) : trackingInfo ? (
         <>
-          <p>🎉 Thanh toán thành công!</p>
+          {/* <p>🎉 Thanh toán thành công!</p> */}
           <p>Mã vận đơn GHN: {trackingInfo}</p>
           <p>Đang chuyển trang...</p>
         </>

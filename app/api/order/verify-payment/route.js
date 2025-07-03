@@ -184,20 +184,43 @@ export async function POST(request) {
       responseCode,
     });
 
-    // Tìm đơn hàng với trackingCode ban đầu hoặc ghnOrderId
-    const order = await Order.findOne({
+    // Tìm đơn hàng với trackingCode ban đầu, mã tạm thời, hoặc ghnOrderId
+    let order = await Order.findOne({
       $or: [
         { trackingCode: trackingCode }, // Tìm bằng mã tạm thời
+        { trackingCode: { $regex: /^TEMP-/ } }, // Tìm các mã tạm thời
         { ghnOrderId: { $exists: true } }, // Tìm bằng ghnOrderId nếu đã tạo GHN
       ],
     }).populate("address");
 
     if (!order) {
-      console.warn("Order not found:", trackingCode);
-      return NextResponse.json(
-        { success: false, message: "Order not found" },
-        { status: 404 }
+      console.warn(
+        "Order not found with trackingCode or ghnOrderId:",
+        trackingCode
       );
+      // Thử tìm lại bằng userId và thời gian gần nhất
+      const userId = (await request.headers.get("user-id")) || ""; // Giả định lấy userId từ header
+      if (userId) {
+        order = await Order.findOne({
+          userId: userId,
+          date: {
+            $gte: moment().subtract(1, "hour").toDate(),
+            $lte: moment().add(1, "hour").toDate(),
+          },
+        }).populate("address");
+        if (!order) {
+          return NextResponse.json(
+            { success: false, message: "Order not found" },
+            { status: 404 }
+          );
+        }
+        console.log("Found order by userId and date:", order.trackingCode);
+      } else {
+        return NextResponse.json(
+          { success: false, message: "Order not found" },
+          { status: 404 }
+        );
+      }
     }
 
     if (order.status === "paid" || order.status === "ghn_success") {
@@ -205,7 +228,7 @@ export async function POST(request) {
       return NextResponse.json({
         success: true,
         message: "Order already processed",
-        trackingCode: order.trackingCode,
+        trackingCode: order.trackingCode, // Trả về trackingCode hiện tại
       });
     }
 
@@ -281,7 +304,7 @@ export async function POST(request) {
           await Order.findByIdAndUpdate(order._id, {
             status: "ghn_success",
             trackingCode: ghnTrackingCode,
-            ghnOrderId: ghnData.data.order_id, // Lưu ghnOrderId
+            ghnOrderId: ghnData.data.order_id,
           });
           console.log(
             `✅ GHN order created for: ${trackingCode}, tracking: ${ghnTrackingCode}`
