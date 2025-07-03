@@ -247,8 +247,8 @@ export async function GET(req) {
           const ghnTrackingCode = ghnData.data.order_code;
           await Order.findByIdAndUpdate(order._id, {
             status: "ghn_success",
-            ghnOrderId: ghnData.data.order_id,
-            trackingCode: ghnTrackingCode, // Cập nhật trackingCode bằng mã GHN
+            trackingCode: ghnTrackingCode,// Cập nhật trackingCode bằng mã GHN
+            ghnOrderId: ghnData.data.order_id, // Lưu ghnOrderId
           });
           console.log(
             `✅ GHN order created for: ${vnp_TxnRef}, tracking: ${ghnTrackingCode}`

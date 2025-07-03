@@ -74,6 +74,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: { type: String, default: "COD" },
   date: { type: Date, default: Date.now, required: true },
+  ghnOrderId: { type: String }, // Thêm trường này để lưu order_id từ GHN
 });
 
 // Xóa index thừa
