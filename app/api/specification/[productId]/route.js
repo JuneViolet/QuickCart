@@ -67,3 +67,50 @@ export async function DELETE(request, context) {
     );
   }
 }
+
+export async function PUT(request, context) {
+  try {
+    await connectDB();
+    const { params } = context;
+    const { productId } = params;
+    const { specId, key, value } = await request.json();
+
+    // Kiểm tra xem spec có tồn tại không
+    const spec = await Specification.findById(specId);
+    if (!spec) {
+      return NextResponse.json(
+        { success: false, message: "Specification not found" },
+        { status: 404 }
+      );
+    }
+
+    // Kiểm tra đúng sản phẩm không
+    if (spec.productId.toString() !== productId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Specification does not belong to this product",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Cập nhật giá trị (chỉ sửa value, key thường là cố định)
+    spec.value = value;
+    await spec.save();
+
+    return NextResponse.json({
+      success: true,
+      message: "Specification updated successfully",
+    });
+  } catch (error) {
+    console.error("Update Specification Error:", error.message, error.stack);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to update specification: " + error.message,
+      },
+      { status: 500 }
+    );
+  }
+}

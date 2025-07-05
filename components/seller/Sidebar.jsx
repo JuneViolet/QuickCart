@@ -35,7 +35,7 @@ const SideBar = () => {
       icon: assets.specifications, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
     },
     {
-      name: "Specification-Tempate",
+      name: "Spec Templates",
       path: "/seller/specification-template",
       icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
     },
