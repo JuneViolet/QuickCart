@@ -257,10 +257,12 @@ const MyOrders = () => {
       if (data.success) {
         const updatedOrders = await Promise.all(
           data.orders.map(async (order) => {
-            if (order.trackingCode) {
+            const tracking = order.ghnTrackingCode || order.trackingCode;
+
+            if (tracking && !tracking.startsWith("TEMP-")) {
               try {
                 const { data: ghnData } = await axios.get(
-                  `/api/track-order?order_code=${order.trackingCode}`
+                  `/api/track-order?order_code=${tracking}`
                 );
                 return {
                   ...order,
@@ -269,7 +271,7 @@ const MyOrders = () => {
                 };
               } catch (error) {
                 console.warn(
-                  `Track Order Error for ${order.trackingCode}:`,
+                  `Track Order Error for ${tracking}:`,
                   error.message
                 );
                 return {
@@ -279,6 +281,7 @@ const MyOrders = () => {
                 };
               }
             }
+
             return {
               ...order,
               ghnStatus: null,
@@ -286,6 +289,7 @@ const MyOrders = () => {
             };
           })
         );
+
         setOrders(updatedOrders.reverse());
       } else {
         if (data.message === "Người dùng không được tìm thấy") {
