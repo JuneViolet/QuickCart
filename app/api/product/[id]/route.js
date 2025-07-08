@@ -1,143 +1,11 @@
 // import { NextResponse } from "next/server";
 // import Product from "@/models/Product";
+// import Variant from "@/models/Variants";
 // import Specification from "@/models/Specification";
 // import Category from "@/models/Category";
 // import Brand from "@/models/Brand";
+// import Attribute from "@/models/Attribute";
 // import connectDB from "@/config/db";
-
-// export async function GET(request, context) {
-//   try {
-//     await connectDB();
-//     const { id } = await context.params;
-
-//     if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
-//       return NextResponse.json(
-//         { success: false, message: "Invalid product ID" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const product = await Product.findById(id)
-//       .populate("category brand", "name")
-//       .populate({
-//         path: "specifications",
-//         select: "key value",
-//       })
-//       .populate({
-//         path: "relatedProducts",
-//         select:
-//           "name description price offerPrice images category stock brand reviews",
-//         options: { strictPopulate: false },
-//       })
-//       .lean();
-
-//     if (!product) {
-//       return NextResponse.json(
-//         { success: false, message: "Product not found" },
-//         { status: 404 }
-//       );
-//     }
-
-//     console.log("Product Data:", product); // Thêm log để kiểm tra dữ liệu
-
-//     const averageRating = product.reviews?.length
-//       ? (
-//           product.reviews.reduce((sum, review) => sum + review.rating, 0) /
-//           product.reviews.length
-//         ).toFixed(1)
-//       : 0;
-
-//     const productWithRating = { ...product, averageRating };
-
-//     return NextResponse.json(
-//       { success: true, product: productWithRating },
-//       { status: 200 }
-//     );
-//   } catch (error) {
-//     console.error("Get Product Error:", error.message, error.stack);
-//     return NextResponse.json(
-//       { success: false, message: "Failed to fetch product: " + error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
-//test biến thể
-// import { NextResponse } from "next/server";
-// import Product from "@/models/Product";
-// import Variant from "@/models/Variants"; // Đảm bảo import đúng
-// import Specification from "@/models/Specification";
-// import Category from "@/models/Category";
-// import Brand from "@/models/Brand";
-// import connectDB from "@/config/db";
-
-// export async function GET(request, context) {
-//   try {
-//     await connectDB();
-//     const { id } = await context.params;
-
-//     if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
-//       return NextResponse.json(
-//         { success: false, message: "Invalid product ID" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const product = await Product.findById(id)
-//       .populate("category brand", "name")
-//       .populate({
-//         path: "specifications",
-//         select: "key value",
-//       })
-//       .populate({
-//         path: "relatedProducts",
-//         select:
-//           "name description price offerPrice images category stock brand reviews",
-//         options: { strictPopulate: false },
-//       })
-//       .populate({
-//         path: "variants", // Populate từ model Variant riêng
-//         select: "color storage price offerPrice stock sku image",
-//       })
-//       .lean();
-
-//     if (!product) {
-//       return NextResponse.json(
-//         { success: false, message: "Product not found" },
-//         { status: 404 }
-//       );
-//     }
-
-//     console.log("Product Data:", product);
-
-//     const averageRating = product.reviews?.length
-//       ? (
-//           product.reviews.reduce((sum, review) => sum + review.rating, 0) /
-//           product.reviews.length
-//         ).toFixed(1)
-//       : 0;
-
-//     const productWithRating = { ...product, averageRating };
-
-//     return NextResponse.json(
-//       { success: true, product: productWithRating },
-//       { status: 200 }
-//     );
-//   } catch (error) {
-//     console.error("Get Product Error:", error.message, error.stack);
-//     return NextResponse.json(
-//       { success: false, message: "Failed to fetch product: " + error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
-import { NextResponse } from "next/server";
-import Product from "@/models/Product";
-import Variant from "@/models/Variants";
-import Specification from "@/models/Specification";
-import Category from "@/models/Category";
-import Brand from "@/models/Brand";
-import Attribute from "@/models/Attribute";
-import connectDB from "@/config/db";
 
 // export async function GET(request, context) {
 //   try {
@@ -205,19 +73,39 @@ import connectDB from "@/config/db";
 //     );
 //   }
 // }
+import { NextResponse } from "next/server";
+import Product from "@/models/Product";
+import Variant from "@/models/Variants";
+import Specification from "@/models/Specification";
+import Category from "@/models/Category";
+import Brand from "@/models/Brand";
+import Attribute from "@/models/Attribute";
+import connectDB from "@/config/db";
+import { getAuth } from "@clerk/nextjs/server";
+
 export async function GET(request, context) {
   try {
     await connectDB();
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await context.params;
 
-    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!id) {
       return NextResponse.json(
-        { success: false, message: "Invalid product ID" },
+        { success: false, message: "Product ID is required" },
         { status: 400 }
       );
     }
 
-    const product = await Product.findById(id)
+    console.log("Fetching product with ID:", id); // Debug
+
+    const product = await Product.findOne({ _id: id, userId }) // Kiểm tra quyền sở hữu
       .populate("category brand", "name")
       .populate({
         path: "specifications",
@@ -231,7 +119,7 @@ export async function GET(request, context) {
       })
       .populate({
         path: "variants",
-        select: "price offerPrice stock sku image attributeRefs",
+        select: "price offerPrice stock sku image images attributeRefs", // Thêm images
         populate: {
           path: "attributeRefs.attributeId",
           model: "Attribute",
@@ -242,7 +130,7 @@ export async function GET(request, context) {
 
     if (!product) {
       return NextResponse.json(
-        { success: false, message: "Product not found" },
+        { success: false, message: "Product not found or access denied" },
         { status: 404 }
       );
     }

@@ -76,8 +76,6 @@
 //       console.error("Lỗi khi lấy đơn hàng:", error);
 //       if (error.response?.status === 401) {
 //         toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-//         // Đề xuất logout nếu có
-//         // await useUser().signOut();
 //         router.push("/sign-in");
 //       } else {
 //         toast.error("Lỗi khi tải đơn hàng: " + error.message);
@@ -104,6 +102,17 @@
 //       .map((ref) => ref.value)
 //       .join(", ");
 //     return ` (${variantDetails})`;
+//   };
+
+//   const getPaymentMethodText = (method) => {
+//     switch (method?.toLowerCase()) {
+//       case "vnpay":
+//         return "Thanh toán qua VNPAY";
+//       case "cod":
+//         return "Thanh toán khi nhận hàng (COD)";
+//       default:
+//         return "Phương thức không xác định";
+//     }
 //   };
 
 //   useEffect(() => {
@@ -190,7 +199,10 @@
 //                     </p>
 //                     <div>
 //                       <p className="flex flex-col">
-//                         <span>Phương thức: COD</span>
+//                         <span>
+//                           Phương thức:{" "}
+//                           {getPaymentMethodText(order.paymentMethod)}
+//                         </span>
 //                         <span>
 //                           Ngày: {new Date(order.date).toLocaleDateString()}
 //                         </span>
@@ -242,40 +254,7 @@ const MyOrders = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (data.success) {
-        const updatedOrders = await Promise.all(
-          data.orders.map(async (order) => {
-            if (order.trackingCode) {
-              try {
-                const headers = {
-                  "Content-Type": "application/json",
-                  Token: process.env.GHN_TOKEN,
-                  ShopId: process.env.GHN_SHOP_ID,
-                };
-                const { data: ghnData } = await axios.get(
-                  `https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail`,
-                  {
-                    headers,
-                    params: { order_code: order.trackingCode },
-                  }
-                );
-                return {
-                  ...order,
-                  ghnStatus: ghnData.data?.status || null,
-                  ghnStatusText: ghnData.data?.status_name || "Chưa cập nhật",
-                };
-              } catch (error) {
-                console.error("Track Order Error:", error.message);
-                return {
-                  ...order,
-                  ghnStatus: null,
-                  ghnStatusText: "Lỗi truy vấn",
-                };
-              }
-            }
-            return order;
-          })
-        );
-        setOrders(updatedOrders.reverse());
+        setOrders(data.orders.reverse());
       } else {
         if (data.message === "Người dùng không được tìm thấy") {
           toast.error(
@@ -385,7 +364,13 @@ const MyOrders = () => {
                             })
                             .join(", ")}
                         </span>
-                        <span>Sản Phẩm: {order.items.length}</span>
+                        <span>
+                          Tổng số lượng:{" "}
+                          {order.items.reduce(
+                            (sum, item) => sum + item.quantity,
+                            0
+                          )}
+                        </span>
                       </p>
                     </div>
                     <div>
@@ -420,9 +405,7 @@ const MyOrders = () => {
                         <span>
                           Ngày: {new Date(order.date).toLocaleDateString()}
                         </span>
-                        <span>
-                          Trạng thái: {order.ghnStatusText || "Chưa cập nhật"}
-                        </span>
+                        <span>Trạng thái: {order.ghnStatusText}</span>
                       </p>
                     </div>
                   </div>
