@@ -85,7 +85,17 @@ import { getAuth } from "@clerk/nextjs/server";
 
 export async function GET(request, context) {
   try {
-    await connectDB();
+    // Kết nối DB và kiểm tra lỗi
+    try {
+      await connectDB();
+    } catch (dbError) {
+      console.error("Database connection error:", dbError.message);
+      return NextResponse.json(
+        { success: false, message: "Database connection failed" },
+        { status: 500 }
+      );
+    }
+
     const { userId } = getAuth(request);
     if (!userId) {
       return NextResponse.json(
@@ -105,7 +115,8 @@ export async function GET(request, context) {
 
     console.log("Fetching product with ID:", id); // Debug
 
-    const product = await Product.findOne({ _id: id, userId }) // Kiểm tra quyền sở hữu
+    // Nếu sản phẩm là public, bỏ điều kiện userId
+    const product = await Product.findOne({ _id: id }) // Chỉ kiểm tra _id
       .populate("category brand", "name")
       .populate({
         path: "specifications",
@@ -119,7 +130,7 @@ export async function GET(request, context) {
       })
       .populate({
         path: "variants",
-        select: "price offerPrice stock sku image images attributeRefs", // Thêm images
+        select: "price offerPrice stock sku image images attributeRefs",
         populate: {
           path: "attributeRefs.attributeId",
           model: "Attribute",
@@ -130,7 +141,7 @@ export async function GET(request, context) {
 
     if (!product) {
       return NextResponse.json(
-        { success: false, message: "Product not found or access denied" },
+        { success: false, message: "Product not found" },
         { status: 404 }
       );
     }
