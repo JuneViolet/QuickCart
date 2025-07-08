@@ -179,7 +179,6 @@
 //     );
 //   }
 // }
-// /api/vnpay/ipn/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
@@ -280,6 +279,7 @@ export async function GET(req) {
         })),
       };
 
+      // /api/vnpay/ipn/route.js (đã sửa ở phản hồi trước, chỉ thêm log chi tiết)
       try {
         const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
           headers: {
@@ -288,23 +288,38 @@ export async function GET(req) {
             ShopId: process.env.GHN_SHOP_ID,
           },
         });
-
         const ghnData = ghnRes.data;
-
+        console.log("📦 GHN response:", JSON.stringify(ghnData, null, 2));
         if (ghnData.code === 200) {
           const ghnTrackingCode = ghnData.data.order_code;
           await Order.findByIdAndUpdate(order._id, {
             status: "ghn_success",
+            trackingCode: ghnTrackingCode,
             ghnTrackingCode,
             ghnOrderId: ghnData.data.order_id,
           });
+          console.log(
+            `✅ GHN order created for ${vnp_TxnRef}, tracking: ${ghnTrackingCode}`
+          );
         } else {
-          throw new Error(ghnData.message || "GHN request failed");
+          throw new Error(
+            ghnData.message || "GHN request failed with code: " + ghnData.code
+          );
         }
       } catch (err) {
+        console.error("❌ GHN API error details:", {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status,
+        });
         await Order.findByIdAndUpdate(order._id, {
           status: "ghn_failed",
           ghnError: err.response?.data?.message || err.message,
+          trackingCode: `TEMP-${vnp_TxnRef}`, // Giữ mã tạm thời
+        });
+        return NextResponse.json({
+          RspCode: "00",
+          Message: `Confirm Success but GHN failed: ${err.message}`,
         });
       }
 
@@ -318,6 +333,7 @@ export async function GET(req) {
       });
     }
   } catch (err) {
+    console.error("Exception in VNPAY IPN:", err.message);
     return NextResponse.json(
       { RspCode: "99", Message: `Exception: ${err.message}` },
       { status: 500 }

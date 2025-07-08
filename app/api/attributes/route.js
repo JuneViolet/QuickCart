@@ -77,15 +77,8 @@ import authSeller from "@/lib/authSeller";
 export async function GET(req) {
   try {
     await connectDB();
-    const { userId } = getAuth(req);
-    if (!userId || !(await authSeller(userId))) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 403 }
-      );
-    }
-
-    const attributes = await Attribute.find().lean();
+    // Không yêu cầu authSeller cho GET, cho phép tất cả truy cập
+    const attributes = await Attribute.find().select("name values").lean(); // Giới hạn dữ liệu public
     return NextResponse.json({ success: true, attributes });
   } catch (error) {
     console.error("GET /attributes error:", error);

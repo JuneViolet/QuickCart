@@ -85,24 +85,8 @@ import { getAuth } from "@clerk/nextjs/server";
 
 export async function GET(request, context) {
   try {
-    // Kết nối DB và kiểm tra lỗi
-    try {
-      await connectDB();
-    } catch (dbError) {
-      console.error("Database connection error:", dbError.message);
-      return NextResponse.json(
-        { success: false, message: "Database connection failed" },
-        { status: 500 }
-      );
-    }
-
+    await connectDB();
     const { userId } = getAuth(request);
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
 
     const { id } = await context.params;
 
@@ -113,35 +97,64 @@ export async function GET(request, context) {
       );
     }
 
-    console.log("Fetching product with ID:", id); // Debug
+    console.log("Fetching product with ID:", id, "User ID:", userId); // Debug
 
-    // Nếu sản phẩm là public, bỏ điều kiện userId
-    const product = await Product.findOne({ _id: id }) // Chỉ kiểm tra _id
-      .populate("category brand", "name")
-      .populate({
-        path: "specifications",
-        select: "key value",
+    // Sử dụng logic public mặc định, chỉ kiểm tra userId nếu người dùng là seller
+    let product;
+    if (userId) {
+      product = await Product.findOne({
+        $or: [{ _id: id }, { _id: id, userId }],
       })
-      .populate({
-        path: "relatedProducts",
-        select:
-          "name description price offerPrice images category stock brand reviews",
-        options: { strictPopulate: false },
-      })
-      .populate({
-        path: "variants",
-        select: "price offerPrice stock sku image images attributeRefs",
-        populate: {
-          path: "attributeRefs.attributeId",
-          model: "Attribute",
-          select: "name values",
-        },
-      })
-      .lean();
+        .populate("category brand", "name")
+        .populate({
+          path: "specifications",
+          select: "key value",
+        })
+        .populate({
+          path: "relatedProducts",
+          select:
+            "name description price offerPrice images category stock brand reviews",
+          options: { strictPopulate: false },
+        })
+        .populate({
+          path: "variants",
+          select: "price offerPrice stock sku image images attributeRefs",
+          populate: {
+            path: "attributeRefs.attributeId",
+            model: "Attribute",
+            select: "name values",
+          },
+        })
+        .lean();
+    } else {
+      // Public access
+      product = await Product.findOne({ _id: id })
+        .populate("category brand", "name")
+        .populate({
+          path: "specifications",
+          select: "key value",
+        })
+        .populate({
+          path: "relatedProducts",
+          select:
+            "name description price offerPrice images category stock brand reviews",
+          options: { strictPopulate: false },
+        })
+        .populate({
+          path: "variants",
+          select: "price offerPrice stock sku image images attributeRefs",
+          populate: {
+            path: "attributeRefs.attributeId",
+            model: "Attribute",
+            select: "name values",
+          },
+        })
+        .lean();
+    }
 
     if (!product) {
       return NextResponse.json(
-        { success: false, message: "Product not found" },
+        { success: false, message: "Product not found or access denied" },
         { status: 404 }
       );
     }
