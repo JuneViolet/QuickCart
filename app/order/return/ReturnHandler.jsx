@@ -141,7 +141,7 @@ export default function ReturnHandler() {
           if (error.response?.status === 404) {
             // Nếu 404, kiểm tra IPN đã thành công
             toast.success(
-              "Thanh toán thành công qua IPN, chuyển đến đơn hàng!"
+              "Thanh toán thành công qua VNPAY, chuyển đến đơn hàng!"
             );
             router.replace("/my-orders"); // Giả định IPN đã xử lý thành công
           } else {

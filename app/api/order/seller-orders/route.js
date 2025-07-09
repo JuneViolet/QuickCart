@@ -1,3 +1,4 @@
+// //ỔN ĐỊNH
 // import connectDB from "@/config/db";
 // import authSeller from "@/lib/authSeller";
 // import Order from "@/models/Order";
@@ -35,7 +36,7 @@
 
 //     await Address.findOne(); // Force load model
 
-//     const sellerProducts = await Product.find({ userId: userId });
+//     const sellerProducts = await Product.find({ userId: userId }).select("_id");
 //     const productIds = sellerProducts.map((p) => p._id.toString());
 //     console.log("Seller Product IDs:", productIds);
 
@@ -44,11 +45,13 @@
 //     })
 //       .populate("address")
 //       .populate("items.product")
+//       .populate("items.variantId") // Thêm populate cho variantId
 //       .exec();
 //     console.log("Orders from DB (raw):", ordersFromDB);
 
 //     const updatedOrders = await Promise.all(
 //       ordersFromDB.map(async (order) => {
+//         let orderData = order.toObject();
 //         if (order.trackingCode) {
 //           try {
 //             const { data: ghtkData } = await axios.post("/api/ghtk", {
@@ -56,13 +59,16 @@
 //               payload: { trackingCode: order.trackingCode },
 //             });
 //             if (ghtkData.success) {
-//               return { ...order.toObject(), ghtkStatus: ghtkData.data.status };
+//               orderData.ghtkStatus = ghtkData.data.status;
 //             }
-//           } catch (error) {
-//             console.error("Track Order Error:", error.message);
+//           } catch (ghtkError) {
+//             console.warn("GHTK Tracking Error:", ghtkError.message);
+//             orderData.ghtkStatus = "Tracking Failed";
 //           }
 //         }
-//         return order.toObject();
+//         // Gán trạng thái mặc định nếu không có ghtkStatus
+//         orderData.status = orderData.ghtkStatus || order.status || "Pending";
+//         return orderData;
 //       })
 //     );
 
@@ -139,34 +145,31 @@ export async function GET(request) {
     const updatedOrders = await Promise.all(
       ordersFromDB.map(async (order) => {
         let orderData = order.toObject();
-        if (order.trackingCode) {
+        if (order.trackingCode && !order.trackingCode.startsWith("TEMP-")) {
           try {
-            const { data: ghtkData } = await axios.post("/api/ghtk", {
-              action: "trackOrder",
-              payload: { trackingCode: order.trackingCode },
-            });
-            if (ghtkData.success) {
-              orderData.ghtkStatus = ghtkData.data.status;
+            const { data: ghnData } = await axios.get(
+              `/api/track-order?order_code=${order.trackingCode}`
+            );
+            if (ghnData.success) {
+              orderData.ghnStatus = ghnData.data?.status || null;
+              orderData.ghnStatusText = ghnData.data?.status_name || "Chờ lấy hàng";
             }
-          } catch (ghtkError) {
-            console.warn("GHTK Tracking Error:", ghtkError.message);
-            orderData.ghtkStatus = "Tracking Failed";
+          } catch (ghnError) {
+            console.warn("GHN Tracking Error for", order.trackingCode, ghnError.message);
+            orderData.ghnStatus = null;
+            orderData.ghnStatusText = "Chờ lấy hàng"; // Mặc định cho test mode
           }
         }
-        // Gán trạng thái mặc định nếu không có ghtkStatus
-        orderData.status = orderData.ghtkStatus || order.status || "Pending";
+        // Gán trạng thái tổng hợp
+        orderData.statusText = orderData.ghnStatusText || getStatusText(order.status);
         return orderData;
       })
     );
 
-    const uniqueOrders = Array.from(
-      new Map(
-        updatedOrders.map((order) => [order._id.toString(), order])
-      ).values()
-    );
-    console.log("Unique Orders:", uniqueOrders);
+    // Loại bỏ logic Map nếu không cần thiết (mỗi order._id đã duy nhất)
+    console.log("Updated Orders:", updatedOrders);
 
-    return NextResponse.json({ success: true, orders: uniqueOrders });
+    return NextResponse.json({ success: true, orders: updatedOrders });
   } catch (error) {
     console.error(
       "Error in /api/order/seller-orders:",
@@ -179,3 +182,26 @@ export async function GET(request) {
     );
   }
 }
+
+// Hàm ánh xạ trạng thái
+const getStatusText = (status) => {
+  switch (status) {
+    case "pending":
+      return "Chờ xác nhận";
+    case "paid":
+      return "Đã thanh toán";
+    case "ghn_success":
+      return "Chờ lấy hàng";
+    case "shipped":
+      return "Đang giao";
+    case "delivered":
+      return "Giao thành công";
+    case "canceled":
+      return "Đã hủy";
+    case "ghn_failed":
+      return "Lỗi tạo đơn GHN";
+    default:
+      return "Chưa xác định";
+  }
+};
+
