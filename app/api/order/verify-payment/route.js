@@ -180,7 +180,6 @@ export async function POST(request) {
     console.log("Verify Payment:", { trackingCode, responseCode, userId });
 
     let order = await Order.findOne({ trackingCode }).populate("address");
-
     if (!order && userId) {
       order = await Order.findOne({
         userId,
@@ -188,6 +187,12 @@ export async function POST(request) {
           $gte: moment().subtract(1, "hour").toDate(),
           $lte: moment().add(1, "hour").toDate(),
         },
+      }).populate("address");
+    }
+    // Thêm kiểm tra ghnTrackingCode nếu trackingCode là TEMP-
+    if (!order && trackingCode.startsWith("TEMP-")) {
+      order = await Order.findOne({
+        ghnTrackingCode: trackingCode.replace("TEMP-", ""),
       }).populate("address");
     }
 
@@ -198,6 +203,7 @@ export async function POST(request) {
       );
     }
 
+    // Tiếp tục logic hiện tại...
     if (order.status === "paid" || order.status === "ghn_success") {
       return NextResponse.json({
         success: true,
@@ -209,13 +215,88 @@ export async function POST(request) {
     if (responseCode === "00") {
       order.status = "paid";
       await order.save();
-
-      // Kiểm tra nếu GHN đã tạo đơn từ IPN
       if (order.ghnTrackingCode) {
         order.status = "ghn_success";
         await order.save();
       }
+      return NextResponse.json({
+        success: true,
+        message: "Payment verified",
+        trackingCode: order.ghnTrackingCode || order.trackingCode,
+      });
+    } else {
+      order.status = "failed";
+      await order.save();
+      return NextResponse.json(
+        { success: false, message: "Payment failed" },
+        { status: 400 }
+      );
+    }
+  } catch (error) {
+    console.error("Verify payment error:", error.message, error.stack);
+    return NextResponse.json(
+      { success: false, message: "Server error: " + error.message },
+      { status: 500 }
+    );
+  }
+}
+export async function POST(request) {
+  await connectDB();
 
+  try {
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { trackingCode, responseCode } = await request.json();
+    const userId = request.headers.get("user-id") || "";
+
+    console.log("Verify Payment:", { trackingCode, responseCode, userId });
+
+    let order = await Order.findOne({ trackingCode }).populate("address");
+    if (!order && userId) {
+      order = await Order.findOne({
+        userId,
+        date: {
+          $gte: moment().subtract(1, "hour").toDate(),
+          $lte: moment().add(1, "hour").toDate(),
+        },
+      }).populate("address");
+    }
+    // Thêm kiểm tra ghnTrackingCode nếu trackingCode là TEMP-
+    if (!order && trackingCode.startsWith("TEMP-")) {
+      order = await Order.findOne({
+        ghnTrackingCode: trackingCode.replace("TEMP-", ""),
+      }).populate("address");
+    }
+
+    if (!order) {
+      return NextResponse.json(
+        { success: false, message: "Order not found" },
+        { status: 404 }
+      );
+    }
+
+    // Tiếp tục logic hiện tại...
+    if (order.status === "paid" || order.status === "ghn_success") {
+      return NextResponse.json({
+        success: true,
+        message: "Order already processed",
+        trackingCode: order.trackingCode || order.ghnTrackingCode,
+      });
+    }
+
+    if (responseCode === "00") {
+      order.status = "paid";
+      await order.save();
+      if (order.ghnTrackingCode) {
+        order.status = "ghn_success";
+        await order.save();
+      }
       return NextResponse.json({
         success: true,
         message: "Payment verified",
