@@ -581,16 +581,16 @@ export async function POST(request) {
       Math.floor(subtotal + tax - calculatedDiscount)
     );
     const orderDate = new Date();
-    const tempTrackingCode = `TEMP-${Date.now()}`; // Mã tạm thời
+    const tempTrackingCode = `TEMP-${Date.now()}`;
 
     const order = await Order.create({
       userId,
       items: updatedItems,
       amount: finalAmount,
       address: new mongoose.Types.ObjectId(address),
-      trackingCode: tempTrackingCode, // Sử dụng mã tạm thời
+      trackingCode: tempTrackingCode,
       status: "pending",
-      paymentMethod: paymentMethod || "COD", // Gán paymentMethod
+      paymentMethod: paymentMethod || "COD",
       date: orderDate,
     });
 
@@ -628,22 +628,15 @@ export async function POST(request) {
         0
       );
 
-      const currentTime = moment().tz("Asia/Ho_Chi_Minh");
-      const pickupTime = currentTime
-        .clone()
-        .add(1, "day")
-        .set({ hour: 8, minute: 0, second: 0 })
-        .format("YYYY-MM-DD HH:mm:ss");
-
       const ghnPayload = {
-        payment_type_id: 2, // COD
+        payment_type_id: 2,
         note: "Giao hàng QuickCart",
         required_note: "KHONGCHOXEMHANG",
         return_phone: "0911222333",
         return_address: "590 CMT8, P.11, Q.3, TP. HCM",
         return_district_id: null,
         return_ward_code: "",
-        client_order_code: tempTrackingCode, // Dùng mã tạm thời cho GHN
+        client_order_code: tempTrackingCode,
         to_name: fullAddress.fullName,
         to_phone: fullAddress.phoneNumber,
         to_address: fullAddress.area,
@@ -651,7 +644,7 @@ export async function POST(request) {
         to_district_id: fullAddress.districtId,
         cod_amount: Math.round(finalAmount),
         weight: Math.max(totalWeight, 50),
-        service_type_id: 2, // Express
+        service_type_id: 2,
         items: updatedItems.map((item) => ({
           name: item.sku,
           quantity: item.quantity,
@@ -682,28 +675,25 @@ export async function POST(request) {
           await Order.findByIdAndUpdate(orderId, {
             status: "ghn_success",
             ghnOrderId: ghnData.data.order_id,
-            trackingCode: ghnTrackingCode, // Cập nhật bằng mã GHN
+            trackingCode: ghnTrackingCode,
           });
           console.log("✅ GHN createOrder success:", ghnTrackingCode);
         } else {
-          throw new Error(ghnData.message || "GHN request failed");
+          throw new Error(
+            `GHN failed with code ${ghnData.code}: ${ghnData.message}`
+          );
         }
       } catch (err) {
-        console.error("❌ GHN API error:", err.response?.data || err.message);
+        console.error("❌ GHN API error details:", {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status,
+        });
         await Order.findByIdAndUpdate(orderId, {
           status: "ghn_failed",
           ghnError: err.response?.data?.message || err.message,
         });
-        await Order.findByIdAndDelete(orderId); // Rollback
-        return NextResponse.json(
-          {
-            success: false,
-            message: `GHN thất bại: ${
-              err.response?.data?.message || err.message
-            }`,
-          },
-          { status: 400 }
-        );
+        // Không rollback, chỉ cập nhật trạng thái
       }
     }
 
@@ -731,7 +721,7 @@ export async function POST(request) {
         vnp_TmnCode,
         vnp_Locale: "vn",
         vnp_CurrCode: "VND",
-        vnp_TxnRef: tempTrackingCode, // Dùng mã tạm thời cho VNPay
+        vnp_TxnRef: tempTrackingCode,
         vnp_OrderInfo: "Thanh toán đơn hàng từ QuickCart",
         vnp_OrderType: "other",
         vnp_Amount: finalAmount * 100,
@@ -764,12 +754,12 @@ export async function POST(request) {
       order: {
         id: order._id,
         amount: finalAmount,
-        trackingCode: ghnTrackingCode || tempTrackingCode, // Trả về mã GHN nếu có, nếu không thì mã tạm
+        trackingCode: ghnTrackingCode || tempTrackingCode,
         vnpayUrl,
       },
     });
   } catch (error) {
-    console.error("❌ Order creation error:", error);
+    console.error("❌ Order creation error:", error.message, error.stack);
     return NextResponse.json(
       { success: false, message: "Lỗi server: " + error.message },
       { status: 500 }

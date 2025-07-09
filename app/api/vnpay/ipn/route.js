@@ -179,13 +179,11 @@
 //     );
 //   }
 // }
-// /api/vnpay/ipn/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
 import crypto from "crypto";
 import axios from "axios";
-import moment from "moment-timezone";
 
 export async function GET(req) {
   try {
@@ -204,6 +202,7 @@ export async function GET(req) {
     const signData = sortedKeys
       .map((key) => `${encode(key)}=${encode(params[key])}`)
       .join("&");
+
     const generatedSecureHash = crypto
       .createHmac("sha512", vnp_HashSecret)
       .update(signData, "utf8")
@@ -217,6 +216,7 @@ export async function GET(req) {
 
     const { vnp_TxnRef, vnp_Amount, vnp_ResponseCode, vnp_TransactionNo } =
       params;
+
     const order = await Order.findOne({ trackingCode: vnp_TxnRef }).populate(
       "address"
     );
@@ -242,11 +242,11 @@ export async function GET(req) {
       order.vnp_TransactionNo = vnp_TransactionNo;
       await order.save();
 
+      const fullAddress = order.address;
       const totalWeight = order.items.reduce(
         (sum, item) => sum + (item.weight || 50) * item.quantity,
         0
       );
-      const fullAddress = order.address;
 
       if (!fullAddress) {
         return NextResponse.json({
@@ -256,7 +256,7 @@ export async function GET(req) {
       }
 
       const ghnPayload = {
-        payment_type_id: 1,
+        payment_type_id: 1, // Thanh toán trước
         note: "Giao hàng QuickCart",
         required_note: "KHONGCHOXEMHANG",
         return_phone: "0911222333",
@@ -280,7 +280,6 @@ export async function GET(req) {
         })),
       };
 
-      // /api/vnpay/ipn/route.js (đã sửa ở phản hồi trước, chỉ thêm log chi tiết)
       try {
         const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
           headers: {
@@ -289,8 +288,10 @@ export async function GET(req) {
             ShopId: process.env.GHN_SHOP_ID,
           },
         });
+
         const ghnData = ghnRes.data;
         console.log("📦 GHN response:", JSON.stringify(ghnData, null, 2));
+
         if (ghnData.code === 200) {
           const ghnTrackingCode = ghnData.data.order_code;
           await Order.findByIdAndUpdate(order._id, {
@@ -304,7 +305,7 @@ export async function GET(req) {
           );
         } else {
           throw new Error(
-            ghnData.message || "GHN request failed with code: " + ghnData.code
+            `GHN failed with code ${ghnData.code}: ${ghnData.message}`
           );
         }
       } catch (err) {
@@ -316,7 +317,7 @@ export async function GET(req) {
         await Order.findByIdAndUpdate(order._id, {
           status: "ghn_failed",
           ghnError: err.response?.data?.message || err.message,
-          trackingCode: `TEMP-${vnp_TxnRef}`, // Giữ mã tạm thời
+          trackingCode: `TEMP-${vnp_TxnRef}`, // Giữ mã tạm thời nếu GHN thất bại
         });
         return NextResponse.json({
           RspCode: "00",
@@ -334,10 +335,11 @@ export async function GET(req) {
       });
     }
   } catch (err) {
-    console.error("Exception in VNPAY IPN:", err.message);
+    console.error("Exception in VNPAY IPN:", err.message, err.stack);
     return NextResponse.json(
       { RspCode: "99", Message: `Exception: ${err.message}` },
       { status: 500 }
     );
   }
 }
+  

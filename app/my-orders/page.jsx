@@ -267,7 +267,7 @@ const MyOrders = () => {
                 return {
                   ...order,
                   ghnStatus: ghnData.data?.status || null,
-                  ghnStatusText: ghnData.data?.status_name || "Chưa cập nhật",
+                  ghnStatusText: ghnData.data?.status_name || "Chờ lấy hàng", // Mặc định "Chờ lấy hàng" nếu không có
                 };
               } catch (error) {
                 console.warn(
@@ -277,7 +277,7 @@ const MyOrders = () => {
                 return {
                   ...order,
                   ghnStatus: null,
-                  ghnStatusText: "Lỗi truy vấn",
+                  ghnStatusText: "Chờ lấy hàng", // Mặc định cho test mode
                 };
               }
             }
@@ -435,9 +435,7 @@ const MyOrders = () => {
                         <span>
                           Ngày: {new Date(order.date).toLocaleDateString()}
                         </span>
-                        <span>
-                          Trạng thái: {order.ghnStatusText || "Chưa cập nhật"}
-                        </span>
+                        <span>Trạng thái: {order.ghnStatusText}</span>
                       </p>
                     </div>
                   </div>

@@ -59,6 +59,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
+import axios from "axios";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -87,26 +88,34 @@ export async function GET(req) {
       );
     }
 
-    const response = await fetch(
-      `https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail?order_code=${realCode}`,
+    const ghnRes = await axios.get(
+      `https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail`,
       {
-        method: "GET",
         headers: {
-          Token: process.env.GHN_TOKEN,
-          ShopId: process.env.GHN_SHOP_ID,
           "Content-Type": "application/json",
+          Token: process.env.GHN_TOKEN, // Token sandbox
+          ShopId: process.env.GHN_SHOP_ID,
         },
+        params: { order_code: realCode },
       }
     );
 
-    const data = await response.json();
-    if (!response.ok || !data?.data) {
-      throw new Error(data.message || "GHN API tracking failed");
-    }
+    const ghnData = ghnRes.data;
+    console.log("📦 GHN tracking response:", JSON.stringify(ghnData, null, 2));
 
-    return NextResponse.json({ success: true, data: data.data });
+    if (ghnData.code === 200) {
+      return NextResponse.json({ success: true, data: ghnData.data });
+    } else {
+      throw new Error(
+        `GHN failed with code ${ghnData.code}: ${ghnData.message}`
+      );
+    }
   } catch (error) {
-    console.warn(`Track Order Error for ${orderCode}:`, error.message);
+    console.error("❌ Track Order Error for", orderCode, {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
     return NextResponse.json(
       { success: false, message: error.message },
       { status: 500 }
