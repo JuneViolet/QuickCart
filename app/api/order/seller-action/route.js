@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
 import { getAuth } from "@clerk/nextjs/server";
+import axios from "axios";
 
 export async function POST(req) {
   await connectDB();
@@ -26,8 +27,66 @@ export async function POST(req) {
     }
 
     if (action === "confirm" && order.status === "pending") {
-      order.status = "paid"; // Hoặc "confirmed" tùy logic
+      // Xác nhận đơn hàng, gọi GHN để tạo đơn nếu cần
+      order.status = "paid";
       await order.save();
+
+      // Tích hợp GHN (tương tự IPN)
+      if (order.trackingCode?.startsWith("TEMP-")) {
+        const ghnPayload = {
+          payment_type_id: order.paymentMethod === "cod" ? 2 : 1,
+          note: "Giao hàng QuickCart",
+          required_note: "KHONGCHOXEMHANG",
+          return_phone: "0911222333",
+          return_address: "590 CMT8, P.11, Q.3, TP. HCM",
+          to_name: order.address.fullName,
+          to_phone: order.address.phoneNumber,
+          to_address: order.address.area,
+          to_ward_code: order.address.wardCode || "20602",
+          to_district_id: order.address.districtId,
+          cod_amount: order.paymentMethod === "cod" ? order.amount : 0,
+          weight: order.items.reduce(
+            (sum, item) => sum + (item.weight || 50) * item.quantity,
+            0
+          ),
+          service_type_id: 2,
+          items: order.items.map((item) => ({
+            name: item.sku,
+            quantity: item.quantity,
+            price: item.offerPrice,
+            weight: item.weight || 50,
+          })),
+        };
+
+        try {
+          const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
+            headers: {
+              "Content-Type": "application/json",
+              Token: process.env.GHN_TOKEN,
+              ShopId: process.env.GHN_SHOP_ID,
+            },
+          });
+
+          if (ghnRes.data.code === 200) {
+            order.status = "ghn_success";
+            order.trackingCode = ghnRes.data.data.order_code;
+            order.ghnTrackingCode = ghnRes.data.data.order_code;
+            await order.save();
+          } else {
+            throw new Error(`GHN failed: ${ghnRes.data.message}`);
+          }
+        } catch (ghnError) {
+          console.error("GHN Error:", ghnError.message);
+          order.status = "ghn_failed";
+          order.trackingCode = `TEMP-${order.trackingCode}`; // Giữ mã tạm
+          await order.save();
+          return NextResponse.json({
+            success: false,
+            message: `Xác nhận thành công nhưng GHN thất bại: ${ghnError.message}`,
+          });
+        }
+      }
+
       return NextResponse.json({
         success: true,
         message: "Đơn hàng đã được xác nhận",

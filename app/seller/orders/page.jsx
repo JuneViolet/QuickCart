@@ -171,7 +171,6 @@ const Orders = () => {
       });
       if (data.success) {
         console.log("Seller Orders:", data.orders);
-        // Sắp xếp danh sách theo date giảm dần (mới nhất lên đầu)
         const sortedOrders = [...data.orders].sort(
           (a, b) => new Date(b.date) - new Date(a.date)
         );
@@ -339,7 +338,9 @@ const Orders = () => {
                         {getStatusText(order.status, order.ghnTrackingCode)}
                       </span>
                       <span>Mã theo dõi: {order.trackingCode || "N/A"}</span>
-                      {order.status === "pending" && (
+                      {(order.status === "pending" ||
+                        (order.status === "paid" &&
+                          order.trackingCode?.startsWith("TEMP-"))) && (
                         <button
                           onClick={() => handleAction(order._id, "confirm")}
                           className="mt-2 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
@@ -348,7 +349,8 @@ const Orders = () => {
                         </button>
                       )}
                       {(order.status === "pending" ||
-                        order.status === "paid") && (
+                        (order.status === "paid" &&
+                          order.trackingCode?.startsWith("TEMP-"))) && (
                         <button
                           onClick={() => handleAction(order._id, "cancel")}
                           className="mt-2 bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
