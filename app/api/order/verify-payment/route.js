@@ -178,7 +178,7 @@ export async function POST(request) {
     const { trackingCode, responseCode } = await request.json();
     const userId = request.headers.get("user-id") || "";
 
-    console.log("Verify Payment:", { trackingCode, responseCode });
+    console.log("Verify Payment:", { trackingCode, responseCode, userId });
 
     let order = await Order.findOne({ trackingCode }).populate("address");
 
@@ -203,7 +203,7 @@ export async function POST(request) {
       return NextResponse.json({
         success: true,
         message: "Order already processed",
-        trackingCode: order.trackingCode,
+        trackingCode: order.trackingCode || order.ghnTrackingCode,
       });
     }
 
@@ -217,76 +217,85 @@ export async function POST(request) {
         0
       );
 
-      const ghnPayload = {
-        payment_type_id: 1,
-        note: "Giao hàng QuickCart",
-        required_note: "KHONGCHOXEMHANG",
-        return_phone: "0911222333",
-        return_address: "590 CMT8, P.11, Q.3, TP. HCM",
-        return_district_id: null,
-        return_ward_code: "",
-        client_order_code: trackingCode,
-        to_name: fullAddress.fullName,
-        to_phone: fullAddress.phoneNumber,
-        to_address: fullAddress.area,
-        to_ward_code: fullAddress.wardCode || "20602",
-        to_district_id: fullAddress.districtId,
-        cod_amount: 0,
-        weight: Math.max(totalWeight, 50),
-        service_type_id: 2,
-        items: order.items.map((item) => ({
-          name: item.sku,
-          quantity: item.quantity,
-          price: item.offerPrice,
-          weight: Math.max(item.weight || 50, 50),
-        })),
-      };
+      // Chỉ tạo GHN nếu chưa có ghnTrackingCode
+      if (!order.ghnTrackingCode) {
+        const ghnPayload = {
+          payment_type_id: 1, // Trả trước (thay vì COD)
+          note: "Giao hàng QuickCart",
+          required_note: "KHONGCHOXEMHANG",
+          return_phone: "0911222333",
+          return_address: "590 CMT8, P.11, Q.3, TP. HCM",
+          return_district_id: null,
+          return_ward_code: "",
+          client_order_code: trackingCode,
+          to_name: fullAddress.fullName,
+          to_phone: fullAddress.phoneNumber,
+          to_address: fullAddress.area,
+          to_ward_code: fullAddress.wardCode || "20602",
+          to_district_id: fullAddress.districtId,
+          cod_amount: 0,
+          weight: Math.max(totalWeight, 50),
+          service_type_id: 2,
+          items: order.items.map((item) => ({
+            name: item.sku,
+            quantity: item.quantity,
+            price: item.offerPrice,
+            weight: Math.max(item.weight || 50, 50),
+          })),
+        };
 
-      try {
-        const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
-          headers: {
-            "Content-Type": "application/json",
-            Token: process.env.GHN_TOKEN,
-            ShopId: process.env.GHN_SHOP_ID,
-          },
-        });
+        try {
+          const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
+            headers: {
+              "Content-Type": "application/json",
+              Token: process.env.GHN_TOKEN,
+              ShopId: process.env.GHN_SHOP_ID,
+            },
+          });
 
-        const ghnData = ghnRes.data;
-        console.log("📦 GHN response:", JSON.stringify(ghnData, null, 2));
+          const ghnData = ghnRes.data;
+          console.log("📦 GHN response:", JSON.stringify(ghnData, null, 2));
 
-        if (ghnData.code === 200) {
-          const ghnTrackingCode = ghnData.data.order_code;
+          if (ghnData.code === 200) {
+            const ghnTrackingCode = ghnData.data.order_code;
+            await Order.findByIdAndUpdate(order._id, {
+              status: "ghn_success",
+              trackingCode: ghnTrackingCode,
+              ghnTrackingCode,
+              ghnOrderId: ghnData.data.order_id,
+            });
+            console.log(
+              "✅ GHN order created for",
+              trackingCode,
+              ", tracking:",
+              ghnTrackingCode
+            );
+          } else {
+            throw new Error(
+              `GHN failed with code ${ghnData.code}: ${ghnData.message}`
+            );
+          }
+        } catch (err) {
+          console.error("❌ GHN API error details:", {
+            message: err.message,
+            response: err.response?.data,
+            status: err.response?.status,
+          });
           await Order.findByIdAndUpdate(order._id, {
-            status: "ghn_success",
-            trackingCode: ghnTrackingCode,
-            ghnTrackingCode,
-            ghnOrderId: ghnData.data.order_id,
+            status: "ghn_failed",
+            ghnError: err.response?.data?.message || err.message,
+            trackingCode: `TEMP-${trackingCode}`, // Giữ mã tạm thời nếu GHN thất bại
           });
-          return NextResponse.json({
-            success: true,
-            message: "Payment and shipping order created",
-            trackingCode: ghnTrackingCode,
-          });
-        } else {
-          throw new Error(
-            `GHN failed with code ${ghnData.code}: ${ghnData.message}`
+          return NextResponse.json(
+            { success: false, message: `GHN failed: ${err.message}` },
+            { status: 400 }
           );
         }
-      } catch (err) {
-        console.error("❌ GHN API error details:", {
-          message: err.message,
-          response: err.response?.data,
-          status: err.response?.status,
-        });
+      } else {
+        // Nếu đã có ghnTrackingCode, chỉ cập nhật trạng thái
         await Order.findByIdAndUpdate(order._id, {
-          status: "ghn_failed",
-          ghnError: err.response?.data?.message || err.message,
-          trackingCode: `TEMP-${trackingCode}`, // Giữ mã tạm thời nếu GHN thất bại
+          status: "ghn_success",
         });
-        return NextResponse.json(
-          { success: false, message: `GHN failed: ${err.message}` },
-          { status: 400 }
-        );
       }
     } else {
       order.status = "failed";
@@ -296,6 +305,12 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+
+    return NextResponse.json({
+      success: true,
+      message: "Payment verified",
+      trackingCode: order.ghnTrackingCode || order.trackingCode,
+    });
   } catch (error) {
     console.error("Verify payment error:", error.message, error.stack);
     return NextResponse.json(
