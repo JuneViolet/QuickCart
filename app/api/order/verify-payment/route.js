@@ -160,14 +160,15 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
+import { getAuth } from "@clerk/nextjs/server";
 import moment from "moment-timezone";
 
 export async function POST(request) {
   await connectDB();
 
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const { userId } = getAuth(request);
+    if (!userId) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
         { status: 401 }
@@ -175,7 +176,6 @@ export async function POST(request) {
     }
 
     const { trackingCode, responseCode } = await request.json();
-    const userId = request.headers.get("user-id") || "";
 
     console.log("Verify Payment:", { trackingCode, responseCode, userId });
 
@@ -203,7 +203,6 @@ export async function POST(request) {
       );
     }
 
-    // Tiếp tục logic hiện tại...
     if (order.status === "paid" || order.status === "ghn_success") {
       return NextResponse.json({
         success: true,

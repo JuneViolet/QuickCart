@@ -1,30 +1,3 @@
-// import mongoose from "mongoose";
-
-// const addressSchema = new mongoose.Schema({
-//   userId: {
-//     type: String, // Thay đổi từ ObjectId thành String
-//     required: true,
-//     index: true, // Thêm index để tăng tốc truy vấn
-//   },
-//   fullName: { type: String, required: true },
-//   phoneNumber: { type: String, required: true },
-//   pincode: { type: String, required: true },
-//   area: { type: String, required: true },
-//   city: { type: String, required: true },
-//   state: { type: String, required: true },
-//   ward: { type: String },
-//   isDefault: { type: Boolean, default: false },
-// });
-
-// // Sử dụng try-catch để tránh overwrite và đảm bảo model được đăng ký
-// let Address;
-// try {
-//   Address = mongoose.model("Address");
-// } catch {
-//   Address = mongoose.model("Address", addressSchema);
-// }
-
-// export default Address;
 import mongoose from "mongoose";
 
 const addressSchema = new mongoose.Schema({

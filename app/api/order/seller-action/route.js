@@ -26,81 +26,105 @@ export async function POST(req) {
       );
     }
 
-    if (action === "confirm" && order.status === "pending") {
-      // Xác nhận đơn hàng, gọi GHN để tạo đơn nếu cần
-      order.status = "paid";
-      await order.save();
+    if (action === "confirm") {
+      if (order.status === "pending") {
+        order.status = "paid";
+        await order.save();
 
-      // Tích hợp GHN (tương tự IPN)
-      if (order.trackingCode?.startsWith("TEMP-")) {
-        const ghnPayload = {
-          payment_type_id: order.paymentMethod === "cod" ? 2 : 1,
-          note: "Giao hàng QuickCart",
-          required_note: "KHONGCHOXEMHANG",
-          return_phone: "0911222333",
-          return_address: "590 CMT8, P.11, Q.3, TP. HCM",
-          to_name: order.address.fullName,
-          to_phone: order.address.phoneNumber,
-          to_address: order.address.area,
-          to_ward_code: order.address.wardCode || "20602",
-          to_district_id: order.address.districtId,
-          cod_amount: order.paymentMethod === "cod" ? order.amount : 0,
-          weight: order.items.reduce(
-            (sum, item) => sum + (item.weight || 50) * item.quantity,
-            0
-          ),
-          service_type_id: 2,
-          items: order.items.map((item) => ({
-            name: item.sku,
-            quantity: item.quantity,
-            price: item.offerPrice,
-            weight: item.weight || 50,
-          })),
-        };
+        if (order.trackingCode?.startsWith("TEMP-")) {
+          const ghnPayload = {
+            payment_type_id: order.paymentMethod === "cod" ? 2 : 1,
+            note: "Giao hàng QuickCart",
+            required_note: "KHONGCHOXEMHANG",
+            return_phone: "0911222333",
+            return_address: "590 CMT8, P.11, Q.3, TP. HCM",
+            to_name: order.address.fullName,
+            to_phone: order.address.phoneNumber,
+            to_address: order.address.area,
+            to_ward_code: order.address.wardCode || "20602",
+            to_district_id: order.address.districtId,
+            cod_amount: order.paymentMethod === "cod" ? order.amount : 0,
+            weight: order.items.reduce(
+              (sum, item) => sum + (item.weight || 50) * item.quantity,
+              0
+            ),
+            service_type_id: 2,
+            items: order.items.map((item) => ({
+              name: item.sku,
+              quantity: item.quantity,
+              price: item.offerPrice,
+              weight: item.weight || 50,
+            })),
+          };
 
-        try {
-          const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
-            headers: {
-              "Content-Type": "application/json",
-              Token: process.env.GHN_TOKEN,
-              ShopId: process.env.GHN_SHOP_ID,
-            },
-          });
+          try {
+            const ghnRes = await axios.post(
+              process.env.GHN_API_URL,
+              ghnPayload,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Token: process.env.GHN_TOKEN,
+                  ShopId: process.env.GHN_SHOP_ID,
+                },
+              }
+            );
 
-          if (ghnRes.data.code === 200) {
-            order.status = "ghn_success";
-            order.trackingCode = ghnRes.data.data.order_code;
-            order.ghnTrackingCode = ghnRes.data.data.order_code;
+            if (ghnRes.data.code === 200) {
+              order.status = "ghn_success";
+              order.trackingCode = ghnRes.data.data.order_code;
+              order.ghnTrackingCode = ghnRes.data.data.order_code;
+              await order.save();
+            } else {
+              throw new Error(`GHN failed: ${ghnRes.data.message}`);
+            }
+          } catch (ghnError) {
+            console.error("GHN Error:", ghnError.message);
+            order.status = "ghn_failed";
+            order.trackingCode = `TEMP-${order.trackingCode}`;
             await order.save();
-          } else {
-            throw new Error(`GHN failed: ${ghnRes.data.message}`);
+            return NextResponse.json({
+              success: false,
+              message: `Xác nhận thành công nhưng GHN thất bại: ${ghnError.message}`,
+            });
           }
-        } catch (ghnError) {
-          console.error("GHN Error:", ghnError.message);
-          order.status = "ghn_failed";
-          order.trackingCode = `TEMP-${order.trackingCode}`; // Giữ mã tạm
-          await order.save();
-          return NextResponse.json({
-            success: false,
-            message: `Xác nhận thành công nhưng GHN thất bại: ${ghnError.message}`,
-          });
         }
+      } else if (order.status === "ghn_success") {
+        // Xác nhận thêm (ví dụ: chuyển sang shipped)
+        order.status = "shipped";
+        await order.save();
       }
-
       return NextResponse.json({
         success: true,
         message: "Đơn hàng đã được xác nhận",
       });
-    } else if (
-      action === "cancel" &&
-      ["pending", "paid"].includes(order.status)
-    ) {
-      order.status = "canceled";
-      await order.save();
-      return NextResponse.json({
-        success: true,
-        message: "Đơn hàng đã bị hủy",
-      });
+    } else if (action === "cancel") {
+      if (["pending", "paid", "ghn_success"].includes(order.status)) {
+        order.status = "canceled";
+        await order.save();
+        // Thêm logic hủy GHN nếu có ghnTrackingCode
+        if (order.ghnTrackingCode) {
+          try {
+            await axios.post(
+              `${process.env.GHN_API_URL}/cancel`,
+              { order_code: order.ghnTrackingCode },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Token: process.env.GHN_TOKEN,
+                  ShopId: process.env.GHN_SHOP_ID,
+                },
+              }
+            );
+          } catch (ghnCancelError) {
+            console.warn("GHN Cancel Error:", ghnCancelError.message);
+          }
+        }
+        return NextResponse.json({
+          success: true,
+          message: "Đơn hàng đã bị hủy",
+        });
+      }
     } else {
       return NextResponse.json(
         { success: false, message: "Hành động không hợp lệ" },

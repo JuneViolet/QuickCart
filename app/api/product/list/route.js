@@ -1,21 +1,20 @@
+// // app/api/product/list/route.js
 // import connectDB from "@/config/db";
 // import Product from "@/models/Product";
+// import Category from "@/models/Category";
+// import Brand from "@/models/Brand";
 // import { NextResponse } from "next/server";
+// import mongoose from "mongoose";
 
-// export async function GET(request) {
-//   try {
-//     await connectDB();
-
-//     const product = await Product.find({});
-
-//     return NextResponse.json({ success: true, product });
-//   } catch (error) {
-//     return NextResponse.json({ success: false, message: error.message });
-//   }
-// }
-// import connectDB from "@/config/db";
-// import Product from "@/models/Product";
-// import { NextResponse } from "next/server";
+// // Hàm chuẩn hóa chuỗi: đồng bộ với MegaMenu.jsx
+// const normalizeString = (str) =>
+//   str
+//     .toLowerCase()
+//     .normalize("NFD")
+//     .replace(/[\u0300-\u036f]/g, "")
+//     .replace(/đ/g, "d")
+//     .replace(/ /g, "-")
+//     .replace(/[^a-z0-9-]/g, "");
 
 // export async function GET(request) {
 //   try {
@@ -25,16 +24,84 @@
 //     const page = parseInt(searchParams.get("page")) || 1;
 //     const limit = parseInt(searchParams.get("limit")) || 10;
 //     const skip = (page - 1) * limit;
+//     const categoryName = searchParams.get("category");
+//     const categoryId = searchParams.get("categoryId");
+//     const brandName = searchParams.get("brand");
 
-//     const products = await Product.find({})
+//     let query = {};
+
+//     // Xử lý categoryId (ưu tiên _id)
+//     if (categoryId) {
+//       if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+//         return NextResponse.json(
+//           { success: false, message: "Invalid categoryId" },
+//           { status: 400 }
+//         );
+//       }
+//       query.category = categoryId;
+//       console.log("Query category ID:", categoryId);
+//     }
+//     // Xử lý categoryName nếu categoryId không có
+//     else if (categoryName) {
+//       const normalizedCategoryName = normalizeString(categoryName);
+//       console.log("Normalized categoryName:", normalizedCategoryName);
+
+//       if (normalizedCategoryName === normalizeString("All")) {
+//         // Không áp dụng lọc category nếu là "All"
+//         console.log("Category is 'All', no filtering applied");
+//       } else {
+//         const categories = await Category.find().lean();
+//         const matchedCategory = categories.find(
+//           (cat) => normalizeString(cat.name) === normalizedCategoryName
+//         );
+
+//         if (!matchedCategory) {
+//           console.log(
+//             "No matching category found for:",
+//             normalizedCategoryName
+//           );
+//           return NextResponse.json(
+//             { success: false, message: "Category not found" },
+//             { status: 404 }
+//           );
+//         }
+
+//         query.category = matchedCategory._id;
+//         console.log("Query category ID from name:", matchedCategory._id);
+//       }
+//     }
+
+//     if (brandName) {
+//       const normalizedBrandName = normalizeString(brandName);
+//       console.log("Normalized brandName:", normalizedBrandName);
+
+//       const brands = await Brand.find().lean();
+//       const matchedBrand = brands.find(
+//         (br) => normalizeString(br.name) === normalizedBrandName
+//       );
+
+//       if (!matchedBrand) {
+//         console.log("No matching brand found for:", normalizedBrandName);
+//         return NextResponse.json(
+//           { success: false, message: "Brand not found" },
+//           { status: 404 }
+//         );
+//       }
+
+//       query.brand = matchedBrand._id;
+//       console.log("Query brand ID:", matchedBrand._id);
+//     }
+
+//     const products = await Product.find(query)
 //       .select(
 //         "name description price offerPrice images category stock brand reviews"
 //       )
+//       .populate("category brand", "name")
 //       .skip(skip)
 //       .limit(limit)
 //       .lean();
 
-//     const totalProducts = await Product.countDocuments();
+//     const totalProducts = await Product.countDocuments(query);
 
 //     const productsWithRating = products.map((product) => {
 //       const averageRating = product.reviews?.length
@@ -67,7 +134,7 @@
 //     await connectDB();
 
 //     const { ids } = await request.json();
-//     console.log("Requested IDs in POST:", ids); // Log IDs nhận được
+//     console.log("Requested IDs in POST:", ids);
 
 //     if (!ids || !Array.isArray(ids) || ids.length === 0) {
 //       return NextResponse.json(
@@ -76,10 +143,22 @@
 //       );
 //     }
 
+//     if (ids.some((id) => !mongoose.Types.ObjectId.isValid(id))) {
+//       return NextResponse.json(
+//         { success: false, message: "One or more invalid product IDs" },
+//         { status: 400 }
+//       );
+//     }
+
 //     const products = await Product.find({ _id: { $in: ids } })
 //       .select(
-//         "name description price offerPrice image category stock brand reviews"
+//         "name description price offerPrice images category stock brand reviews specifications"
 //       )
+//       .populate("category brand", "name")
+//       .populate({
+//         path: "specifications",
+//         model: "Specification",
+//       })
 //       .lean();
 
 //     const productsWithRating = products.map((product) => {
@@ -92,7 +171,10 @@
 //       return { ...product, averageRating };
 //     });
 
-//     console.log("Found products in POST:", productsWithRating); // Log sản phẩm tìm thấy
+//     console.log(
+//       "Found products in POST with specifications:",
+//       productsWithRating
+//     );
 
 //     return NextResponse.json({
 //       success: true,
@@ -114,15 +196,14 @@ import Brand from "@/models/Brand";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
-// Hàm chuẩn hóa chuỗi: đồng bộ với MegaMenu.jsx
+// Chuẩn hóa chuỗi (KHÔNG thay space)
 const normalizeString = (str) =>
   str
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
-    .replace(/ /g, "-")
-    .replace(/[^a-z0-9-]/g, "");
+    .replace(/[^a-z0-9\s]/g, "");
 
 export async function GET(request) {
   try {
@@ -132,13 +213,24 @@ export async function GET(request) {
     const page = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 10;
     const skip = (page - 1) * limit;
+
     const categoryName = searchParams.get("category");
     const categoryId = searchParams.get("categoryId");
     const brandName = searchParams.get("brand");
+    const searchQuery = searchParams.get("query");
 
-    let query = {};
+    // Chuẩn hóa query
+    const normalizeString = (str) =>
+      str
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/[^a-z0-9\s]/g, "");
 
-    // Xử lý categoryId (ưu tiên _id)
+    let filters = {};
+
+    // ==== Category filter ====
     if (categoryId) {
       if (!mongoose.Types.ObjectId.isValid(categoryId)) {
         return NextResponse.json(
@@ -146,61 +238,50 @@ export async function GET(request) {
           { status: 400 }
         );
       }
-      query.category = categoryId;
-      console.log("Query category ID:", categoryId);
-    }
-    // Xử lý categoryName nếu categoryId không có
-    else if (categoryName) {
-      const normalizedCategoryName = normalizeString(categoryName);
-      console.log("Normalized categoryName:", normalizedCategoryName);
-
-      if (normalizedCategoryName === normalizeString("All")) {
-        // Không áp dụng lọc category nếu là "All"
-        console.log("Category is 'All', no filtering applied");
-      } else {
-        const categories = await Category.find().lean();
-        const matchedCategory = categories.find(
-          (cat) => normalizeString(cat.name) === normalizedCategoryName
-        );
-
-        if (!matchedCategory) {
-          console.log(
-            "No matching category found for:",
-            normalizedCategoryName
-          );
-          return NextResponse.json(
-            { success: false, message: "Category not found" },
-            { status: 404 }
-          );
-        }
-
-        query.category = matchedCategory._id;
-        console.log("Query category ID from name:", matchedCategory._id);
-      }
-    }
-
-    if (brandName) {
-      const normalizedBrandName = normalizeString(brandName);
-      console.log("Normalized brandName:", normalizedBrandName);
-
-      const brands = await Brand.find().lean();
-      const matchedBrand = brands.find(
-        (br) => normalizeString(br.name) === normalizedBrandName
+      filters.category = categoryId;
+    } else if (categoryName && normalizeString(categoryName) !== "all") {
+      const normalized = normalizeString(categoryName);
+      const categories = await Category.find().lean();
+      const matched = categories.find(
+        (cat) => normalizeString(cat.name) === normalized
       );
+      if (!matched) {
+        return NextResponse.json(
+          { success: false, message: "Category not found" },
+          { status: 404 }
+        );
+      }
+      filters.category = matched._id;
+    }
 
-      if (!matchedBrand) {
-        console.log("No matching brand found for:", normalizedBrandName);
+    // ==== Brand filter ====
+    if (brandName) {
+      const normalized = normalizeString(brandName);
+      const brands = await Brand.find().lean();
+      const matched = brands.find(
+        (br) => normalizeString(br.name) === normalized
+      );
+      if (!matched) {
         return NextResponse.json(
           { success: false, message: "Brand not found" },
           { status: 404 }
         );
       }
-
-      query.brand = matchedBrand._id;
-      console.log("Query brand ID:", matchedBrand._id);
+      filters.brand = matched._id;
     }
 
-    const products = await Product.find(query)
+    // ==== Query builder ====
+    let mongoQuery = { ...filters };
+
+    if (searchQuery) {
+      const normalizedQuery = normalizeString(searchQuery);
+      mongoQuery = {
+        $and: [{ $text: { $search: normalizedQuery } }, filters],
+      };
+    }
+
+    // === Fetch products ===
+    const products = await Product.find(mongoQuery)
       .select(
         "name description price offerPrice images category stock brand reviews"
       )
@@ -209,12 +290,12 @@ export async function GET(request) {
       .limit(limit)
       .lean();
 
-    const totalProducts = await Product.countDocuments(query);
+    const totalProducts = await Product.countDocuments(mongoQuery);
 
     const productsWithRating = products.map((product) => {
       const averageRating = product.reviews?.length
         ? (
-            product.reviews.reduce((sum, review) => sum + review.rating, 0) /
+            product.reviews.reduce((sum, r) => sum + r.rating, 0) /
             product.reviews.length
           ).toFixed(1)
         : 0;
@@ -229,7 +310,7 @@ export async function GET(request) {
       totalPages: Math.ceil(totalProducts / limit),
     });
   } catch (error) {
-    console.error("Get Products Error:", error.message, error.stack);
+    console.error("Get Products Error:", error);
     return NextResponse.json(
       { success: false, message: "Failed to fetch products: " + error.message },
       { status: 500 }
@@ -240,9 +321,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     await connectDB();
-
     const { ids } = await request.json();
-    console.log("Requested IDs in POST:", ids);
 
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       return NextResponse.json(
@@ -278,11 +357,6 @@ export async function POST(request) {
         : 0;
       return { ...product, averageRating };
     });
-
-    console.log(
-      "Found products in POST with specifications:",
-      productsWithRating
-    );
 
     return NextResponse.json({
       success: true,

@@ -339,24 +339,23 @@ const Orders = () => {
                       </span>
                       <span>Mã theo dõi: {order.trackingCode || "N/A"}</span>
                       {(order.status === "pending" ||
+                        order.status === "ghn_success" || // Thêm ghg_success
                         (order.status === "paid" &&
                           order.trackingCode?.startsWith("TEMP-"))) && (
-                        <button
-                          onClick={() => handleAction(order._id, "confirm")}
-                          className="mt-2 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
-                        >
-                          Xác nhận
-                        </button>
-                      )}
-                      {(order.status === "pending" ||
-                        (order.status === "paid" &&
-                          order.trackingCode?.startsWith("TEMP-"))) && (
-                        <button
-                          onClick={() => handleAction(order._id, "cancel")}
-                          className="mt-2 bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
-                        >
-                          Hủy
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleAction(order._id, "confirm")}
+                            className="mt-2 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
+                          >
+                            Xác nhận
+                          </button>
+                          <button
+                            onClick={() => handleAction(order._id, "cancel")}
+                            className="mt-2 bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+                          >
+                            Hủy
+                          </button>
+                        </>
                       )}
                     </p>
                   </div>
