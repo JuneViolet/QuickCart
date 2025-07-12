@@ -227,7 +227,7 @@ const Orders = () => {
       );
       if (data.success) {
         toast.success(data.message);
-        fetchSellerOrders(); // Làm mới danh sách
+        fetchSellerOrders(); // Làm mới danh sách seller
       } else {
         toast.error(data.message);
       }
@@ -260,7 +260,6 @@ const Orders = () => {
                   key={order._id}
                   className="flex flex-col md:flex-row gap-5 justify-between p-5 border-t border-gray-300 hover:bg-gray-50 transition"
                 >
-                  {/* Sản phẩm và biến thể */}
                   <div className="flex-1 flex gap-5 max-w-80">
                     {order.items[0]?.product?.images &&
                     order.items[0]?.product?.images.length > 0 ? (
@@ -297,8 +296,6 @@ const Orders = () => {
                       <span>Items: {order.items.length}</span>
                     </div>
                   </div>
-
-                  {/* Thông tin giao hàng */}
                   <div className="flex-1">
                     <p className="text-gray-700">
                       <span className="font-medium">
@@ -316,15 +313,11 @@ const Orders = () => {
                       <span>{order.address?.phoneNumber || "N/A"}</span>
                     </p>
                   </div>
-
-                  {/* Tổng tiền */}
                   <div className="flex-1 text-center">
                     <p className="font-medium text-lg">
                       {formatCurrency(order.amount, currency)}
                     </p>
                   </div>
-
-                  {/* Trạng thái, ngày, và hành động */}
                   <div className="flex-1 text-right">
                     <p className="flex flex-col items-end gap-2">
                       <span>
@@ -339,7 +332,7 @@ const Orders = () => {
                       </span>
                       <span>Mã theo dõi: {order.trackingCode || "N/A"}</span>
                       {(order.status === "pending" ||
-                        order.status === "ghn_success" || // Thêm ghg_success
+                        order.status === "ghn_success" ||
                         (order.status === "paid" &&
                           order.trackingCode?.startsWith("TEMP-"))) && (
                         <>

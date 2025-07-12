@@ -267,7 +267,7 @@ const MyOrders = () => {
                 return {
                   ...order,
                   ghnStatus: ghnData.data?.status || null,
-                  ghnStatusText: ghnData.data?.status_name || "Chờ lấy hàng", // Mặc định "Chờ lấy hàng" nếu không có
+                  ghnStatusText: ghnData.data?.status_name || "Chờ lấy hàng",
                 };
               } catch (error) {
                 console.warn(
@@ -277,7 +277,7 @@ const MyOrders = () => {
                 return {
                   ...order,
                   ghnStatus: null,
-                  ghnStatusText: "Chờ lấy hàng", // Mặc định cho test mode
+                  ghnStatusText: "Chờ lấy hàng",
                 };
               }
             }
@@ -344,6 +344,27 @@ const MyOrders = () => {
     }
   };
 
+  const getStatusText = (status, ghnStatusText) => {
+    switch (status) {
+      case "pending":
+        return "Chờ xác nhận";
+      case "paid":
+        return "Đã thanh toán";
+      case "ghn_success":
+        return ghnStatusText || "Chờ lấy hàng";
+      case "shipped":
+        return "Đang giao";
+      case "delivered":
+        return "Giao thành công";
+      case "canceled":
+        return "Đã hủy";
+      case "ghn_failed":
+        return "Lỗi tạo đơn GHN";
+      default:
+        return "Chưa xác định";
+    }
+  };
+
   useEffect(() => {
     if (!isLoaded) {
       console.log("Đang đợi Clerk tải dữ liệu người dùng...");
@@ -351,6 +372,9 @@ const MyOrders = () => {
     }
     if (user && isSignedIn) {
       fetchOrders();
+      // Polling every 10 seconds
+      const intervalId = setInterval(fetchOrders, 10000);
+      return () => clearInterval(intervalId); // Cleanup on unmount
     } else {
       router.push("/sign-in");
     }
@@ -435,7 +459,10 @@ const MyOrders = () => {
                         <span>
                           Ngày: {new Date(order.date).toLocaleDateString()}
                         </span>
-                        <span>Trạng thái: {order.ghnStatusText}</span>
+                        <span>
+                          Trạng thái:{" "}
+                          {getStatusText(order.status, order.ghnStatusText)}
+                        </span>
                       </p>
                     </div>
                   </div>

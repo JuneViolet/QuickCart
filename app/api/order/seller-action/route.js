@@ -30,7 +30,7 @@ export async function POST(req) {
       if (order.status === "pending") {
         order.status = "paid";
         await order.save();
-
+      } else if (order.status === "paid" || order.status === "ghn_success") {
         if (order.trackingCode?.startsWith("TEMP-")) {
           const ghnPayload = {
             payment_type_id: order.paymentMethod === "cod" ? 2 : 1,
@@ -71,7 +71,7 @@ export async function POST(req) {
             );
 
             if (ghnRes.data.code === 200) {
-              order.status = "ghn_success";
+              order.status = "shipped"; // Chuyển thẳng sang shipped khi GHN thành công
               order.trackingCode = ghnRes.data.data.order_code;
               order.ghnTrackingCode = ghnRes.data.data.order_code;
               await order.save();
@@ -88,24 +88,27 @@ export async function POST(req) {
               message: `Xác nhận thành công nhưng GHN thất bại: ${ghnError.message}`,
             });
           }
+        } else {
+          // Nếu đã có trackingCode hợp lệ (không TEMP-), chuyển sang shipped
+          order.status = "shipped";
+          await order.save();
         }
-      } else if (order.status === "ghn_success") {
-        // Xác nhận thêm (ví dụ: chuyển sang shipped)
-        order.status = "shipped";
-        await order.save();
+      } else {
+        return NextResponse.json(
+          { success: false, message: "Không thể xác nhận đơn hàng" },
+          { status: 400 }
+        );
       }
       return NextResponse.json({
         success: true,
-        message: "Đơn hàng đã được xác nhận",
+        message: "Đơn hàng đã được xác nhận và chuyển sang đang giao",
       });
     } else if (action === "cancel") {
       if (["pending", "paid", "ghn_success"].includes(order.status)) {
-        order.status = "canceled";
-        await order.save();
-        // Thêm logic hủy GHN nếu có ghnTrackingCode
+        // Thử hủy GHN trước nếu có trackingCode
         if (order.ghnTrackingCode) {
           try {
-            await axios.post(
+            const cancelRes = await axios.post(
               `${process.env.GHN_API_URL}/cancel`,
               { order_code: order.ghnTrackingCode },
               {
@@ -116,14 +119,27 @@ export async function POST(req) {
                 },
               }
             );
+            if (cancelRes.data.code !== 200) {
+              throw new Error(`GHN cancel failed: ${cancelRes.data.message}`);
+            }
           } catch (ghnCancelError) {
             console.warn("GHN Cancel Error:", ghnCancelError.message);
+            // Tiếp tục hủy dù GHN thất bại để đảm bảo trạng thái trên server
           }
         }
+        order.status = "canceled";
+        order.trackingCode = null; // Xóa trackingCode khi hủy
+        order.ghnTrackingCode = null;
+        await order.save();
         return NextResponse.json({
           success: true,
           message: "Đơn hàng đã bị hủy",
         });
+      } else {
+        return NextResponse.json(
+          { success: false, message: "Không thể hủy đơn hàng" },
+          { status: 400 }
+        );
       }
     } else {
       return NextResponse.json(
