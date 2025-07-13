@@ -152,7 +152,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function PUT(request, context) {
+export async function PUT(request, { params }) {
   try {
     await connectDB();
 
@@ -164,7 +164,6 @@ export async function PUT(request, context) {
       );
     }
 
-    const { params } = await context;
     const { id } = params;
     console.log("Extracted ID:", id);
 
@@ -183,7 +182,7 @@ export async function PUT(request, context) {
       );
     }
 
-    if (product.userId !== user.id) {
+    if (product.userId.toString() !== user.id) {
       return NextResponse.json(
         { success: false, message: "Forbidden" },
         { status: 403 }
@@ -199,24 +198,19 @@ export async function PUT(request, context) {
     const price = formData.get("price");
     const offerPrice = formData.get("offerPrice");
     const brandName = formData.get("brandName");
+    const keywords = formData.get("keywords"); // Thêm keywords
     const newImages = formData
       .getAll("images")
       .filter((file) => file instanceof File);
     const existingImages = formData.getAll("existingImages") || [];
 
-    if (!name || !description || !categoryName || !price || !brandName) {
+    // Kiểm tra các trường bắt buộc
+    if (!name || !description || !categoryName || !brandName || !price) {
       return NextResponse.json(
         {
           success: false,
           message:
-            "Missing required fields: " +
-            JSON.stringify({
-              name,
-              description,
-              categoryName,
-              price,
-              brandName,
-            }),
+            "Missing required fields: name, description, categoryName, brandName, price",
         },
         { status: 400 }
       );
@@ -239,16 +233,16 @@ export async function PUT(request, context) {
     }
 
     const parsedPrice = parseFloat(price);
-    const parsedOfferPrice = parseFloat(offerPrice);
-
     if (isNaN(parsedPrice) || parsedPrice <= 0) {
       return NextResponse.json(
         { success: false, message: "Invalid price" },
         { status: 400 }
       );
     }
+
+    const parsedOfferPrice = offerPrice ? parseFloat(offerPrice) : undefined;
     if (
-      parsedOfferPrice &&
+      parsedOfferPrice !== undefined &&
       (isNaN(parsedOfferPrice) || parsedOfferPrice <= 0)
     ) {
       return NextResponse.json(
@@ -257,10 +251,18 @@ export async function PUT(request, context) {
       );
     }
 
-    let images = product.images || [];
-    if (existingImages.length > 0) {
-      images = existingImages;
+    // Xử lý keywords
+    let keywordArray = [];
+    if (keywords) {
+      keywordArray = keywords
+        .split(/[, ]+/)
+        .filter((keyword) => keyword.trim())
+        .map((keyword) => keyword.trim());
     }
+
+    // Xử lý hình ảnh
+    let images =
+      existingImages.length > 0 ? existingImages : product.images || [];
     const maxImages = 4;
     if (newImages.length > 0) {
       const uploadResults = await Promise.all(
@@ -283,12 +285,10 @@ export async function PUT(request, context) {
     }
 
     if (images.length > maxImages) {
-      return NextResponse.json(
-        { success: false, message: `Maximum ${maxImages} images allowed` },
-        { status: 400 }
-      );
+      images = images.slice(0, maxImages); // Giới hạn số lượng ảnh
     }
 
+    // Cập nhật sản phẩm
     product.name = name;
     product.description = description;
     product.category = categoryDoc._id;
@@ -296,11 +296,21 @@ export async function PUT(request, context) {
     product.offerPrice = parsedOfferPrice;
     product.brand = brandDoc._id;
     product.images = images;
+    product.keywords = keywordArray; // Cập nhật keywords
 
     await product.save();
 
+    // Trả về sản phẩm đã cập nhật
+    const updatedProduct = await Product.findById(id).populate(
+      "category brand",
+      "name"
+    );
     return NextResponse.json(
-      { success: true, message: "Product updated successfully" },
+      {
+        success: true,
+        message: "Product updated successfully",
+        product: updatedProduct,
+      },
       { status: 200 }
     );
   } catch (error) {

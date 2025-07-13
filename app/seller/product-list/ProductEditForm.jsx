@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -15,6 +15,31 @@ const ProductEditForm = ({
   handleImageChange,
   handleRemoveImage,
 }) => {
+  const [newKeyword, setNewKeyword] = useState(""); // State để nhập keyword mới
+
+  // Chuyển formData.keywords thành mảng, đảm bảo là mảng
+  const keywordsArray = Array.isArray(formData.keywords)
+    ? formData.keywords
+    : formData.keywords
+    ? formData.keywords.split(/[, ]+/).filter((k) => k.trim())
+    : [];
+
+  // Thêm keyword mới
+  const handleAddKeyword = (e) => {
+    if (e.key === "Enter" && newKeyword.trim()) {
+      e.preventDefault();
+      const updatedKeywords = [...keywordsArray, newKeyword.trim()];
+      setFormData({ ...formData, keywords: updatedKeywords });
+      setNewKeyword(""); // Reset input
+    }
+  };
+
+  // Xóa keyword
+  const handleRemoveKeyword = (keywordToRemove) => {
+    const updatedKeywords = keywordsArray.filter((k) => k !== keywordToRemove);
+    setFormData({ ...formData, keywords: updatedKeywords });
+  };
+
   return (
     <div className="mt-6 max-w-lg">
       <h2 className="text-lg font-medium mb-4">Chỉnh Sửa Sản Phẩm</h2>
@@ -132,6 +157,40 @@ const ProductEditForm = ({
               required
             />
           </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-base font-medium" htmlFor="edit-keywords">
+            Từ Khóa
+          </label>
+          <input
+            id="edit-keywords"
+            type="text"
+            placeholder="Nhập từ khóa mới (Enter để thêm)"
+            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+            value={newKeyword}
+            onChange={(e) => setNewKeyword(e.target.value)}
+            onKeyDown={handleAddKeyword}
+          />
+          <div className="mt-2 flex gap-2 flex-wrap">
+            {keywordsArray.map((keyword, index) => (
+              <span
+                key={index}
+                className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full flex items-center"
+              >
+                {keyword}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveKeyword(keyword)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <p className="text-sm text-gray-500">
+            Nhấn Enter để thêm từ khóa, nhấp vào "×" để xóa.
+          </p>
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-base font-medium" htmlFor="edit-images">

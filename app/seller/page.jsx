@@ -15,10 +15,9 @@
 //   const [category, setCategory] = useState("");
 //   const [price, setPrice] = useState("");
 //   const [offerPrice, setOfferPrice] = useState("");
-//   const [stock, setStock] = useState("");
 //   const [brand, setBrand] = useState("");
-//   const [categories, setCategories] = useState([]); // Danh sách categories từ API
-//   const [brands, setBrands] = useState([]); // Danh sách brands từ API
+//   const [categories, setCategories] = useState([]);
+//   const [brands, setBrands] = useState([]);
 //   const [loading, setLoading] = useState(false);
 
 //   // Tải danh sách categories và brands từ API
@@ -78,7 +77,6 @@
 //     formData.append("category", category);
 //     formData.append("price", price);
 //     formData.append("offerPrice", offerPrice);
-//     formData.append("stock", stock);
 //     formData.append("brand", brand);
 
 //     for (let i = 0; i < files.length; i++) {
@@ -98,7 +96,6 @@
 //         setDescription("");
 //         setPrice("");
 //         setOfferPrice("");
-//         setStock("");
 //         if (categories.length > 0) setCategory(categories[0].name); // Reset về category đầu tiên
 //         if (brands.length > 0) setBrand(brands[0].name); // Reset về brand đầu tiên
 //       } else {
@@ -227,7 +224,7 @@
 //             </div>
 //             <div className="flex flex-col gap-1 w-32">
 //               <label className="text-base font-medium" htmlFor="product-price">
-//                 Giá Sản Phẩm
+//                 Giá Sản Phẩm (mặc định)
 //               </label>
 //               <input
 //                 id="product-price"
@@ -241,7 +238,7 @@
 //             </div>
 //             <div className="flex flex-col gap-1 w-32">
 //               <label className="text-base font-medium" htmlFor="offer-price">
-//                 Giá Ưu Đãi
+//                 Giá Ưu Đãi (mặc định)
 //               </label>
 //               <input
 //                 id="offer-price"
@@ -250,20 +247,6 @@
 //                 className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
 //                 onChange={(e) => setOfferPrice(e.target.value)}
 //                 value={offerPrice}
-//                 required
-//               />
-//             </div>
-//             <div className="flex flex-col gap-1 w-32">
-//               <label className="text-base font-medium" htmlFor="stock">
-//                 Số Lượng
-//               </label>
-//               <input
-//                 id="stock"
-//                 type="number"
-//                 placeholder="0"
-//                 className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-//                 onChange={(e) => setStock(e.target.value)}
-//                 value={stock}
 //                 required
 //               />
 //             </div>
@@ -299,6 +282,7 @@ const AddProduct = () => {
   const [price, setPrice] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
   const [brand, setBrand] = useState("");
+  const [keywords, setKeywords] = useState(""); // Thêm state cho keywords
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -361,9 +345,15 @@ const AddProduct = () => {
     formData.append("price", price);
     formData.append("offerPrice", offerPrice);
     formData.append("brand", brand);
+    // Chuyển keywords thành mảng (cách nhau bởi dấu phẩy hoặc khoảng trắng)
+    const keywordArray = keywords
+      .split(/[, ]+/)
+      .filter((keyword) => keyword.trim())
+      .map((keyword) => keyword.trim());
+    formData.append("keywords", JSON.stringify(keywordArray)); // Gửi dưới dạng JSON
 
     for (let i = 0; i < files.length; i++) {
-      formData.append("images", files[i]);
+      if (files[i]) formData.append("images", files[i]);
     }
 
     try {
@@ -379,6 +369,7 @@ const AddProduct = () => {
         setDescription("");
         setPrice("");
         setOfferPrice("");
+        setKeywords(""); // Reset keywords
         if (categories.length > 0) setCategory(categories[0].name); // Reset về category đầu tiên
         if (brands.length > 0) setBrand(brands[0].name); // Reset về brand đầu tiên
       } else {
@@ -533,6 +524,24 @@ const AddProduct = () => {
                 required
               />
             </div>
+          </div>
+          {/* Thêm trường keywords */}
+          <div className="flex flex-col gap-1 max-w-md">
+            <label className="text-base font-medium" htmlFor="keywords">
+              Từ Khóa (cách nhau bằng dấu phẩy)
+            </label>
+            <input
+              id="keywords"
+              type="text"
+              placeholder="Ví dụ: Apple, smartphone, 5G"
+              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              onChange={(e) => setKeywords(e.target.value)}
+              value={keywords}
+            />
+            <p className="text-sm text-gray-500">
+              Nhập các từ khóa liên quan (ví dụ: thương hiệu, tính năng), cách
+              nhau bằng dấu phẩy hoặc khoảng trắng.
+            </p>
           </div>
           <button
             type="submit"
