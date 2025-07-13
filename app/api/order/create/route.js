@@ -193,7 +193,7 @@ export async function POST(request) {
     const orderDate = new Date();
     const tempTrackingCode = `TEMP-${Date.now()}`;
 
-    // Kiểm tra xem đơn hàng đã tồn tại với trackingCode này chưa
+    // Kiểm tra và tạo chỉ mục duy nhất
     const existingOrder = await Order.findOne({
       trackingCode: tempTrackingCode,
     });
@@ -298,7 +298,7 @@ export async function POST(request) {
         if (ghnData.code === 200) {
           ghnTrackingCode = ghnData.data.order_code;
           await Order.findByIdAndUpdate(orderId, {
-            status: "Chờ lấy hàng", // Chỉ cập nhật trạng thái thành công
+            status: "Chờ lấy hàng",
             ghnOrderId: ghnData.data.order_id,
             trackingCode: ghnTrackingCode,
           });
@@ -315,10 +315,8 @@ export async function POST(request) {
           status: err.response?.status,
         });
         await Order.findByIdAndUpdate(orderId, {
-          status: "Chờ xác nhận", // Chỉ cập nhật trạng thái thất bại
-          ghnError: err.response?.data?.message || err.message,
+          status: "Chờ xác nhận", // Chỉ cập nhật trạng thái thất bại, không tạo mới
         });
-        // Không tạo đơn mới, chỉ giữ trạng thái hiện tại
       }
     }
 
