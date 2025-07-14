@@ -3,7 +3,7 @@ import connectDB from "./db";
 import User from "@/models/User";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
-import mongoose from "mongoose"; // Import mongoose
+import mongoose from "mongoose";
 import axios from "axios";
 require("dotenv").config();
 
@@ -111,7 +111,7 @@ export const createUserOrder = inngest.createFunction(
           userId,
           address: mongoose.Types.ObjectId.isValid(address)
             ? new mongoose.Types.ObjectId(address)
-            : address, // Xử lý an toàn
+            : address,
           items,
           subtotal,
           tax,
@@ -184,21 +184,22 @@ export const createUserOrder = inngest.createFunction(
               Token: process.env.GHN_TOKEN,
               ShopId: process.env.GHN_SHOP_ID,
             },
-            timeout: 10000, // Timeout 10 giây
+            timeout: 10000,
           });
 
           const ghnData = ghnRes.data;
           console.log("📦 GHN createOrder response:", ghnData);
 
           if (ghnData.code === 200) {
+            const newTrackingCode = ghnData.data.order_code;
             await Order.findByIdAndUpdate(orderId, {
               status: "Chờ lấy hàng",
               ghnOrderId: ghnData.data.order_id,
-              trackingCode: ghnData.data.order_code,
+              trackingCode: newTrackingCode,
             });
             console.log(
               "✅ GHN createOrder success, updated trackingCode:",
-              ghnData.data.order_code
+              newTrackingCode
             );
           } else {
             throw new Error(
@@ -218,7 +219,12 @@ export const createUserOrder = inngest.createFunction(
         }
       }
 
-      console.log("✅ Processed order with trackingCode:", trackingCode);
+      // Lấy lại order sau khi cập nhật để log giá trị mới
+      const updatedOrder = await Order.findById(orderId);
+      console.log(
+        "✅ Processed order with trackingCode:",
+        updatedOrder.trackingCode
+      );
     }
 
     return { success: true, processed: events.length };
