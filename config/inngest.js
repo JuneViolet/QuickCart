@@ -3,6 +3,7 @@ import connectDB from "./db";
 import User from "@/models/User";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import mongoose from "mongoose"; // Import mongoose
 import axios from "axios";
 require("dotenv").config();
 
@@ -108,7 +109,9 @@ export const createUserOrder = inngest.createFunction(
         orderId,
         {
           userId,
-          address: new mongoose.Types.ObjectId(address),
+          address: mongoose.Types.ObjectId.isValid(address)
+            ? new mongoose.Types.ObjectId(address)
+            : address, // Xử lý an toàn
           items,
           subtotal,
           tax,
@@ -130,6 +133,15 @@ export const createUserOrder = inngest.createFunction(
 
       // Xử lý GHN nếu là COD
       if (paymentMethod === "cod" && order.status === "pending") {
+        if (!order.address) {
+          console.error("❌ Address not populated for order:", orderId);
+          await Order.findByIdAndUpdate(orderId, {
+            status: "ghn_failed",
+            ghnError: "Address data missing",
+          });
+          continue;
+        }
+
         const totalWeight = items.reduce(
           (sum, item) => sum + item.weight * item.quantity,
           0
