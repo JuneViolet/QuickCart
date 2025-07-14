@@ -21,6 +21,10 @@ export async function GET(request) {
       .populate("address items.product items.variantId")
       .lean();
 
+    if (!orders || orders.length === 0) {
+      return NextResponse.json({ success: true, orders: [] });
+    }
+
     const validOrders = orders.map((order) => ({
       ...order,
       items: order.items.map((item) => ({
@@ -34,15 +38,26 @@ export async function GET(request) {
     }));
 
     console.log(
-      "📋 Fetched orders with statuses:",
+      "📋 Fetched orders with details:",
       validOrders.map((o) => ({
+        _id: o._id,
         trackingCode: o.trackingCode,
         status: o.status,
+        paymentMethod: o.paymentMethod,
       }))
     );
-    return NextResponse.json({ success: true, orders: validOrders });
+
+    return NextResponse.json(
+      { success: true, orders: validOrders },
+      {
+        headers: {
+          "Cache-Control":
+            "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      }
+    );
   } catch (error) {
-    console.error("Error in /api/order/list:", error.message);
+    console.error("Error in /api/order/list:", error.message, error.stack);
     return NextResponse.json(
       { success: false, message: "Server error: " + error.message },
       { status: 500 }
