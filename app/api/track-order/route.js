@@ -1,61 +1,3 @@
-// import { NextResponse } from "next/server";
-// import connectDB from "@/config/db";
-// import Order from "@/models/Order";
-
-// export async function GET(req) {
-//   await connectDB();
-
-//   const { searchParams } = new URL(req.url);
-//   const trackingCode = searchParams.get("order_code");
-
-//   if (!trackingCode) {
-//     return NextResponse.json(
-//       { success: false, message: "Order code is required" },
-//       { status: 400 }
-//     );
-//   }
-
-//   try {
-//     // Tìm đơn hàng theo trackingCode (có thể là TEMP-xxx hoặc mã GHN)
-//     const order = await Order.findOne({
-//       $or: [
-//         { trackingCode },
-//         { ghnTrackingCode: trackingCode },
-//       ],
-//     });
-
-//     if (!order || !order.ghnTrackingCode) {
-//       throw new Error("Không tìm thấy mã GHN phù hợp trong đơn hàng");
-//     }
-
-//     // Dùng mã GHN thật sự
-//     const response = await fetch(
-//       `https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail?order_code=${order.ghnTrackingCode}`,
-//       {
-//         method: "GET",
-//         headers: {
-//           Token: process.env.GHN_TOKEN,
-//           ShopId: process.env.GHN_SHOP_ID,
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-
-//     const data = await response.json();
-
-//     if (!response.ok) {
-//       throw new Error(data.message || "Failed to track order");
-//     }
-
-//     return NextResponse.json({ success: true, data: data.data });
-//   } catch (error) {
-//     console.warn(`Track Order Error for ${trackingCode}:`, error.message);
-//     return NextResponse.json(
-//       { success: false, message: error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
@@ -76,24 +18,24 @@ export async function GET(req) {
     await connectDB();
 
     const order = await Order.findOne({
-      $or: [{ trackingCode: orderCode }, { ghnTrackingCode: orderCode }],
+      $or: [{ trackingCode: orderCode }],
     });
 
-    const realCode = order?.ghnTrackingCode || order?.trackingCode;
-
-    if (!realCode || realCode.startsWith("TEMP-")) {
+    if (!order) {
       return NextResponse.json(
-        { success: false, message: "GHN tracking code not available yet" },
-        { status: 400 }
+        { success: false, message: "Order not found" },
+        { status: 404 }
       );
     }
+
+    const realCode = order.trackingCode;
 
     const ghnRes = await axios.get(
       `https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail`,
       {
         headers: {
           "Content-Type": "application/json",
-          Token: process.env.GHN_TOKEN, // Token sandbox
+          Token: process.env.GHN_TOKEN,
           ShopId: process.env.GHN_SHOP_ID,
         },
         params: { order_code: realCode },
@@ -104,6 +46,21 @@ export async function GET(req) {
     console.log("📦 GHN tracking response:", JSON.stringify(ghnData, null, 2));
 
     if (ghnData.code === 200) {
+      // Cập nhật trạng thái dựa trên GHN
+      const ghnStatus = ghnData.data.status;
+      let updatedStatus = order.status; // Giữ trạng thái cũ nếu không khớp
+      if (ghnStatus === "ready_to_pick") updatedStatus = "Chờ lấy hàng";
+      else if (ghnStatus === "delivering") updatedStatus = "Đang giao";
+      else if (ghnStatus === "delivered") updatedStatus = "Đã giao";
+      else if (ghnStatus === "cancel") updatedStatus = "Đã hủy";
+
+      if (updatedStatus !== order.status) {
+        await Order.findByIdAndUpdate(order._id, { status: updatedStatus });
+        console.log(
+          `📝 Updated order ${order._id} status to: ${updatedStatus}`
+        );
+      }
+
       return NextResponse.json({ success: true, data: ghnData.data });
     } else {
       throw new Error(
@@ -117,7 +74,7 @@ export async function GET(req) {
       status: error.response?.status,
     });
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: "Server error: " + error.message },
       { status: 500 }
     );
   }
