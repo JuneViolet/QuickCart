@@ -30,7 +30,7 @@ const Cart = () => {
   const [variants, setVariants] = useState({});
   const [isDataReady, setIsDataReady] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(false); // Thêm trạng thái cho checkout
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   // Fetch default address
   const fetchDefaultAddress = useCallback(async () => {
@@ -250,7 +250,7 @@ const Cart = () => {
         if (prevValue !== currentValue) {
           calculateShippingFee();
         }
-      }, 1000), // Tăng delay lên 1000ms
+      }, 1000),
     [calculateShippingFee]
   );
 
@@ -267,22 +267,62 @@ const Cart = () => {
     };
   }, [isDataReady, defaultAddress, cartItems, debouncedCalculateShippingFee]);
 
+  // Debounce handleCheckout to prevent multiple calls
+  const debouncedHandleCheckout = useMemo(
+    () =>
+      debounce(async () => {
+        try {
+          const token = await getToken();
+          const headers = { Authorization: `Bearer ${token}` };
+          const items = Object.entries(cartItems).map(([key, item]) => ({
+            product: item.productId || key.split("_")[0],
+            variantId: item.variantId,
+            quantity: item.quantity,
+          }));
+          const response = await axios.post(
+            "/api/order/create",
+            {
+              address: defaultAddress._id,
+              items,
+              paymentMethod: "COD",
+            },
+            { headers }
+          );
+
+          if (response.data.success) {
+            toast.success("Đặt hàng thành công!");
+            setCartItems({});
+            router.push("/order-success");
+          } else {
+            toast.error(response.data.message || "Đặt hàng thất bại!");
+          }
+        } catch (error) {
+          console.error("Checkout Error:", error.message, error.response?.data);
+          toast.error("Lỗi khi đặt hàng: " + error.message);
+        }
+      }, 2000), // 2 giây debounce
+    [defaultAddress, cartItems, getToken, router]
+  );
+
   // Handle checkout with single API call
   const handleCheckout = async () => {
-    if (!defaultAddress) {
-      toast.error("Vui lòng thêm địa chỉ giao hàng trước khi thanh toán!");
-      router.push("/add-address");
+    if (
+      !defaultAddress ||
+      Object.keys(cartItems).length === 0 ||
+      loading ||
+      (shippingFee === null && !loading) ||
+      checkoutLoading
+    ) {
+      if (!defaultAddress) {
+        toast.error("Vui lòng thêm địa chỉ giao hàng trước khi thanh toán!");
+        router.push("/add-address");
+      } else if (Object.keys(cartItems).length === 0) {
+        toast.error("Giỏ hàng trống, vui lòng thêm sản phẩm!");
+      } else if (loading || (shippingFee === null && !loading)) {
+        toast.error("Vui lòng đợi tính phí vận chuyển trước khi thanh toán!");
+      }
       return;
     }
-    if (Object.keys(cartItems).length === 0) {
-      toast.error("Giỏ hàng trống, vui lòng thêm sản phẩm!");
-      return;
-    }
-    if (loading || (shippingFee === null && !loading)) {
-      toast.error("Vui lòng đợi tính phí vận chuyển trước khi thanh toán!");
-      return;
-    }
-    if (checkoutLoading) return; // Ngăn chặn gọi lại
 
     setCheckoutLoading(true);
     try {
@@ -298,22 +338,28 @@ const Cart = () => {
         {
           address: defaultAddress._id,
           items,
-          paymentMethod: "COD", // Hoặc lấy từ người dùng
+          paymentMethod: "COD",
         },
         { headers }
       );
 
       if (response.data.success) {
-        toast.success("Đặt hàng thành công!");
-        setCartItems({}); // Xóa giỏ hàng sau khi thành công
-        router.push("/order-success"); // Chuyển đến trang xác nhận
+        const { trackingCode } = response.data.order;
+        // Kiểm tra trạng thái trước khi chuyển hướng
+        if (response.data.order.status === "pending") {
+          toast.success("Đặt hàng thành công!");
+          setCartItems({});
+          router.push("/order-success");
+        } else {
+          console.warn("Trạng thái không hợp lệ:", response.data.order.status);
+          toast.error("Đặt hàng thất bại do trạng thái không hợp lệ!");
+        }
       } else {
         toast.error(response.data.message || "Đặt hàng thất bại!");
       }
     } catch (error) {
       console.error("Checkout Error:", error.message, error.response?.data);
       toast.error("Lỗi khi đặt hàng: " + error.message);
-      // Không retry tự động, chỉ thông báo lỗi
     } finally {
       setCheckoutLoading(false);
     }

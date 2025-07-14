@@ -84,7 +84,7 @@ export const createUserOrder = inngest.createFunction(
       // Kiểm tra dữ liệu
       if (!trackingCode) {
         console.error("❌ Missing trackingCode in event data:", event.data);
-        throw new Error("trackingCode is required");
+        continue; // Bỏ qua nếu thiếu trackingCode
       }
 
       // Kiểm tra xem đơn hàng đã tồn tại chưa
@@ -95,8 +95,8 @@ export const createUserOrder = inngest.createFunction(
       }
 
       // Tạo hoặc cập nhật đơn hàng
-      const order = await Order.findOneAndUpdate(
-        { trackingCode },
+      const order = await Order.findByIdAndUpdate(
+        orderId,
         {
           userId,
           address,
@@ -118,6 +118,8 @@ export const createUserOrder = inngest.createFunction(
           $inc: { stock: -item.quantity },
         });
       }
+
+      console.log("✅ Processed order with trackingCode:", trackingCode);
     }
 
     return { success: true, processed: events.length };
