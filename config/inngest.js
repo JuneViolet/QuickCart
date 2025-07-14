@@ -3,8 +3,9 @@ import connectDB from "./db";
 import User from "@/models/User";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import axios from "axios";
+require("dotenv").config();
 
-// Create a client to send and receive events
 export const inngest = new Inngest({ id: "quickcart-next" });
 
 // Inngest Function to save user data to database
@@ -54,7 +55,7 @@ export const syncUserDeletion = inngest.createFunction(
   }
 );
 
-// Inngest Function to create user's order in database
+// Inngest Function to create user's order in database and process GHN
 export const createUserOrder = inngest.createFunction(
   {
     id: "create-user-order",
@@ -79,6 +80,7 @@ export const createUserOrder = inngest.createFunction(
         amount,
         trackingCode,
         date,
+        paymentMethod,
       } = event.data;
 
       // Kiểm tra dữ liệu
@@ -87,19 +89,26 @@ export const createUserOrder = inngest.createFunction(
         continue; // Bỏ qua nếu thiếu trackingCode
       }
 
-      // Kiểm tra xem đơn hàng đã tồn tại chưa
-      const existingOrder = await Order.findOne({ trackingCode });
-      if (existingOrder) {
-        console.log("⚠️ Order already exists with trackingCode:", trackingCode);
-        continue; // Bỏ qua nếu đã tồn tại
+      // Lấy thông tin đơn hàng từ DB
+      const order = await Order.findById(orderId).populate("address");
+      if (!order) {
+        console.error("❌ Order not found:", orderId);
+        continue;
       }
 
-      // Tạo hoặc cập nhật đơn hàng
-      const order = await Order.findByIdAndUpdate(
+      // Kiểm tra xem đơn hàng đã tồn tại chưa dựa trên trackingCode
+      const existingOrder = await Order.findOne({ trackingCode });
+      if (existingOrder && existingOrder._id.toString() !== orderId) {
+        console.log("⚠️ Order already exists with trackingCode:", trackingCode);
+        continue;
+      }
+
+      // Tạo hoặc cập nhật đơn hàng ban đầu
+      await Order.findByIdAndUpdate(
         orderId,
         {
           userId,
-          address,
+          address: new mongoose.Types.ObjectId(address),
           items,
           subtotal,
           tax,
@@ -117,6 +126,84 @@ export const createUserOrder = inngest.createFunction(
         await Product.findByIdAndUpdate(item.product, {
           $inc: { stock: -item.quantity },
         });
+      }
+
+      // Xử lý GHN nếu là COD
+      if (paymentMethod === "cod" && order.status === "pending") {
+        const totalWeight = items.reduce(
+          (sum, item) => sum + item.weight * item.quantity,
+          0
+        );
+
+        const ghnPayload = {
+          payment_type_id: 2,
+          note: "Giao hàng QuickCart",
+          required_note: "KHONGCHOXEMHANG",
+          return_phone: "0911222333",
+          return_address: "590 CMT8, P.11, Q.3, TP. HCM",
+          return_district_id: null,
+          return_ward_code: "",
+          client_order_code: trackingCode,
+          to_name: order.address.fullName,
+          to_phone: order.address.phoneNumber,
+          to_address: order.address.area,
+          to_ward_code: order.address.wardCode,
+          to_district_id: order.address.districtId,
+          cod_amount: Math.round(amount),
+          weight: Math.max(totalWeight, 50),
+          service_type_id: 2,
+          items: items.map((item) => ({
+            name: item.sku,
+            quantity: item.quantity,
+            price: item.offerPrice,
+            weight: Math.max(item.weight, 50),
+          })),
+        };
+
+        console.log(
+          "📤 GHN createOrder payload:",
+          JSON.stringify(ghnPayload, null, 2)
+        );
+
+        try {
+          const ghnRes = await axios.post(process.env.GHN_API_URL, ghnPayload, {
+            headers: {
+              "Content-Type": "application/json",
+              Token: process.env.GHN_TOKEN,
+              ShopId: process.env.GHN_SHOP_ID,
+            },
+            timeout: 10000, // Timeout 10 giây
+          });
+
+          const ghnData = ghnRes.data;
+          console.log("📦 GHN createOrder response:", ghnData);
+
+          if (ghnData.code === 200) {
+            await Order.findByIdAndUpdate(orderId, {
+              status: "Chờ lấy hàng",
+              ghnOrderId: ghnData.data.order_id,
+              trackingCode: ghnData.data.order_code,
+            });
+            console.log(
+              "✅ GHN createOrder success, updated trackingCode:",
+              ghnData.data.order_code
+            );
+          } else {
+            throw new Error(
+              `GHN failed with code ${ghnData.code}: ${ghnData.message}`
+            );
+          }
+        } catch (err) {
+          console.error("❌ GHN API error details:", {
+            message: err.message,
+            response: err.response?.data,
+            status: err.response?.status,
+          });
+          await Order.findByIdAndUpdate(orderId, {
+            status: "ghn_failed",
+            ghnError: err.response?.data?.message || err.message,
+          });
+        }
       }
 
       console.log("✅ Processed order with trackingCode:", trackingCode);
