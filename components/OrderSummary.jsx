@@ -1,8 +1,9 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "@/context/AppContext";
 import { useUser } from "@clerk/nextjs";
+import { debounce } from "lodash"; // Cần cài đặt: npm install lodash
 
 const OrderSummary = () => {
   const {
@@ -29,21 +30,30 @@ const OrderSummary = () => {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [bankCode, setBankCode] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
+  const [isAddressSelected, setIsAddressSelected] = useState(false);
 
-  // Fetch user addresses when user is loaded
   useEffect(() => {
-    if (!isLoaded) return;
-    if (user) fetchUserAddresses();
+    if (!isLoaded) {
+      console.log("Đang đợi Clerk tải dữ liệu người dùng...");
+      return;
+    }
+    if (user) {
+      fetchUserAddresses();
+    }
   }, [user, isLoaded]);
 
-  // Calculate shipping fee when selectedAddress or cartItems change
   useEffect(() => {
-    if (selectedAddress && Object.keys(cartItems).length > 0) {
+    if (
+      selectedAddress &&
+      selectedAddress.districtId &&
+      selectedAddress.wardCode &&
+      cartItems &&
+      Object.keys(cartItems).length > 0 &&
+      isAddressSelected
+    ) {
       calculateShippingFee();
-    } else {
-      setShippingFee(0);
     }
-  }, [selectedAddress, cartItems]);
+  }, [selectedAddress, cartItems, isAddressSelected]);
 
   const fetchUserAddresses = async () => {
     try {
@@ -51,20 +61,24 @@ const OrderSummary = () => {
       const { data } = await axios.get("/api/user/get-address", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (data.success) {
         setUserAddresses(data.addresses);
         if (data.addresses.length > 0) {
           const defaultAddress =
             data.addresses.find((a) => a.isDefault) || data.addresses[0];
           setSelectedAddress(defaultAddress);
+        } else {
+          toast.info("Bạn chưa có địa chỉ. Vui lòng thêm địa chỉ mới.");
+          setSelectedAddress(null);
         }
       } else {
         toast.error(data.message || "Không thể tải địa chỉ");
+        setSelectedAddress(null);
       }
     } catch (error) {
       console.error("Lỗi khi tải địa chỉ:", error);
       toast.error("Lỗi khi tải địa chỉ: " + error.message);
+      setSelectedAddress(null);
     }
   };
 
@@ -75,11 +89,11 @@ const OrderSummary = () => {
         headers: { Authorization: `Bearer ${token}` },
         data: { addressId },
       });
-
       if (data.success) {
         setUserAddresses(data.addresses);
-        if (selectedAddress?._id === addressId) {
+        if (selectedAddress && selectedAddress._id === addressId) {
           setSelectedAddress(data.addresses[0] || null);
+          setIsAddressSelected(false);
         }
         toast.success("Địa chỉ đã được xóa");
       } else {
@@ -99,14 +113,12 @@ const OrderSummary = () => {
         toast.error("Vui lòng nhập mã giảm giá");
         return;
       }
-
       const token = await getToken();
       const { data } = await axios.post(
         "/api/promo/validate",
         { code: promoCode.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       if (data.success) {
         const discountValue = (getCartAmount() * data.discountPercentage) / 100;
         setDiscount(Math.floor(discountValue));
@@ -123,17 +135,18 @@ const OrderSummary = () => {
   };
 
   const calculateShippingFee = async () => {
-    // Validate required data
     if (
       !selectedAddress ||
-      typeof selectedAddress.districtId !== "number" ||
-      typeof selectedAddress.wardCode !== "string" ||
+      !selectedAddress.districtId ||
+      !selectedAddress.wardCode ||
+      !cartItems ||
       Object.keys(cartItems).length === 0
     ) {
-      console.log("Skip tính phí: Dữ liệu không hợp lệ", {
-        districtId: selectedAddress?.districtId,
-        wardCode: selectedAddress?.wardCode,
-        cartItems,
+      console.log("Skipping shipping fee calculation: Invalid data", {
+        selectedAddress: !!selectedAddress,
+        hasDistrictId: !!selectedAddress?.districtId,
+        hasWardCode: !!selectedAddress?.wardCode,
+        hasCartItems: !!(cartItems && Object.keys(cartItems).length > 0),
       });
       setShippingFee(0);
       return;
@@ -146,29 +159,31 @@ const OrderSummary = () => {
           (v) => v._id.toString() === item.variantId
         );
         const specs = specifications[productId] || [];
-
         let weight = 50;
         const weightSpec = specs.find(
           (s) => s.key.toLowerCase() === "trọng lượng"
         );
-
         if (weightSpec) {
           const weightValue = parseFloat(
             weightSpec.value.replace(/[^0-9.]/g, "")
           );
           if (!isNaN(weightValue)) weight = weightValue;
         }
-
-        return sum + weight * (item.quantity || 1);
+        const quantity = item.quantity || 1;
+        return sum + weight * quantity;
       }, 0);
+
+      const totalValue = getCartAmount() || 0;
 
       const payload = {
         districtId: selectedAddress.districtId,
         wardCode: selectedAddress.wardCode,
         address: selectedAddress.area || "123 Nguyễn Chí Thanh",
         weight: Math.max(totalWeight, 50),
-        value: getCartAmount() || 0,
+        value: totalValue,
       };
+
+      console.log("Sending Shipping Fee Payload:", payload);
 
       const token = await getToken();
       const { data } = await axios.post("/api/shipping/fee", payload, {
@@ -177,97 +192,149 @@ const OrderSummary = () => {
 
       if (data.success) {
         setShippingFee(data.data.fee || 0);
+        console.log("Shipping Fee Calculated:", data.data.fee);
       } else {
         setShippingFee(0);
-        toast.error(data.message || "Tính phí vận chuyển thất bại");
+        console.warn("Shipping fee calculation failed:", data.message);
       }
     } catch (error) {
-      console.error("Calculate Shipping Fee Error:", error);
-      setShippingFee(0);
-      toast.error(
-        "Không thể tính phí vận chuyển: " +
-          (error.response?.data?.message || error.message)
+      console.error(
+        "Calculate Shipping Fee Error:",
+        error.message,
+        error.response?.data
       );
+      setShippingFee(0);
+      if (error.response?.status >= 500) {
+        toast.error(
+          "Không thể tính phí vận chuyển: " +
+            (error.response?.data?.message || error.message)
+        );
+      }
     }
   };
 
   const calculateFinalTotal = () => {
     const subtotal = getCartAmount() || 0;
     const tax = Math.floor(subtotal * 0.02);
-    const total = subtotal + tax + (shippingFee || 0) - discount;
+    const finalShippingFee =
+      shippingFee !== null && shippingFee !== undefined ? shippingFee : 0;
+    const total = subtotal + tax + finalShippingFee - discount;
     return Math.max(0, total);
   };
 
-  const createOrder = async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+  const validateOrderData = () => {
+    if (!selectedAddress) {
+      toast.error("Vui lòng chọn địa chỉ giao hàng");
+      return false;
+    }
 
-    try {
-      if (!selectedAddress) {
-        toast.error("Vui lòng chọn địa chỉ giao hàng");
-        return;
-      }
+    const cartItemsArray = Object.entries(cartItems)
+      .map(([key, item]) => ({
+        product: key.split("_")[0],
+        variantId: key.split("_")[1],
+        quantity: item.quantity || 1,
+      }))
+      .filter((item) => item.quantity > 0);
 
-      const cartItemsArray = Object.entries(cartItems)
-        .map(([key, item]) => ({
-          product: key.split("_")[0],
-          variantId: key.split("_")[1],
-          quantity: item.quantity || 1,
-        }))
-        .filter((item) => item.quantity > 0);
+    if (cartItemsArray.length === 0) {
+      toast.error("Giỏ hàng trống");
+      return false;
+    }
 
-      if (cartItemsArray.length === 0) {
-        toast.error("Giỏ hàng trống");
-        return;
-      }
+    return cartItemsArray;
+  };
 
-      const token = await getToken();
-      const internalTrackingCode = `ORDER-${Date.now()}`;
-      const subtotal = getCartAmount() || 0;
-      const tax = Math.floor(subtotal * 0.02);
-      const total = subtotal + tax + (shippingFee || 0) - discount;
+  const debouncedCreateOrder = useCallback(
+    debounce(async () => {
+      try {
+        const cartItemsArray = validateOrderData();
+        if (!cartItemsArray) return;
 
-      const response = await axios.post(
-        "/api/order/create",
-        {
-          address: selectedAddress._id,
-          items: cartItemsArray,
-          promoCode: promoCode || null,
-          trackingCode: internalTrackingCode,
-          paymentMethod,
-          amount: total,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        const token = await getToken();
+        const subtotal = getCartAmount() || 0;
+        const tax = Math.floor(subtotal * 0.02);
+        const shippingFeeValue = shippingFee || 0;
+        const total = subtotal + tax + shippingFeeValue - discount;
 
-      const data = response.data;
+        const response = await axios.post(
+          "/api/order/create",
+          {
+            address: selectedAddress._id,
+            items: cartItemsArray,
+            promoCode: promoCode || null,
+            paymentMethod,
+            amount: total,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-      if (!data.success) {
-        throw new Error(data.message || "Tạo đơn hàng thất bại");
-      }
+        const data = response.data;
 
-      const ghnTrackingCode = data.order?.trackingCode;
+        if (!data.success) {
+          throw new Error(data.message || "Tạo đơn hàng thất bại");
+        }
 
-      if (paymentMethod === "vnpay" && data.order?.vnpayUrl) {
-        window.location.href = data.order.vnpayUrl;
-      } else {
-        toast.success(data.message || "Đặt hàng thành công");
-        setCartItems({});
-        setPromoCode("");
-        setDiscount(0);
-        router.push(
-          `/order-placed?trackingCode=${
-            ghnTrackingCode || internalTrackingCode
-          }`
+        const ghnTrackingCode = data.order?.trackingCode;
+        if (ghnTrackingCode) {
+          console.log("Mã theo dõi GHN:", ghnTrackingCode);
+        } else {
+          console.warn("Không tìm thấy mã GHN, sử dụng mã nội bộ");
+        }
+
+        if (paymentMethod === "vnpay" && data.order?.vnpayUrl) {
+          window.location.href = data.order.vnpayUrl;
+        } else {
+          toast.success(data.message || "Đặt hàng thành công");
+          setCartItems({});
+          setPromoCode("");
+          setDiscount(0);
+          router.push(
+            `/order-placed?trackingCode=${
+              ghnTrackingCode || data.order.trackingCode
+            }`
+          );
+        }
+      } catch (error) {
+        console.error("Đặt hàng lỗi:", error);
+        toast.error(
+          error.response?.data?.message || error.message || "Lỗi khi đặt hàng"
         );
       }
-    } catch (error) {
-      console.error("Đặt hàng lỗi:", error);
-      toast.error(
-        error.response?.data?.message || error.message || "Lỗi khi đặt hàng"
+    }, 2000), // Debounce 2 giây
+    [
+      selectedAddress,
+      cartItems,
+      promoCode,
+      paymentMethod,
+      shippingFee,
+      discount,
+      getToken,
+      router,
+    ]
+  );
+
+  const createOrder = async () => {
+    if (isSubmitting || !selectedAddress || getCartCount() === 0) return;
+    setIsSubmitting(true);
+    console.log("Sending order request at:", new Date().toISOString());
+    await debouncedCreateOrder();
+    setIsSubmitting(false);
+  };
+
+  const handleAddressSelect = (address) => {
+    setSelectedAddress(address);
+    setIsAddressSelected(true);
+    setIsDropdownOpen(false);
+
+    if (
+      address.districtId &&
+      address.wardCode &&
+      cartItems &&
+      Object.keys(cartItems).length > 0
+    ) {
+      console.log(
+        "Address selected, shipping fee will be calculated automatically"
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -299,17 +366,13 @@ const OrderSummary = () => {
           />
         </svg>
       </button>
-
       {isDropdownOpen && (
         <ul className="absolute w-full bg-white border shadow-md mt-1 z-10 py-1.5 max-h-60 overflow-y-auto">
-          {userAddresses.map((address) => (
+          {userAddresses.map((address, index) => (
             <li
-              key={address._id}
+              key={address._id || index}
               className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer flex justify-between items-center"
-              onClick={() => {
-                setSelectedAddress(address);
-                setIsDropdownOpen(false);
-              }}
+              onClick={() => handleAddressSelect(address)}
             >
               <span>
                 {`${address.fullName}, ${address.phoneNumber}, ${address.area}, ${address.ward}, ${address.state}, ${address.city}`}
@@ -342,9 +405,7 @@ const OrderSummary = () => {
         Chi Tiết Mua Hàng
       </h2>
       <hr className="border-gray-500/30 my-5" />
-
       <div className="space-y-6">
-        {/* Địa chỉ */}
         <div>
           <label className="text-base font-medium uppercase text-gray-600 block mb-2">
             CHỌN ĐỊA CHỈ
@@ -352,7 +413,6 @@ const OrderSummary = () => {
           {renderAddressDropdown()}
         </div>
 
-        {/* Phương thức thanh toán */}
         <div>
           <label className="text-base font-medium uppercase text-gray-600 block mb-2">
             PHƯƠNG THỨC THANH TOÁN
@@ -381,7 +441,6 @@ const OrderSummary = () => {
           </div>
         </div>
 
-        {/* Mã giảm giá */}
         <div>
           <label className="text-base font-medium uppercase text-gray-600 block mb-2">
             MÃ GIẢM GIÁ
@@ -412,7 +471,6 @@ const OrderSummary = () => {
 
         <hr className="border-gray-500/30 my-5" />
 
-        {/* Tổng */}
         <div className="space-y-4">
           <div className="flex justify-between font-medium">
             <p className="text-gray-600 uppercase">
