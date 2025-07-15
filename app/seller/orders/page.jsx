@@ -185,14 +185,14 @@ const Orders = () => {
     }
   };
 
-  const getStatusText = (status, ghnTrackingCode) => {
+  const getStatusText = (status) => {
     switch (status) {
       case "pending":
         return "Chờ xác nhận";
       case "paid":
         return "Đã thanh toán";
-      case "ghn_success":
-        return ghnTrackingCode ? "Chờ lấy hàng" : "Đã tạo đơn GHN";
+      case "confirmed":
+        return "Đã xác nhận";
       case "shipped":
         return "Đang giao";
       case "delivered":
@@ -201,6 +201,14 @@ const Orders = () => {
         return "Đã hủy";
       case "ghn_failed":
         return "Lỗi tạo đơn GHN";
+      case "Chờ lấy hàng":
+        return "Chờ lấy hàng";
+      case "Đang giao":
+        return "Đang giao";
+      case "Đã giao":
+        return "Giao thành công";
+      case "Đã hủy":
+        return "Đã hủy";
       default:
         return "Chưa xác định";
     }
@@ -227,7 +235,7 @@ const Orders = () => {
       );
       if (data.success) {
         toast.success(data.message);
-        fetchSellerOrders(); // Làm mới danh sách seller
+        fetchSellerOrders(); // Làm mới danh sách
       } else {
         toast.error(data.message);
       }
@@ -326,12 +334,10 @@ const Orders = () => {
                       <span>
                         Ngày: {new Date(order.date).toLocaleDateString("vi-VN")}
                       </span>
-                      <span>
-                        Trạng thái:{" "}
-                        {getStatusText(order.status, order.ghnTrackingCode)}
-                      </span>
+                      <span>Trạng thái: {getStatusText(order.status)}</span>
                       <span>Mã theo dõi: {order.trackingCode || "N/A"}</span>
                       {(order.status === "pending" ||
+                        order.status === "Chờ lấy hàng" ||
                         order.status === "ghn_success" ||
                         (order.status === "paid" &&
                           order.trackingCode?.startsWith("TEMP-"))) && (

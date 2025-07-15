@@ -264,6 +264,78 @@
 // };
 
 // export default AddProduct;
+
+// const [nameError, setNameError] = useState(""); set thông báo lỗi validate
+// const [imageError, setImageError] = useState("");
+
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+
+//   setNameError("");
+//   setImageError("");
+
+//   // ⚠️ Validate client
+//   if (!name.trim()) {
+//     setNameError("Vui lòng nhập tên sản phẩm");
+//     return;
+//   }
+
+//   if (files.filter(Boolean).length === 0) {
+//     setImageError("Vui lòng chọn ít nhất một ảnh");
+//     return;
+//   }
+
+//   const formData = new FormData();
+//   formData.append("name", name);
+//   formData.append("description", description);
+//   formData.append("category", category);
+//   formData.append("price", price);
+//   formData.append("offerPrice", offerPrice);
+//   formData.append("brand", brand);
+
+//   const keywordArray = keywords
+//     .split(/[, ]+/)
+//     .filter((keyword) => keyword.trim())
+//     .map((keyword) => keyword.trim());
+//   formData.append("keywords", JSON.stringify(keywordArray));
+
+//   for (let i = 0; i < files.length; i++) {
+//     if (files[i]) formData.append("images", files[i]);
+//   }
+
+//   try {
+//     const token = await getToken();
+//     const { data } = await axios.post("/api/product/add", formData, {
+//       headers: { Authorization: `Bearer ${token}` },
+//     });
+
+//     if (data.success) {
+//       toast.success(data.message);
+//       setFiles([]);
+//       setName("");
+//       setDescription("");
+//       setPrice("");
+//       setOfferPrice("");
+//       setKeywords("");
+//       if (categories.length > 0) setCategory(categories[0].name);
+//       if (brands.length > 0) setBrand(brands[0].name);
+//     } else {
+//       // ✅ Nếu server trả lỗi cụ thể
+//       if (data.message?.includes("tồn tại")) {
+//         setNameError(data.message);
+//       } else {
+//         toast.error(data.message);
+//       }
+//     }
+//   } catch (error) {
+//     const errorMsg = error.response?.data?.message || error.message;
+//     if (errorMsg.includes("tồn tại")) {
+//       setNameError(errorMsg);
+//     } else {
+//       toast.error(errorMsg);
+//     }
+//   }
+// };
 "use client";
 import React, { useState, useEffect } from "react";
 import { assets } from "@/assets/assets";
