@@ -1130,14 +1130,14 @@ const ProductList = () => {
       offerPrice: product.offerPrice !== undefined ? product.offerPrice : "",
       brandName: product.brand?.name || "Unknown",
       images: product.images || [],
-      keywords : product.keywords?.join(", ") || "",
+      keywords: product.keywords?.join(", ") || "",
     });
     setImagePreviews(product.images || []);
     setImageFiles([]);
   };
 
   const handleDeleteProduct = async (productId) => {
-    if (confirm("Are you sure you want to delete this product?")) {
+    if (confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
       await deleteProduct(productId);
       fetchSellerProduct();
     }
@@ -1264,7 +1264,7 @@ const ProductList = () => {
   };
 
   const handleDeleteVariant = async (variantId) => {
-    if (confirm("Are you sure you want to delete this variant?")) {
+    if (confirm("Bạn có chắc muốn xóa biến thể này?")) {
       try {
         const token = await getToken();
         const response = await axios.delete(

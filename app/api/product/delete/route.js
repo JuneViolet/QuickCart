@@ -52,7 +52,7 @@ export async function POST(request) {
 
     await Product.findByIdAndDelete(productId);
     return NextResponse.json(
-      { success: true, message: "Product deleted successfully" },
+      { success: true, message: "Xóa sản phẩm thành công" },
       { status: 200 }
     );
   } catch (error) {

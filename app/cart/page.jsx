@@ -435,6 +435,11 @@ const Cart = () => {
                     updateCartQuantity(itemKey, Math.max(1, item.quantity - 1))
                   }
                   disabled={item.quantity <= 1}
+                  className={`w-8 h-8 flex items-center justify-center rounded ${
+                    item.quantity <= 1
+                      ? "opacity-40 cursor-not-allowed"
+                      : "hover:bg-orange-200"
+                  }`}
                 >
                   <Image
                     src={assets.decrease_arrow}
@@ -442,6 +447,7 @@ const Cart = () => {
                     className="w-4 h-4"
                   />
                 </button>
+
                 <input
                   onChange={(e) => {
                     const newQuantity = Math.max(1, Number(e.target.value));
@@ -455,6 +461,11 @@ const Cart = () => {
                 <button
                   onClick={() => updateCartQuantity(itemKey, item.quantity + 1)}
                   disabled={variant?.stock && item.quantity >= variant?.stock}
+                  className={`w-8 h-8 flex items-center justify-center rounded ${
+                    variant?.stock && item.quantity >= variant?.stock
+                      ? "opacity-40 cursor-not-allowed"
+                      : "hover:bg-orange-200"
+                  }`}
                 >
                   <Image
                     src={assets.increase_arrow}

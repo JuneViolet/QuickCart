@@ -1,3 +1,10 @@
+// name: { type: String, required: true }, bắt buộc phải có
+// rating: { type: Number, required: true, min: 1, max: 5 }, giá trị hợp lệ
+// enum: ["phone", "headphone", "camera", "other"], giới hạn giá trị nằm trong tệp cho phép
+// category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" }, ràng buộc khóa ngoại
+// slug: { type: String, unique: true, sparse: true }, unique ràng buộc chỉ duy nhất
+
+
 // import mongoose from "mongoose";
 
 // const orderSchema = new mongoose.Schema({

@@ -303,7 +303,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      message: "Product added successfully",
+      message: "Thêm sản phẩm thành công",
       newProduct,
     });
   } catch (error) {

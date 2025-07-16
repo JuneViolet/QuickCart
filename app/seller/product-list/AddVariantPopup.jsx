@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { tail } from "lodash";
 
 const AddVariantPopup = ({
   isAddingVariant,
@@ -18,7 +19,7 @@ const AddVariantPopup = ({
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false); // ✅ tránh double submit
-
+  const [erroPrice, setErroprice] = useState("");
   const product = products.find((p) => p._id === isAddingVariant);
 
   const handleImageChange = (e) => {
@@ -39,9 +40,19 @@ const AddVariantPopup = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setErroprice("");
+
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+
+    if (Number(newVariantData.offerPrice) <= 0) {
+      setErroprice("Giá tiền không hợp lệ");
+      toast.error("Giá tiền không hợp lệ");
+      setIsSubmitting(false);
+      return;
+    }
 
     // Kiểm tra sku trước khi gửi
     if (newVariantData.sku) {
@@ -69,6 +80,49 @@ const AddVariantPopup = ({
         setIsSubmitting(false);
         return;
       }
+    }
+
+    try {
+      const token = await getToken();
+      const res = await axios.get("/api/variants/manage", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.data.success) {
+        const variants = res.data.variants;
+
+        const isSameAttributes = (a, b) => {
+          if (a.length !== b.length) return false;
+
+          const normalize = (arr) =>
+            arr
+              .map((item) => `${item.attributeId}:${item.value}`)
+              .sort()
+              .join("|");
+
+          return normalize(a) === normalize(b);
+        };
+
+        const isSkuDuplicateName = variants.some((variant) => {
+          if (variant.productId !== isAddingVariant) return false;
+
+          const existingAttrs = variant.attributeRefs || [];
+          const newAttrs = newVariantData.attributeRefs || [];
+
+          return isSameAttributes(existingAttrs, newAttrs);
+        });
+
+        if (isSkuDuplicateName) {
+          toast.error("Tên biến thể đã tồn tại (trùng thuộc tính)!");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Kiểm tra trùng tên biến thể: ", error);
+      toast.error("Lỗi kiểm tra biến thể, vui lòng thử lại.");
+      setIsSubmitting(false);
+      return;
     }
 
     const formData = new FormData();
@@ -201,6 +255,7 @@ const AddVariantPopup = ({
                   product?.offerPrice ? formatCurrency(product.offerPrice) : "0"
                 }
               />
+              {erroPrice && <p className="text-sm text-red-500">{erroPrice}</p>}
             </div>
 
             <div className="flex flex-col gap-1 w-32">

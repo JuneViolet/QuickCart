@@ -15,11 +15,6 @@ const SideBar = () => {
     },
     { name: "Orders", path: "/seller/orders", icon: assets.order_icon },
     {
-      name: "Order Management",
-      path: "/seller/order-management",
-      icon: assets.order_icon,
-    },
-    {
       name: "Promo Codes",
       path: "/seller/promocodes",
       icon: assets.promocode, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
