@@ -30,39 +30,30 @@ const MyOrders = () => {
       if (data.success) {
         const updatedOrders = await Promise.all(
           data.orders.map(async (order) => {
-            const tracking = order.trackingCode; // Chỉ dùng trackingCode vì ghnTrackingCode đã xóa
-
+            const tracking = order.trackingCode;
             if (tracking && !tracking.startsWith("TEMP-")) {
               try {
                 const { data: ghnData } = await axios.get(
                   `/api/track-order?order_code=${tracking}`
                 );
-                return {
-                  ...order,
-                  ghnStatus: ghnData.data?.status || null,
-                  ghnStatusText: ghnData.data?.status_name || order.status, // Fallback to order.status
-                };
+                // Chỉ cập nhật nếu trạng thái khác
+                if (ghnData.data?.status !== order.status) {
+                  return {
+                    ...order,
+                    ghnStatus: ghnData.data?.status || null,
+                    ghnStatusText: ghnData.data?.status_name || order.status,
+                  };
+                }
               } catch (error) {
                 console.warn(
                   `Track Order Error for ${tracking}:`,
                   error.message
                 );
-                return {
-                  ...order,
-                  ghnStatus: null,
-                  ghnStatusText: order.status, // Fallback to order.status
-                };
               }
             }
-
-            return {
-              ...order,
-              ghnStatus: null,
-              ghnStatusText: order.status, // Fallback to order.status
-            };
+            return { ...order, ghnStatus: null, ghnStatusText: order.status };
           })
         );
-
         setOrders(updatedOrders.reverse());
       } else {
         if (data.message === "Người dùng không được tìm thấy") {
@@ -118,7 +109,6 @@ const MyOrders = () => {
   };
 
   const getStatusText = (status, ghnStatusText) => {
-    // Ưu tiên status từ DB, fallback đến ghnStatusText nếu cần
     switch (status) {
       case "pending":
         return "Chờ xác nhận";
@@ -154,7 +144,7 @@ const MyOrders = () => {
     }
     if (user && isSignedIn) {
       fetchOrders();
-      const intervalId = setInterval(fetchOrders, 10000);
+      const intervalId = setInterval(fetchOrders, 30000); // Tăng lên 30 giây
       return () => clearInterval(intervalId);
     } else {
       router.push("/sign-in");

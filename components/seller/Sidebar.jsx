@@ -44,6 +44,11 @@ const SideBar = () => {
       path: "/seller/attributes",
       icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
     },
+    {
+      name: "DashBoard",
+      path: "/seller/dash-board",
+      icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
+    },
   ];
 
   return (

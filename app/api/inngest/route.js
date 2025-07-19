@@ -1,4 +1,5 @@
 import { serve } from "inngest/next";
+import Address from "@/models/Address"; // Thêm import này
 import {
   createUserOrder,
   inngest,
@@ -11,7 +12,6 @@ import {
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [
-    /* your functions will be passed here later! */
     syncUserCreation,
     syncUserUpdation,
     syncUserDeletion,

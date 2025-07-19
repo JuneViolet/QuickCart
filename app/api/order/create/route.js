@@ -307,7 +307,6 @@ import crypto from "crypto";
 import moment from "moment-timezone";
 import { inngest } from "@/config/inngest";
 import axios from "axios";
-require("dotenv").config();
 
 const generateTrackingCode = () =>
   `TEMP-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
@@ -330,7 +329,6 @@ export async function POST(request) {
     });
 
     if (!userId) {
-      console.log("❌ Error: Chưa đăng nhập");
       return NextResponse.json(
         { success: false, message: "Chưa đăng nhập" },
         { status: 401 }
@@ -338,10 +336,6 @@ export async function POST(request) {
     }
 
     if (!address || !items || !Array.isArray(items) || items.length === 0) {
-      console.log("❌ Error: Dữ liệu đơn hàng không hợp lệ", {
-        address,
-        items,
-      });
       return NextResponse.json(
         { success: false, message: "Dữ liệu đơn hàng không hợp lệ" },
         { status: 400 }
@@ -349,7 +343,6 @@ export async function POST(request) {
     }
 
     if (!mongoose.Types.ObjectId.isValid(address)) {
-      console.log("❌ Error: Địa chỉ không hợp lệ", { address });
       return NextResponse.json(
         { success: false, message: "Địa chỉ không hợp lệ" },
         { status: 400 }
@@ -358,7 +351,6 @@ export async function POST(request) {
 
     const fullAddress = await Address.findById(address);
     if (!fullAddress) {
-      console.log("❌ Error: Không tìm thấy địa chỉ", { address });
       return NextResponse.json(
         { success: false, message: "Không tìm thấy địa chỉ" },
         { status: 404 }
@@ -383,11 +375,6 @@ export async function POST(request) {
         !mongoose.Types.ObjectId.isValid(variantId) ||
         quantity <= 0
       ) {
-        console.log("❌ Error: Sản phẩm không hợp lệ", {
-          product,
-          variantId,
-          quantity,
-        });
         return NextResponse.json(
           { success: false, message: "Sản phẩm không hợp lệ" },
           { status: 400 }
@@ -398,10 +385,6 @@ export async function POST(request) {
       const foundVariant = variants.find((v) => v._id.equals(variantId));
 
       if (!foundProduct || !foundVariant) {
-        console.log("❌ Error: Không tìm thấy sản phẩm/phiên bản", {
-          product,
-          variantId,
-        });
         return NextResponse.json(
           { success: false, message: "Không tìm thấy sản phẩm/phiên bản" },
           { status: 404 }
@@ -409,11 +392,6 @@ export async function POST(request) {
       }
 
       if (foundVariant.stock < quantity) {
-        console.log("❌ Error: Phiên bản không đủ hàng", {
-          variantId,
-          stock: foundVariant.stock,
-          quantity,
-        });
         return NextResponse.json(
           { success: false, message: "Phiên bản không đủ hàng" },
           { status: 400 }
@@ -465,9 +443,6 @@ export async function POST(request) {
         !promo ||
         (promo.expiresAt && new Date(promo.expiresAt) < new Date())
       ) {
-        console.log("❌ Error: Mã giảm giá không hợp lệ hoặc đã hết hạn", {
-          promoCode,
-        });
         return NextResponse.json(
           {
             success: false,
@@ -484,7 +459,6 @@ export async function POST(request) {
     }
 
     const tax = Math.floor(subtotal * 0.02);
-    // Sử dụng amount từ client nếu có, nếu không dùng logic cũ
     const finalAmount =
       amount || Math.max(0, Math.floor(subtotal + tax - calculatedDiscount));
 
@@ -496,6 +470,7 @@ export async function POST(request) {
       items: updatedItems,
       amount: finalAmount,
       address: new mongoose.Types.ObjectId(address),
+      shippingFee: shippingFee || 0, // Thêm shippingFee
       trackingCode: tempTrackingCode,
       status: "pending",
       paymentMethod: paymentMethod || "COD",
@@ -504,24 +479,29 @@ export async function POST(request) {
 
     const orderId = order._id;
 
-    await inngest.send({
-      name: "order/created",
-      id: `order-created-${orderId}`,
-      data: {
-        orderId,
-        userId,
-        address,
-        items: updatedItems,
-        subtotal,
-        tax,
-        discount: calculatedDiscount,
-        amount: finalAmount,
-        shippingFee: shippingFee || 0, // Thêm shippingFee để debug và đồng bộ
-        trackingCode: tempTrackingCode,
-        date: orderDate,
-        paymentMethod,
-      },
-    });
+    try {
+      await inngest.send({
+        name: "order/created",
+        id: `order-created-${orderId}`,
+        data: {
+          orderId,
+          userId,
+          address,
+          items: updatedItems,
+          subtotal,
+          tax,
+          discount: calculatedDiscount,
+          amount: finalAmount,
+          shippingFee: shippingFee || 0,
+          trackingCode: tempTrackingCode,
+          date: orderDate,
+          paymentMethod,
+        },
+      });
+    } catch (inngestError) {
+      console.error("Inngest send error:", inngestError.message);
+      // Tiếp tục dù Inngest thất bại
+    }
 
     let vnpayUrl = null;
     if (paymentMethod === "vnpay") {
@@ -531,7 +511,10 @@ export async function POST(request) {
       const vnp_ReturnUrl = process.env.VNP_RETURN_URL;
 
       if (!vnp_TmnCode || !vnp_HashSecret || !vnp_Url || !vnp_ReturnUrl) {
-        throw new Error("Thiếu cấu hình VNPAY trong .env");
+        return NextResponse.json(
+          { success: false, message: "Thiếu cấu hình VNPAY trong .env" },
+          { status: 500 }
+        );
       }
 
       const now = moment().tz("Asia/Ho_Chi_Minh");

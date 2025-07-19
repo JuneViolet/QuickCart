@@ -43,12 +43,12 @@ export async function GET(req) {
     );
 
     const ghnData = ghnRes.data;
-    console.log("📦 GHN tracking response:", JSON.stringify(ghnData, null, 2));
+    // Xóa log GHN response
+    // console.log("📦 GHN tracking response:", JSON.stringify(ghnData, null, 2));
 
     if (ghnData.code === 200) {
-      // Cập nhật trạng thái dựa trên GHN
       const ghnStatus = ghnData.data.status;
-      let updatedStatus = order.status; // Giữ trạng thái cũ nếu không khớp
+      let updatedStatus = order.status;
       if (ghnStatus === "ready_to_pick") updatedStatus = "Chờ lấy hàng";
       else if (ghnStatus === "delivering") updatedStatus = "Đang giao";
       else if (ghnStatus === "delivered") updatedStatus = "Đã giao";
