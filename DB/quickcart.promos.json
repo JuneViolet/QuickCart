@@ -1,0 +1,16 @@
+[{
+  "_id": {
+    "$oid": "686ca46cd14740ccff6024c8"
+  },
+  "code": "SUMMER25",
+  "discount": 20,
+  "discountType": "percentage",
+  "description": "giảm giá mùa hè",
+  "expiresAt": {
+    "$date": "2025-07-17T00:00:00.000Z"
+  },
+  "maxUses": 100,
+  "usedCount": 3,
+  "isActive": true,
+  "__v": 0
+}]

@@ -1,0 +1,117 @@
+[{
+  "_id": {
+    "$oid": "6837317f00fa3c94e9c613e4"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "fullName": "Tân Minh",
+  "phoneNumber": "0564873090",
+  "pincode": "110110",
+  "area": "154E/16 Lê Quang Sung",
+  "city": "Hồ Chí Minh",
+  "state": "6",
+  "ward": "02",
+  "isDefault": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6864da59aa070f7f60daf8ae"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "fullName": "Tân Minh Thắng",
+  "phoneNumber": "0564873090",
+  "pincode": "001110",
+  "area": "154E/14 Lê Quang Sung",
+  "city": "Hồ Chí Minh",
+  "state": "Quận 6",
+  "ward": "Phường 2",
+  "districtId": "1448",
+  "wardCode": "20602",
+  "isDefault": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68711f68d1c8c690bcfc5e54"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "fullName": "Tuyết Nhi",
+  "phoneNumber": "0654873090",
+  "pincode": "110111",
+  "area": "154E/16 Lê Quang Sung",
+  "city": "Hồ Chí Minh",
+  "state": "Quận 6",
+  "ward": "Phường 2",
+  "districtId": "1448",
+  "wardCode": "20602",
+  "isDefault": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68712d23ba4d57c061e5e684"
+  },
+  "userId": "user_2wvuV4pqIEppkLsS6MIcmbTo2CG",
+  "fullName": "test1",
+  "phoneNumber": "0956789425",
+  "pincode": "110000",
+  "area": "asdasdd",
+  "city": "Hồ Chí Minh",
+  "state": "Quận 11",
+  "ward": "Phường 5",
+  "districtId": "1453",
+  "wardCode": "21105",
+  "isDefault": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "687133d6b772c4ebe560e6ac"
+  },
+  "userId": "user_2wvuV4pqIEppkLsS6MIcmbTo2CG",
+  "fullName": "Thắng",
+  "phoneNumber": "0564873090",
+  "pincode": "110001",
+  "area": "156E?16 Lê Quang Sung",
+  "city": "Hồ Chí Minh",
+  "state": "Quận 6",
+  "ward": "Phường 2",
+  "districtId": "1448",
+  "wardCode": "20602",
+  "isDefault": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6873d2d0829eb6bccea58dd2"
+  },
+  "userId": "user_2zpHFUyzSuGrPYJhWG13p7jAv6t",
+  "fullName": "winter",
+  "phoneNumber": "0564873090",
+  "pincode": "001001",
+  "area": "154E/18 Lê Quang Sung ",
+  "city": "Hồ Chí Minh",
+  "state": "Quận 6",
+  "ward": "Phường 2",
+  "districtId": "1448",
+  "wardCode": "20602",
+  "isDefault": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6873d9c9ef87222dbb714c1a"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "fullName": "asd",
+  "phoneNumber": "0564873090",
+  "pincode": "011011",
+  "area": "154E/16 Lê Quang Sung",
+  "city": "Hồ Chí Minh",
+  "state": "Quận 6",
+  "ward": "Phường 2",
+  "districtId": "1448",
+  "wardCode": "20602",
+  "isDefault": false,
+  "__v": 0
+}]

@@ -1,0 +1,2016 @@
+[{
+  "_id": {
+    "$oid": "67e00c8bca531b6c62fdee23"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": "67d98205555cd82add1f39ef",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e00c8bca531b6c62fdee24"
+      }
+    },
+    {
+      "product": "67d98263555cd82add1f39f3",
+      "quantity": 2,
+      "_id": {
+        "$oid": "67e00c8bca531b6c62fdee25"
+      }
+    }
+  ],
+  "amount": 1375.97,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1742736505893,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67e012a12b758f57eb881cd4"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": "67d98177555cd82add1f39ed",
+      "quantity": 2,
+      "_id": {
+        "$oid": "67e012a12b758f57eb881cd5"
+      }
+    }
+  ],
+  "amount": 1630.98,
+  "address": "67dd786662139c6f6ac2bfa1",
+  "status": "Order Placed",
+  "date": 1742738067918,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67e012d42b758f57eb881cd8"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": "67d98143555cd82add1f39eb",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e012d42b758f57eb881cd9"
+      }
+    }
+  ],
+  "amount": 335.99,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1742738123044,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67e16b10c93a971110f2f17a"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": "67e02e280804d574079f0c19",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e16b10c93a971110f2f17b"
+      }
+    },
+    {
+      "product": "67e02c4fca09637ce259c590",
+      "quantity": 2,
+      "_id": {
+        "$oid": "67e16b10c93a971110f2f17c"
+      }
+    }
+  ],
+  "amount": 1355.97,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1742826240316,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67e16ecf91d263aa76fb07b3"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": "67e02e280804d574079f0c19",
+      "quantity": 2,
+      "_id": {
+        "$oid": "67e16ecf91d263aa76fb07b4"
+      }
+    },
+    {
+      "product": "67e02c4fca09637ce259c590",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e16ecf91d263aa76fb07b5"
+      }
+    }
+  ],
+  "amount": 1182.97,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1742827197637,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67e16fda91d263aa76fb07bb"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": "67e02e280804d574079f0c19",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e16fda91d263aa76fb07bc"
+      }
+    },
+    {
+      "product": "67e031050804d574079f0c21",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e16fda91d263aa76fb07bd"
+      }
+    }
+  ],
+  "amount": 1151.98,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1742827472073,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67e17232ea3d45db2e89828c"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": "67e02c4fca09637ce259c590",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e17232ea3d45db2e89828d"
+      }
+    },
+    {
+      "product": "67e0297cca09637ce259c58c",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e17232ea3d45db2e89828e"
+      }
+    }
+  ],
+  "amount": 916.98,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1742828068318,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67e1742a7192857435ef3b1f"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": "67e02c4fca09637ce259c590",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e1742a7192857435ef3b20"
+      }
+    }
+  ],
+  "amount": 508.99,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1742828569912,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67e17d2f729e542e516c88cc"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": "67e02e280804d574079f0c19",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e17d2f729e542e516c88cd"
+      }
+    },
+    {
+      "product": "67e02c4fca09637ce259c590",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67e17d2f729e542e516c88ce"
+      }
+    }
+  ],
+  "amount": 845.98,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1742830883920,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f5385158f3a03d42383711"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": "67e02e280804d574079f0c19",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67f5385158f3a03d42383712"
+      }
+    },
+    {
+      "product": "67e02c4fca09637ce259c590",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67f5385158f3a03d42383713"
+      }
+    }
+  ],
+  "amount": 763.98,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1744123973323,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67ffd08039b8e0b1c2585e45"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": "67e031050804d574079f0c21",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67ffd08039b8e0b1c2585e46"
+      }
+    },
+    {
+      "product": "67e02c4fca09637ce259c590",
+      "quantity": 1,
+      "_id": {
+        "$oid": "67ffd08039b8e0b1c2585e47"
+      }
+    }
+  ],
+  "amount": 1304.98,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1744818293647,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6808f3a96a5bc684bdb1bfb8"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": "67e02e280804d574079f0c19",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6808f3a96a5bc684bdb1bfb9"
+      }
+    },
+    {
+      "product": "67e0297cca09637ce259c58c",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6808f3a96a5bc684bdb1bfba"
+      }
+    },
+    {
+      "product": "67e18092574fd45777a59643",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6808f3a96a5bc684bdb1bfbb"
+      }
+    },
+    {
+      "product": "67e2b9e23f5e7df5265b0495",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6808f3a96a5bc684bdb1bfbc"
+      }
+    }
+  ],
+  "amount": 24072000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1745417112184,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6810df1d97048da9e1455b03"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": "67e2ce733f5e7df5265b052e",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6810df1d97048da9e1455b04"
+      }
+    },
+    {
+      "product": "67e2c7283f5e7df5265b04ce",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6810df1d97048da9e1455b05"
+      }
+    }
+  ],
+  "amount": 32640000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1745936149095,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6814e7c0a18d187de4b9d44b"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": "67e2ce733f5e7df5265b052e",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6814e7c0a18d187de4b9d44c"
+      }
+    },
+    {
+      "product": "67e2c7283f5e7df5265b04ce",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6814e7c0a18d187de4b9d44d"
+      }
+    },
+    {
+      "product": "67e0297cca09637ce259c58c",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6814e7c0a18d187de4b9d44e"
+      }
+    }
+  ],
+  "amount": 37842000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1746200499180,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6814e85ba18d187de4b9d451"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": "67e0297cca09637ce259c58c",
+      "quantity": 4,
+      "_id": {
+        "$oid": "6814e85ba18d187de4b9d452"
+      }
+    },
+    {
+      "product": "67e02c4fca09637ce259c590",
+      "quantity": 1,
+      "_id": {
+        "$oid": "6814e85ba18d187de4b9d453"
+      }
+    }
+  ],
+  "amount": 34068000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1746200661077,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6814ee7d635d36f0807fd11b"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6814ee7d635d36f0807fd11c"
+      }
+    }
+  ],
+  "amount": 5202000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1746202237293,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681623ced6109a19481ff680"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e031050804d574079f0c21"
+      },
+      "quantity": 4,
+      "_id": {
+        "$oid": "681623ced6109a19481ff681"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681623ced6109a19481ff682"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e2b8543f5e7df5265b0469"
+      },
+      "quantity": 3,
+      "_id": {
+        "$oid": "681623ced6109a19481ff683"
+      }
+    }
+  ],
+  "amount": 250920000,
+  "address": "68162395d6109a19481ff671",
+  "status": "Order Placed",
+  "date": 1746281422184,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68162e72d6109a19481ff73f"
+  },
+  "userId": "user_2vB8cTdbmZ8bsqCDpMiuPeprRR1",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02c4fca09637ce259c590"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "68162e72d6109a19481ff740"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e2ce733f5e7df5265b052e"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "68162e72d6109a19481ff741"
+      }
+    }
+  ],
+  "amount": 20400000,
+  "address": "68162e6ad6109a19481ff72d",
+  "status": "Order Placed",
+  "date": 1746284146063,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6818c637f4e48b4f5abe665b"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2b9e23f5e7df5265b0495"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6818c637f4e48b4f5abe665c"
+      }
+    }
+  ],
+  "amount": 5610000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1746454071826,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b7fe35ac5d83fb4578759"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2c7283f5e7df5265b04ce"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681b7fe35ac5d83fb457875a"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e2b4d73f5e7df5265b0458"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681b7fe35ac5d83fb457875b"
+      }
+    }
+  ],
+  "amount": 117300000,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "Order Placed",
+  "date": 1746632675257,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b7ff03199472642fd30d0"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2c7283f5e7df5265b04ce"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681b7ff03199472642fd30d1"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e2b4d73f5e7df5265b0458"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681b7ff03199472642fd30d2"
+      }
+    }
+  ],
+  "amount": 117300000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1746632675361,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b80655ac5d83fb457884b"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 3,
+      "_id": {
+        "$oid": "681b80655ac5d83fb457884c"
+      }
+    }
+  ],
+  "amount": 15606000,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "Order Placed",
+  "date": 1746632805428,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b806f99e9c918695b6210"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 3,
+      "_id": {
+        "$oid": "681b806f99e9c918695b6211"
+      }
+    }
+  ],
+  "amount": 15606000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1746632805518,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e0aaa411fe96ce0655154"
+  },
+  "userId": "user_2vB8cTdbmZ8bsqCDpMiuPeprRR1",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2bbbf3f5e7df5265b049b"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e0aaa411fe96ce0655155"
+      }
+    }
+  ],
+  "amount": 51000000,
+  "address": {
+    "$oid": "68162e6ad6109a19481ff72d"
+  },
+  "status": "Order Placed",
+  "date": 1746799274520,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e0ab9c904472f0c340576"
+  },
+  "userId": "user_2vB8cTdbmZ8bsqCDpMiuPeprRR1",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2bbbf3f5e7df5265b049b"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e0ab9c904472f0c340577"
+      }
+    }
+  ],
+  "amount": 51000000,
+  "address": "68162e6ad6109a19481ff72d",
+  "status": "Order Placed",
+  "date": 1746799274520,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e0cad411fe96ce0655202"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2bdc83f5e7df5265b04a3"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e0cad411fe96ce0655203"
+      }
+    }
+  ],
+  "amount": 40800000,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "Order Placed",
+  "date": 1746799788802,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e0cbbf0ff3f3dfd063e8b"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2bdc83f5e7df5265b04a3"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e0cbbf0ff3f3dfd063e8c"
+      }
+    }
+  ],
+  "amount": 40800000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1746799788802,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e0de1411fe96ce0655323"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e0de1411fe96ce0655324"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e0de1411fe96ce0655325"
+      }
+    }
+  ],
+  "amount": 11322000,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "Order Placed",
+  "date": 1746800096729,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e0de8f0ff3f3dfd063e8f"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e0de8f0ff3f3dfd063e90"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e0de8f0ff3f3dfd063e91"
+      }
+    }
+  ],
+  "amount": 11322000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1746800096729,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e1301411fe96ce06553f0"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2b8543f5e7df5265b0469"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e1301411fe96ce06553f1"
+      }
+    }
+  ],
+  "amount": 61200000,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "Order Placed",
+  "date": 1746801409411,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e130fa04d40b986b352f0"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2b8543f5e7df5265b0469"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e130fa04d40b986b352f1"
+      }
+    }
+  ],
+  "amount": 61200000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1746801409411,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e157e4d44467a44402e33"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "681e157e4d44467a44402e34"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e02c4fca09637ce259c590"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e157e4d44467a44402e35"
+      }
+    }
+  ],
+  "amount": 23664000,
+  "address": {
+    "$oid": "67dd759662139c6f6ac2bf82"
+  },
+  "status": "Order Placed",
+  "date": 1746802045787,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e158a9832154f81234254"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "681e158a9832154f81234255"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e02c4fca09637ce259c590"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e158a9832154f81234256"
+      }
+    }
+  ],
+  "amount": 23664000,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1746802045787,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e163e4d44467a44402eca"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e18092574fd45777a59643"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e163e4d44467a44402ecb"
+      }
+    }
+  ],
+  "amount": 7140000,
+  "address": {
+    "$oid": "67dd759662139c6f6ac2bf82"
+  },
+  "status": "Order Placed",
+  "date": 1746802238255,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681e19654d44467a44402f71"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2ce733f5e7df5265b052e"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681e19654d44467a44402f72"
+      }
+    }
+  ],
+  "amount": 7140000,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "Order Placed",
+  "date": 1746803045705,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681efddefbaf00c4cb4fac2d"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "681efddefbaf00c4cb4fac2e"
+      }
+    }
+  ],
+  "amount": 10404000,
+  "address": {
+    "$oid": "67dd759662139c6f6ac2bf82"
+  },
+  "status": "Order Placed",
+  "date": 1746861534451,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681efdeba5d71dea6a93f1c9"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "681efdeba5d71dea6a93f1ca"
+      }
+    }
+  ],
+  "amount": 10404000,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1746861534451,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681eff51a8aa6136ad7985b4"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "681eff51a8aa6136ad7985b5"
+      }
+    }
+  ],
+  "amount": 6120000,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1746861893787,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6820ba17b7ee384b4a4850cb"
+  },
+  "userId": "user_2wvuV4pqIEppkLsS6MIcmbTo2CG",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2b9e23f5e7df5265b0495"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6820ba17b7ee384b4a4850cc"
+      }
+    }
+  ],
+  "amount": 5610000,
+  "address": "6820ba063ed9a44c9097d7e5",
+  "status": "Order Placed",
+  "date": 1746975244178,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682610e0bb04a9161a6477da"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "682610e0bb04a9161a6477db"
+      }
+    }
+  ],
+  "amount": 6119975,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1747325140865,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6826124dc8616e67bdf500ef"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6826124dc8616e67bdf500f0"
+      }
+    }
+  ],
+  "amount": 6119975,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1747325506363,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68261351c8616e67bdf500f3"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "68261351c8616e67bdf500f4"
+      }
+    }
+  ],
+  "amount": 12240000,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1747325771444,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682613b7c8616e67bdf500f6"
+  },
+  "userId": "user_2wvuV4pqIEppkLsS6MIcmbTo2CG",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "682613b7c8616e67bdf500f7"
+      }
+    }
+  ],
+  "amount": 5202000,
+  "address": "6820ba063ed9a44c9097d7e5",
+  "status": "Order Placed",
+  "date": 1747325873014,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68261403c8616e67bdf500f9"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02c4fca09637ce259c590"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "68261403c8616e67bdf500fa"
+      }
+    }
+  ],
+  "amount": 13260000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1747325948646,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68289f87cd3caa64ad857b89"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "68289f87cd3caa64ad857b8b"
+      }
+    }
+  ],
+  "amount": 6119975,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "pending",
+  "date": 1747492743928,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828a02acd3caa64ad857b90"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a02acd3caa64ad857b92"
+      }
+    }
+  ],
+  "amount": 6119975,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "pending",
+  "date": 1747492906124,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828a068cd3caa64ad857bc9"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a068cd3caa64ad857bcb"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e031050804d574079f0c21"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a068cd3caa64ad857bcc"
+      }
+    }
+  ],
+  "amount": 21420000,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "pending",
+  "date": 1747492968300,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828a073f44575db4c26f584"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a073f44575db4c26f585"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e031050804d574079f0c21"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a073f44575db4c26f586"
+      }
+    }
+  ],
+  "amount": 21420000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1747492968300,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828a0d8cd3caa64ad857bd5"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a0d8cd3caa64ad857bd7"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e031050804d574079f0c21"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a0d8cd3caa64ad857bd8"
+      }
+    }
+  ],
+  "amount": 21420000,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "pending",
+  "date": 1747493080465,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828a0def44575db4c26f589"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a0def44575db4c26f58a"
+      }
+    },
+    {
+      "product": {
+        "$oid": "67e031050804d574079f0c21"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a0def44575db4c26f58b"
+      }
+    }
+  ],
+  "amount": 21420000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1747493080465,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828a127cd3caa64ad857cfc"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a127cd3caa64ad857cfe"
+      }
+    }
+  ],
+  "amount": 6120000,
+  "address": {
+    "$oid": "67dd759662139c6f6ac2bf82"
+  },
+  "status": "pending",
+  "date": 1747493159417,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828a12df44575db4c26f58d"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a12df44575db4c26f58e"
+      }
+    }
+  ],
+  "amount": 6120000,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1747493159417,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828a1fff44575db4c26f590"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e02e280804d574079f0c19"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828a1fff44575db4c26f591"
+      }
+    }
+  ],
+  "amount": 6120000,
+  "address": "67dd759662139c6f6ac2bf82",
+  "status": "Order Placed",
+  "date": 1747493369418,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828ab6f670c847bde233bee"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e18092574fd45777a59643"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828ab6f670c847bde233bef"
+      }
+    }
+  ],
+  "amount": 5740000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1747495779782,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6828abda670c847bde233bf2"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2b4d73f5e7df5265b0458"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6828abda670c847bde233bf3"
+      }
+    }
+  ],
+  "amount": 73800000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1747495892130,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682f2c60c5d671929e394ae4"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2b4d73f5e7df5265b0458"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "682f2c60c5d671929e394ae5"
+      }
+    }
+  ],
+  "amount": 73800000,
+  "address": "67e17d1a574fd45777a595f7",
+  "status": "Order Placed",
+  "date": 1747922001641,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835ddbca269f1c5c099d4bd"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2b4d73f5e7df5265b0458"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "6835ddc85526f2640b74c209"
+      }
+    }
+  ],
+  "amount": 183600000,
+  "address": {
+    "$oid": "67e17d1a574fd45777a595f7"
+  },
+  "status": "pending",
+  "date": 1748360636843,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837e444f7aabe13c8e82f4c"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e2b4d73f5e7df5265b0458"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6837e44fee620774aafb521a"
+      }
+    }
+  ],
+  "amount": 91800000,
+  "address": {
+    "$oid": "6837317f00fa3c94e9c613e4"
+  },
+  "status": "pending",
+  "date": 1748493380180,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837f2d2c2bdea3d6eaef32a"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "quantity": 1,
+      "_id": {
+        "$oid": "6837f2dd4962c7f9ef7e2b9b"
+      }
+    }
+  ],
+  "amount": 5202000,
+  "address": {
+    "$oid": "6837317f00fa3c94e9c613e4"
+  },
+  "status": "pending",
+  "date": 1748497106820,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "687535b17490d973de5011fb"
+  },
+  "userId": "user_2zpHFUyzSuGrPYJhWG13p7jAv6t",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685432453433667419a71674"
+      },
+      "quantity": 1,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "AAP-X",
+      "_id": {
+        "$oid": "687535e551fc3a247bc2b37a"
+      }
+    }
+  ],
+  "amount": 1122000,
+  "address": {
+    "$oid": "6873d2d0829eb6bccea58dd2"
+  },
+  "trackingCode": "GYUQYFCT",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "cod",
+  "date": {
+    "$date": "2025-07-14T16:52:01.517Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68753651968b0b6b5c1ab7f6"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685039921048d9d00abe27d3"
+      },
+      "quantity": 1,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "APP-T",
+      "_id": {
+        "$oid": "6875365a51fc3a247bc2b388"
+      }
+    }
+  ],
+  "amount": 5202000,
+  "address": {
+    "$oid": "6873d9c9ef87222dbb714c1a"
+  },
+  "trackingCode": "GYUQYFM9",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "vnpay",
+  "date": {
+    "$date": "2025-07-14T16:54:41.207Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "687536f91e8aee385999c96d"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685039921048d9d00abe27d3"
+      },
+      "quantity": 2,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "APP-T",
+      "_id": {
+        "$oid": "68753704e7807ba3a832f9bd"
+      }
+    }
+  ],
+  "amount": 10404000,
+  "address": {
+    "$oid": "6873d9c9ef87222dbb714c1a"
+  },
+  "trackingCode": "GYUQY74Q",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "vnpay",
+  "date": {
+    "$date": "2025-07-14T16:57:29.150Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "687537b80ff49f53a758ed90"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685039921048d9d00abe27d3"
+      },
+      "quantity": 1,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "APP-T",
+      "_id": {
+        "$oid": "687537b80ff49f53a758ed91"
+      }
+    }
+  ],
+  "amount": 5202000,
+  "address": {
+    "$oid": "6873d9c9ef87222dbb714c1a"
+  },
+  "trackingCode": null,
+  "status": "canceled",
+  "paymentMethod": "vnpay",
+  "date": {
+    "$date": "2025-07-14T17:00:40.715Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "687537cb0ff49f53a758ed99"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685039921048d9d00abe27d3"
+      },
+      "quantity": 1,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "APP-T",
+      "_id": {
+        "$oid": "687537d5caf97da1d8174b82"
+      }
+    }
+  ],
+  "amount": 5202000,
+  "address": {
+    "$oid": "6873d9c9ef87222dbb714c1a"
+  },
+  "trackingCode": "GYUQYGQD",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "vnpay",
+  "date": {
+    "$date": "2025-07-14T17:00:59.973Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "687538a7450c09125bc1b637"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685039921048d9d00abe27d3"
+      },
+      "quantity": 1,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "APP-T",
+      "_id": {
+        "$oid": "687538b47490d973de50125e"
+      }
+    }
+  ],
+  "amount": 5202000,
+  "address": {
+    "$oid": "6873d9c9ef87222dbb714c1a"
+  },
+  "trackingCode": "GYUQYC6M",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "vnpay",
+  "date": {
+    "$date": "2025-07-14T17:04:39.576Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "687539845e9ef7d9bdc8abc3"
+  },
+  "userId": "user_2zpHFUyzSuGrPYJhWG13p7jAv6t",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685432453433667419a71674"
+      },
+      "quantity": 1,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "AAP-X",
+      "_id": {
+        "$oid": "6875398e51fc3a247bc2b3e1"
+      }
+    }
+  ],
+  "amount": 1122000,
+  "address": {
+    "$oid": "6873d2d0829eb6bccea58dd2"
+  },
+  "trackingCode": "GYUQY9H9",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "vnpay",
+  "date": {
+    "$date": "2025-07-14T17:08:20.921Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875a0ae3e069f5671136fae"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685432453433667419a71674"
+      },
+      "quantity": 1,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "AAP-X",
+      "_id": {
+        "$oid": "6875a1ee3533b750954dc64f"
+      }
+    }
+  ],
+  "amount": 1122000,
+  "address": {
+    "$oid": "6864da59aa070f7f60daf8ae"
+  },
+  "trackingCode": "GYUQEVV7",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "cod",
+  "date": {
+    "$date": "2025-07-15T00:28:30.134Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875a11b3e069f56711370d8"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685432453433667419a71674"
+      },
+      "quantity": 2,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "AAP-X",
+      "_id": {
+        "$oid": "6875a1bd3533b750954dc58e"
+      }
+    }
+  ],
+  "amount": 2244000,
+  "address": {
+    "$oid": "6864da59aa070f7f60daf8ae"
+  },
+  "trackingCode": "GYUQE9DV",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "cod",
+  "date": {
+    "$date": "2025-07-15T00:30:19.375Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875a1763e069f567113718b"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685432453433667419a71674"
+      },
+      "quantity": 2,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "AAP-X",
+      "_id": {
+        "$oid": "6875a1b413e265948bd7c069"
+      }
+    }
+  ],
+  "amount": 2244000,
+  "address": {
+    "$oid": "6864da59aa070f7f60daf8ae"
+  },
+  "trackingCode": null,
+  "status": "canceled",
+  "paymentMethod": "vnpay",
+  "date": {
+    "$date": "2025-07-15T00:31:50.633Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875a222bf86e1d15567802b"
+  },
+  "userId": "user_2zpHFUyzSuGrPYJhWG13p7jAv6t",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685432453433667419a71674"
+      },
+      "quantity": 2,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "AAP-X",
+      "_id": {
+        "$oid": "6875a22d3533b750954dc65d"
+      }
+    }
+  ],
+  "amount": 2244000,
+  "address": {
+    "$oid": "6873d2d0829eb6bccea58dd2"
+  },
+  "trackingCode": "GYUQE6UQ",
+  "status": "shipped",
+  "paymentMethod": "cod",
+  "date": {
+    "$date": "2025-07-15T00:34:42.177Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875a369ca0582cecb1fd0da"
+  },
+  "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "items": [
+    {
+      "product": {
+        "$oid": "67e0297cca09637ce259c58c"
+      },
+      "variantId": {
+        "$oid": "685432453433667419a71674"
+      },
+      "quantity": 1,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "AAP-X",
+      "_id": {
+        "$oid": "6875a371ca0582cecb1fd0e4"
+      }
+    }
+  ],
+  "amount": 1122000,
+  "address": {
+    "$oid": "6864da59aa070f7f60daf8ae"
+  },
+  "trackingCode": "GYUQE4RX",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "cod",
+  "date": {
+    "$date": "2025-07-15T00:40:09.546Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875c89950063a6283110d42"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "6875c7c250063a6283110aa0"
+      },
+      "variantId": {
+        "$oid": "6875c7f750063a6283110add"
+      },
+      "quantity": 2,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "TEST-T",
+      "_id": {
+        "$oid": "6875c902ddd842449cd3595a"
+      }
+    },
+    {
+      "product": {
+        "$oid": "6875c7c250063a6283110aa0"
+      },
+      "variantId": {
+        "$oid": "6875c81650063a6283110b02"
+      },
+      "quantity": 3,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "TEST-X",
+      "_id": {
+        "$oid": "6875c902ddd842449cd3595b"
+      }
+    }
+  ],
+  "amount": 41000,
+  "address": {
+    "$oid": "6873d9c9ef87222dbb714c1a"
+  },
+  "trackingCode": "TEMP-1752549529503-0edaf2dc",
+  "status": "pending",
+  "paymentMethod": "vnpay",
+  "date": {
+    "$date": "2025-07-15T03:18:49.503Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875c94addd842449cd35993"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "items": [
+    {
+      "product": {
+        "$oid": "6875c7c250063a6283110aa0"
+      },
+      "variantId": {
+        "$oid": "6875c7f750063a6283110add"
+      },
+      "quantity": 2,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "TEST-T",
+      "_id": {
+        "$oid": "6875c950ddd842449cd359a0"
+      }
+    },
+    {
+      "product": {
+        "$oid": "6875c7c250063a6283110aa0"
+      },
+      "variantId": {
+        "$oid": "6875c81650063a6283110b02"
+      },
+      "quantity": 3,
+      "brand": "682de117ca659b94c3f0bc09",
+      "sku": "TEST-X",
+      "_id": {
+        "$oid": "6875c950ddd842449cd359a1"
+      }
+    }
+  ],
+  "amount": 41000,
+  "address": {
+    "$oid": "6873d9c9ef87222dbb714c1a"
+  },
+  "trackingCode": "GYULVDED",
+  "status": "Chờ lấy hàng",
+  "paymentMethod": "cod",
+  "date": {
+    "$date": "2025-07-15T03:21:46.076Z"
+  },
+  "__v": 0
+}]

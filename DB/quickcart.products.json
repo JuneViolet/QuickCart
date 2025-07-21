@@ -1,0 +1,1251 @@
+[{
+  "_id": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Apple AirPods Pro 2nd gen ",
+  "description": "Thời lượng pin: Lên đến 6 giờ nghe nhạc (5.5 giờ với Spatial Audio)\r\nHộp sạc: Hỗ trợ MagSafe, sạc Apple Watch, Qi, và USB-C,Chống nước: IPX4,Tính năng nổi bật: Chống ồn chủ động, Adaptive Transparency\r\n",
+  "price": 5900000,
+  "offerPrice": 5100000,
+  "category": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "date": 1742743932233,
+  "__v": 3,
+  "stock": 85,
+  "brand": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "reviews": [
+    {
+      "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+      "username": "hỷ thắng",
+      "rating": 4,
+      "comment": "cũng được ",
+      "createdAt": {
+        "$date": "2025-04-29T15:15:09.599Z"
+      },
+      "_id": {
+        "$oid": "6810ecfdaf4b16190092c547"
+      }
+    }
+  ],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742743934/tcxz3abhnnipvtt6reh3.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742743933/v46rfym9m6k2giikernd.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742743933/pdcx5ivgwkwjbbr1er3h.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1751948010/vjuc7tsd2gysnl7nljne.png"
+  ],
+  "specifications": [
+    {
+      "$oid": "682e5f9abf3e23f9df693b7d"
+    },
+    {
+      "$oid": "6837f158c2bdea3d6eaef153"
+    },
+    {
+      "$oid": "6837f16bc2bdea3d6eaef166"
+    },
+    {
+      "$oid": "6837f17ac2bdea3d6eaef179"
+    },
+    {
+      "$oid": "6837f1cac2bdea3d6eaef1a3"
+    },
+    {
+      "$oid": "6837f1ecc2bdea3d6eaef1b6"
+    },
+    {
+      "$oid": "6837f203c2bdea3d6eaef1c9"
+    },
+    {
+      "$oid": "6837f228c2bdea3d6eaef1dc"
+    },
+    {
+      "$oid": "6837f261c2bdea3d6eaef1ef"
+    }
+  ],
+  "relatedProducts": [],
+  "variants": [
+    {
+      "$oid": "685039921048d9d00abe27d3"
+    },
+    {
+      "$oid": "685432453433667419a71674"
+    },
+    {
+      "$oid": "686b732042106a4e60a1bbf4"
+    },
+    {
+      "$oid": "686b738142106a4e60a1bc3b"
+    },
+    {
+      "$oid": "686b746242106a4e60a1bc8d"
+    },
+    {
+      "$oid": "686b7a4f9b6d3a3890ab6d36"
+    },
+    {
+      "$oid": "686b905e91625a81229d005d"
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-06-22T07:19:22.627Z"
+  },
+  "productType": "other",
+  "keywords": [
+    "apple",
+    "airpods",
+    "pro",
+    "2nd",
+    "gen"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "PlayStation 5",
+  "description": "The PlayStation 5 takes gaming to the next level with ultra-HD graphics, a powerful 825GB SSD, and ray tracing technology for realistic visuals. Whether you're into high-action games or immersive storytelling, the PS5 delivers fast loading times, seamless gameplay, and stunning visuals. It's a must-have for any serious gamer looking for the ultimate gaming experience.",
+  "price": 14000000,
+  "offerPrice": 13000000,
+  "category": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "date": 1742744655118,
+  "__v": 2,
+  "stock": 99,
+  "brand": {
+    "$oid": "685235fbce51997f5dca5f4f"
+  },
+  "reviews": [
+    {
+      "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+      "username": "hỷ thắng",
+      "rating": 5,
+      "comment": "ngon",
+      "createdAt": {
+        "$date": "2025-05-09T15:32:00.617Z"
+      },
+      "_id": {
+        "$oid": "681e1ff04d44467a444030cf"
+      }
+    }
+  ],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742744656/ynlcletceucrvzq0mmrn.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742744656/n1xvholhgnocibc7ubxc.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742744656/hqi9lr3mxcyeqejwyfnl.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742744656/fsuvsbshfow35ehr92xx.png"
+  ],
+  "specifications": [
+    {
+      "$oid": "68675c5d4b0cebc9550ce1a0"
+    },
+    {
+      "$oid": "68675c6a4b0cebc9550ce1c1"
+    },
+    {
+      "$oid": "68675c744b0cebc9550ce1e2"
+    },
+    {
+      "$oid": "68675c804b0cebc9550ce203"
+    },
+    {
+      "$oid": "68675c9f4b0cebc9550ce224"
+    },
+    {
+      "$oid": "68675cae4b0cebc9550ce245"
+    },
+    {
+      "$oid": "68675cb84b0cebc9550ce266"
+    },
+    {
+      "$oid": "68675cc04b0cebc9550ce287"
+    },
+    {
+      "$oid": "68675cc94b0cebc9550ce2a8"
+    },
+    {
+      "$oid": "68675cd64b0cebc9550ce2c9"
+    },
+    {
+      "$oid": "68675ce14b0cebc9550ce2ea"
+    },
+    {
+      "$oid": "68675ce94b0cebc9550ce30b"
+    }
+  ],
+  "relatedProducts": [],
+  "keywords": [
+    "playstation",
+    "5"
+  ],
+  "createdAt": {
+    "$date": "2025-07-12T15:23:00.901Z"
+  },
+  "productType": "other",
+  "variants": []
+},
+{
+  "_id": {
+    "$oid": "67e02e280804d574079f0c19"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Bose QuietComfort 45",
+  "description": "- Tai nghe Bose QuietComfort 45 vẫn sẽ có hai chế độ chống ồn là Quiet và Aware.\n- Với hai chế độ chống ồn, trong đó có chế độ Quiet với tính năng cách âm tuyệt đối, mang đến sự tĩnh lặng nhất có thể và triệt ồn hoàn toàn tiếng ồn xung quanh.\n- Chế độ Aware cho người dùng một không gian âm thanh hoàn toàn tự nhiên nhất có thể, để bạn có thể thưởng thức âm nhạc một cách tự nhiên nhất mà không gian âm thanh không bị bí.\nTính năng Voice Isolation trên phiên bản tai nghe chống ồn được cô lập giọng nói hoàn hảo cho cuộc đàm thoại với chiếc tai nghe.\n- Tai nghe QC45 cũng được nâng cấp dải microphone Beam-array đảm bảo cho việc đàm thoại công việc tốt nhất.\n- Khả năng chống ồn dải trung âm ấn tượng, khả năng chống ồn ở dải trung âm tốt hơn so với QC35 II (các tiếng động cơ xe máy, tiếng đàm thoại nói chuyện qua lại).",
+  "price": 7000000,
+  "offerPrice": 6000000,
+  "category": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "date": 1742745128434,
+  "__v": 1,
+  "stock": 94,
+  "brand": {
+    "$oid": "682de21cca659b94c3f0bc12"
+  },
+  "reviews": [
+    {
+      "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+      "username": "hỷ thắng",
+      "rating": 5,
+      "comment": "được",
+      "createdAt": {
+        "$date": "2025-05-15T16:05:16.221Z"
+      },
+      "_id": {
+        "$oid": "682610bcfa248f345a89c4a0"
+      }
+    }
+  ],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742745129/w222kxlqgpo3i0rkzhxu.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742745130/m4jkk9vfqvyolsmyirte.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742745130/ocuazblueiny2z6aosbs.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742745129/wkjz17dvdckmv1hu6tnt.jpg"
+  ],
+  "specifications": [
+    {
+      "$oid": "6867574abec5bdd7455b38cb"
+    },
+    {
+      "$oid": "68675756bec5bdd7455b38e5"
+    },
+    {
+      "$oid": "6867575fbec5bdd7455b38ff"
+    },
+    {
+      "$oid": "6867576cbec5bdd7455b3919"
+    },
+    {
+      "$oid": "68675778bec5bdd7455b3933"
+    },
+    {
+      "$oid": "68675782bec5bdd7455b394d"
+    },
+    {
+      "$oid": "68675798bec5bdd7455b3967"
+    },
+    {
+      "$oid": "686757b1bec5bdd7455b3981"
+    }
+  ],
+  "relatedProducts": [],
+  "variants": [],
+  "createdAt": {
+    "$date": "2025-07-04T04:15:37.054Z"
+  },
+  "productType": "other",
+  "keywords": [
+    "bose",
+    "quietcomfort",
+    "45"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Samsung Galaxy S23",
+  "description": "The Samsung Galaxy S23 offers an all-encompassing mobile experience with its advanced AMOLED display, offering vibrant visuals and smooth interactions. Equipped with top-of-the-line fitness tracking features and cutting-edge technology, this phone delivers outstanding performance. With powerful hardware, a sleek design, and long battery life, the S23 is perfect for those who demand the best in mobile innovation.",
+  "price": 17000000,
+  "offerPrice": 15000000,
+  "category": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "date": 1742745861342,
+  "__v": 1,
+  "stock": 97,
+  "brand": {
+    "$oid": "682de238ca659b94c3f0bc15"
+  },
+  "reviews": [],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742745863/ym2appyj17fhbhzyzr2b.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742745862/j7miryy0zv89khcy5jov.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742745862/exyb97jt2jlx7npdfvac.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742745862/bwfvhne1e6fg0zbhsgab.jpg"
+  ],
+  "specifications": [
+    {
+      "$oid": "68674e64bec5bdd7455b31b4"
+    },
+    {
+      "$oid": "68674e72bec5bdd7455b31d8"
+    },
+    {
+      "$oid": "68674ecfbec5bdd7455b326e"
+    },
+    {
+      "$oid": "68674eeabec5bdd7455b3293"
+    },
+    {
+      "$oid": "68674efbbec5bdd7455b32b8"
+    },
+    {
+      "$oid": "68674f17bec5bdd7455b32e0"
+    },
+    {
+      "$oid": "68674f35bec5bdd7455b3305"
+    },
+    {
+      "$oid": "68674f45bec5bdd7455b332a"
+    },
+    {
+      "$oid": "68674fc6bec5bdd7455b334f"
+    },
+    {
+      "$oid": "68674fe7bec5bdd7455b3374"
+    },
+    {
+      "$oid": "6867502ebec5bdd7455b3399"
+    },
+    {
+      "$oid": "6867503ebec5bdd7455b33be"
+    },
+    {
+      "$oid": "68675052bec5bdd7455b33e3"
+    },
+    {
+      "$oid": "68675060bec5bdd7455b3408"
+    },
+    {
+      "$oid": "6867506abec5bdd7455b342d"
+    },
+    {
+      "$oid": "6867508abec5bdd7455b3452"
+    },
+    {
+      "$oid": "686750c2bec5bdd7455b3477"
+    },
+    {
+      "$oid": "686750d9bec5bdd7455b349c"
+    },
+    {
+      "$oid": "686750e4bec5bdd7455b34c1"
+    },
+    {
+      "$oid": "686750febec5bdd7455b34e6"
+    },
+    {
+      "$oid": "68675124bec5bdd7455b350b"
+    },
+    {
+      "$oid": "68675133bec5bdd7455b3530"
+    },
+    {
+      "$oid": "68675142bec5bdd7455b3555"
+    },
+    {
+      "$oid": "6867514abec5bdd7455b357a"
+    },
+    {
+      "$oid": "6867809d4b0cebc9550cf5b2"
+    }
+  ],
+  "relatedProducts": [],
+  "keywords": [
+    "samsung",
+    "galaxy",
+    "s23",
+    "smartphone",
+    "phone",
+    "dienthoai",
+    "dien",
+    "thoai",
+    "galaxy"
+  ],
+  "createdAt": {
+    "$date": "2025-07-13T15:28:52.279Z"
+  },
+  "productType": "other",
+  "variants": []
+},
+{
+  "_id": {
+    "$oid": "67e18092574fd45777a59643"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Garmin Venu 2",
+  "description": "The Garmin Venu 2 smartwatch blends advanced fitness tracking with sophisticated design, offering a wealth of features such as heart rate monitoring, GPS, and sleep tracking. Built with a 24-hour battery life, this watch is ideal for fitness enthusiasts and anyone looking to enhance their daily lifestyle. With a stunning AMOLED display and customizable watch faces, the Venu 2 combines technology with style seamlessly.",
+  "price": 8500000,
+  "offerPrice": 7000000,
+  "category": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "date": 1742831762465,
+  "__v": 0,
+  "stock": 99,
+  "brand": {
+    "$oid": "682de301ca659b94c3f0bc1b"
+  },
+  "reviews": [],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742831764/cbpkuktixkw6xleebkkm.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742831765/siaoe04nmge5akpqwxuq.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742831764/ttyggvsmjkitxwjwtidz.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742831765/hj3n92tcsbjbpvzihqvf.jpg"
+  ],
+  "specifications": [],
+  "relatedProducts": [],
+  "keywords": [
+    "garmin",
+    "venu",
+    "2"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "MacBook Pro 16",
+  "description": "The MacBook Pro 16, powered by Apple's M2 Pro chip, offers outstanding performance with 16GB RAM and a 512GB SSD. Whether you're editing high-resolution video, developing software, or multitasking with ease, this laptop can handle the toughest tasks. It features a stunning Retina display with True Tone technology, making it a top choice for professionals in creative industries or anyone who demands premium performance in a portable form.",
+  "price": 70000000,
+  "offerPrice": 60000000,
+  "category": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "date": 1742911572772,
+  "__v": 0,
+  "stock": 99,
+  "brand": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "reviews": [],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742911575/f44heualxtl2bcv1u4bx.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742911575/vp3xd9ljhewq3fsg8ghs.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742911574/t2a0ds2ucv5odd1leolm.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742911575/vrrhfvtjxrug8t6luw4m.jpg"
+  ],
+  "specifications": [
+    {
+      "$oid": "68676cd04b0cebc9550cea29"
+    },
+    {
+      "$oid": "68676cdc4b0cebc9550cea4d"
+    },
+    {
+      "$oid": "68676d134b0cebc9550cea71"
+    },
+    {
+      "$oid": "68676d394b0cebc9550cea95"
+    },
+    {
+      "$oid": "68676d8a4b0cebc9550ceb05"
+    },
+    {
+      "$oid": "68676d954b0cebc9550ceb2a"
+    },
+    {
+      "$oid": "68676da04b0cebc9550ceb4f"
+    },
+    {
+      "$oid": "68676dac4b0cebc9550ceb74"
+    },
+    {
+      "$oid": "68676dc84b0cebc9550ceb99"
+    },
+    {
+      "$oid": "68676ddd4b0cebc9550cebbe"
+    },
+    {
+      "$oid": "68676e464b0cebc9550cebe3"
+    },
+    {
+      "$oid": "68676e884b0cebc9550cec08"
+    },
+    {
+      "$oid": "68676e994b0cebc9550cec2d"
+    },
+    {
+      "$oid": "68676eae4b0cebc9550cec52"
+    },
+    {
+      "$oid": "68676ebb4b0cebc9550cec77"
+    },
+    {
+      "$oid": "68676ee94b0cebc9550cec9c"
+    },
+    {
+      "$oid": "68676efe4b0cebc9550cece6"
+    },
+    {
+      "$oid": "68676f0d4b0cebc9550ced0b"
+    },
+    {
+      "$oid": "68676f484b0cebc9550ced33"
+    },
+    {
+      "$oid": "68676f7b4b0cebc9550ced58"
+    }
+  ],
+  "relatedProducts": [],
+  "keywords": [
+    "macbook",
+    "pro",
+    "16"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67e2b9e23f5e7df5265b0495"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Sony WF-1000XM5",
+  "description": "Sony WF-1000XM5 true wireless earbuds deliver immersive sound with Hi-Res Audio and advanced noise cancellation technology. Designed for comfort and quality, they provide a stable, snug fit for a secure listening experience. Whether you're working out or traveling, these earbuds will keep you connected with the world around you while enjoying rich, clear sound.",
+  "price": 6500000,
+  "offerPrice": 5500000,
+  "category": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "date": 1742911970941,
+  "__v": 1,
+  "stock": 99,
+  "brand": {
+    "$oid": "685235fbce51997f5dca5f4f"
+  },
+  "reviews": [],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742911973/tr6vuya9ep6vxgf3nujc.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742911973/uvnwwlch74z3eieklsqm.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742911972/duij2vrx5bkas9no23ur.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742911973/nnc6ehpgat7uue1umy9f.jpg"
+  ],
+  "specifications": [
+    {
+      "$oid": "6867585ebec5bdd7455b399c"
+    },
+    {
+      "$oid": "68675888bec5bdd7455b39b5"
+    },
+    {
+      "$oid": "68675916bec5bdd7455b3a11"
+    },
+    {
+      "$oid": "6867591ebec5bdd7455b3a2e"
+    },
+    {
+      "$oid": "6867592fbec5bdd7455b3a4b"
+    },
+    {
+      "$oid": "68675939bec5bdd7455b3a68"
+    },
+    {
+      "$oid": "6867594fbec5bdd7455b3a85"
+    }
+  ],
+  "relatedProducts": [],
+  "keywords": [
+    "sony",
+    "wf-1000xm5"
+  ],
+  "createdAt": {
+    "$date": "2025-07-12T15:23:59.212Z"
+  },
+  "productType": "other",
+  "variants": []
+},
+{
+  "_id": {
+    "$oid": "67e2bbbf3f5e7df5265b049b"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Samsung Projector 4k",
+  "description": "The Samsung 4K Projector offers an immersive cinematic experience with ultra-high-definition visuals and realistic color accuracy. Equipped with a built-in speaker, it delivers rich sound quality to complement its stunning 4K resolution. Perfect for movie nights, gaming, or presentations, this projector is the ultimate choice for creating an at-home theater experience or professional setting.",
+  "price": 60000000,
+  "offerPrice": 50000000,
+  "category": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "date": 1742912447859,
+  "__v": 0,
+  "stock": 99,
+  "brand": {
+    "$oid": "682de238ca659b94c3f0bc15"
+  },
+  "reviews": [],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742912450/xvsa3widhhvsunhtdanc.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742912450/eqrfccz08fhnbglck10g.avif",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742912450/cigkq8takzjquv1hvoay.avif",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742912450/i575n1xw0nsc3itpheho.avif"
+  ],
+  "specifications": [
+    {
+      "$oid": "686753d1bec5bdd7455b363e"
+    },
+    {
+      "$oid": "686753edbec5bdd7455b365e"
+    },
+    {
+      "$oid": "68675405bec5bdd7455b367e"
+    },
+    {
+      "$oid": "68675417bec5bdd7455b369e"
+    },
+    {
+      "$oid": "6867547fbec5bdd7455b36be"
+    }
+  ],
+  "relatedProducts": [],
+  "keywords": [
+    "samsung",
+    "projector",
+    "4k"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "ASUS ROG Zephyrus G16",
+  "description": "The ASUS ROG Zephyrus G16 gaming laptop is powered by the Intel Core i9 processor and features an RTX 4070 GPU, delivering top-tier gaming and performance. With 16GB of RAM and a 1TB SSD, this laptop is designed for gamers who demand extreme power, speed, and storage. Equipped with a stunning 16-inch display, it's built to handle the most demanding titles and applications with ease.",
+  "price": 50000000,
+  "offerPrice": 40000000,
+  "category": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "date": 1742912968126,
+  "__v": 0,
+  "stock": 99,
+  "brand": {
+    "$oid": "682de358ca659b94c3f0bc21"
+  },
+  "reviews": [],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742912971/kxb267kutewjb8iauh7k.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742912971/tmfhqrgwoni0h4nzoe4e.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742912970/xlfbf8ucrprebbww7fe6.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742912970/jugrqscdj8mci7xj0p4g.jpg"
+  ],
+  "specifications": [
+    {
+      "$oid": "6867701b4b0cebc9550cedbf"
+    },
+    {
+      "$oid": "686770264b0cebc9550cede4"
+    },
+    {
+      "$oid": "686770694b0cebc9550cee5f"
+    },
+    {
+      "$oid": "686770774b0cebc9550cee85"
+    },
+    {
+      "$oid": "686771064b0cebc9550cef05"
+    },
+    {
+      "$oid": "686771244b0cebc9550cef2e"
+    },
+    {
+      "$oid": "686771794b0cebc9550cefaf"
+    },
+    {
+      "$oid": "686771854b0cebc9550cefdb"
+    },
+    {
+      "$oid": "686771904b0cebc9550cf007"
+    },
+    {
+      "$oid": "6867719d4b0cebc9550cf033"
+    },
+    {
+      "$oid": "686771a94b0cebc9550cf05f"
+    },
+    {
+      "$oid": "686771b34b0cebc9550cf08b"
+    },
+    {
+      "$oid": "686771bd4b0cebc9550cf0b7"
+    },
+    {
+      "$oid": "686771c64b0cebc9550cf0e3"
+    },
+    {
+      "$oid": "686771e94b0cebc9550cf10f"
+    },
+    {
+      "$oid": "686771fa4b0cebc9550cf13b"
+    },
+    {
+      "$oid": "686772084b0cebc9550cf167"
+    },
+    {
+      "$oid": "686772a34b0cebc9550cf193"
+    },
+    {
+      "$oid": "686772b54b0cebc9550cf1bf"
+    },
+    {
+      "$oid": "686772bd4b0cebc9550cf1eb"
+    },
+    {
+      "$oid": "686772cd4b0cebc9550cf217"
+    },
+    {
+      "$oid": "686772ea4b0cebc9550cf243"
+    },
+    {
+      "$oid": "686772f94b0cebc9550cf26f"
+    },
+    {
+      "$oid": "686773054b0cebc9550cf29b"
+    },
+    {
+      "$oid": "686773184b0cebc9550cf2c7"
+    },
+    {
+      "$oid": "686773284b0cebc9550cf2f3"
+    },
+    {
+      "$oid": "686773364b0cebc9550cf31f"
+    }
+  ],
+  "relatedProducts": [],
+  "keywords": [
+    "asus",
+    "rog",
+    "zephyrus",
+    "g16"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "iPhone 16 Pro Max",
+  "description": "Điện thoại iPhone 16 PRO MAX Chính Hãng là một bước tiến vượt bậc trong dòng sản phẩm của Apple, mang lại trải nghiệm hoàn hảo với thiết kế tinh tế và các tính năng tiên tiến.\r\nsở hữu màn hình 6.9 inch Super Retina XDR, tích hợp công nghệ ProMotion với tốc độ làm tươi lên đến 120Hz. Điều này giúp hình ảnh hiển thị mượt mà, sắc nét, và rõ ràng dưới mọi góc nhìn, từ lướt web cho đến xem phim hoặc chơi game.\r\nVới thiết kế khung Titan siêu bền, mặt sau bằng kính nhám sang trọng, iPhone 16 PRO MAX mang đến cảm giác cầm nắm chắc chắn và tinh tế. Sự kết hợp giữa vật liệu Titan và kính không chỉ nâng tầm đẳng cấp mà còn đảm bảo độ bền vượt trội cho sản phẩm.",
+  "price": 33900000,
+  "offerPrice": 30500000,
+  "category": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "date": 1742913882759,
+  "__v": 5,
+  "stock": 99,
+  "brand": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "reviews": [],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742913884/zetshwp0pykgnajgttkl.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742913884/dinx9chvpf2uea4evmvx.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742913885/pufyrh7cpotrqeuq1fwl.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742913885/fzxqbtgrqgyhhon4fi5w.jpg"
+  ],
+  "specifications": [
+    {
+      "$oid": "6866a57af824b00f44d45c55"
+    },
+    {
+      "$oid": "6866a59bf824b00f44d45c67"
+    },
+    {
+      "$oid": "6866a5e5f824b00f44d45c79"
+    },
+    {
+      "$oid": "6866a6398e60352e0bda0d0f"
+    },
+    {
+      "$oid": "68674afdbec5bdd7455b2eb9"
+    },
+    {
+      "$oid": "68674b61bec5bdd7455b2edd"
+    },
+    {
+      "$oid": "68674b7ebec5bdd7455b2f01"
+    },
+    {
+      "$oid": "68674befbec5bdd7455b2f25"
+    },
+    {
+      "$oid": "68674c05bec5bdd7455b2f49"
+    },
+    {
+      "$oid": "68674c4fbec5bdd7455b2f6d"
+    },
+    {
+      "$oid": "68674c85bec5bdd7455b2fbb"
+    },
+    {
+      "$oid": "68674c9abec5bdd7455b2fdf"
+    },
+    {
+      "$oid": "68674caebec5bdd7455b3003"
+    },
+    {
+      "$oid": "68674cbebec5bdd7455b3027"
+    },
+    {
+      "$oid": "68674cf9bec5bdd7455b304b"
+    },
+    {
+      "$oid": "68674d42bec5bdd7455b306f"
+    },
+    {
+      "$oid": "68674d76bec5bdd7455b3093"
+    },
+    {
+      "$oid": "68674d83bec5bdd7455b30b7"
+    },
+    {
+      "$oid": "68674d95bec5bdd7455b30db"
+    },
+    {
+      "$oid": "68674db1bec5bdd7455b30ff"
+    },
+    {
+      "$oid": "68674dc6bec5bdd7455b3123"
+    },
+    {
+      "$oid": "68674ddbbec5bdd7455b3147"
+    },
+    {
+      "$oid": "68674de5bec5bdd7455b316b"
+    },
+    {
+      "$oid": "68674dfcbec5bdd7455b318f"
+    }
+  ],
+  "relatedProducts": [],
+  "createdAt": {
+    "$date": "2025-06-10T13:57:36.067Z"
+  },
+  "variants": [
+    {
+      "$oid": "684991972ef0b27e96fc8c00"
+    },
+    {
+      "$oid": "68499eb4791cadd7042a07d7"
+    }
+  ],
+  "productType": "other",
+  "keywords": [
+    "iphone",
+    "16",
+    "pro",
+    "max",
+    "smartphone",
+    "phone"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Bluetooth Headphone Havit H663BT",
+  "description": "Bluetooth Headphone Havit H663BT 26-hour battery | Connect 2 Devices | RGB LED Bluetooth 5.3\r\nGenuine HAVIT product\r\nExclusive direct distribution in Vietnam via Havit Flagship Store\r\n1-for-1 warranty within 12 months (For manufacturer defects)\r\nProduct Features\r\nHavit H663BT has a minimalist, elegant design, with a unique RGB LED cluster. In addition, the headset also has vivid sound quality, supports fast wireless connection, clear microphone,...\r\nOver Ear Design\r\nOver-ear design with soft ear cushions, does not cause ear pain when used for a long time. The unique RGB LED lights create a highlight and attraction in any space.\r\nGood Finish\r\nThe headset is finished from matte plastic to help limit sweat and fingerprints, easy to clean. You can also fold this headset flexibly to carry it anywhere.\r\nVivid Sound Quality\r\nThe vivid, powerful sound quality brings you a relaxing entertainment space, great music parties.\r\nIntegrated Call Mic\r\nWith the integrated call mic, you can use the headset to participate in online calls/meetings with clear recording capabilities, meeting your study, work and entertainment needs well.\r\n Bluetooth 5.3 Connection\r\nSupports fast and stable wireless connection with other devices thanks to Bluetooth 5.3 technology. In addition, you can also convert it into a wired headset when using the 3.5mm connecting cable that comes with it.",
+  "price": 600000,
+  "offerPrice": 400000,
+  "category": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "date": 1742914852452,
+  "__v": 1,
+  "stock": 99,
+  "brand": {
+    "$oid": "682de378ca659b94c3f0bc24"
+  },
+  "reviews": [],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742914854/dbapg1a7xuwwpndkukcd.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742914855/tmfamfbivgdevlrhdcrp.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742914855/ffuv5siy66ivtqjyoueo.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742914855/pe9dnvviebbpng5ka4vi.jpg"
+  ],
+  "specifications": [
+    {
+      "$oid": "6867598fbec5bdd7455b3aa3"
+    },
+    {
+      "$oid": "68675a02bec5bdd7455b3b03"
+    },
+    {
+      "$oid": "68675a0cbec5bdd7455b3b20"
+    },
+    {
+      "$oid": "68675a37bec5bdd7455b3b3d"
+    },
+    {
+      "$oid": "68675a42bec5bdd7455b3b5a"
+    },
+    {
+      "$oid": "68675a51bec5bdd7455b3b77"
+    },
+    {
+      "$oid": "68675a5dbec5bdd7455b3b94"
+    },
+    {
+      "$oid": "68675a6ebec5bdd7455b3bb1"
+    },
+    {
+      "$oid": "68675b314b0cebc9550ce0da"
+    }
+  ],
+  "relatedProducts": [],
+  "variants": [
+    {
+      "$oid": "685582979cbebaf0f6add69f"
+    }
+  ],
+  "keywords": [
+    "bluetooth",
+    "headphone",
+    "havit",
+    "h663bt"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Apple Watch Ultra 2 GPS",
+  "description": "Apple Watch Ultra features a Titanium bezel with a familiar 4-corner curved design. Apple has crafted and meticulously cared for every detail to bring the ultimate sports watch. Titanium material creates the perfect balance, both sturdy and light, and has good corrosion resistance.\r\nCompletely different from traditional Apple Watch generations. The new design is stronger and makes the watch more durable in case of collision. The watch glass is made of sapphire, the hardest, allowing excellent scratch resistance and users do not have to worry much if there is a collision.",
+  "price": 25790000,
+  "offerPrice": 25000000,
+  "category": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "date": 1742915368959,
+  "__v": 1,
+  "stock": 99,
+  "brand": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "reviews": [],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742915370/f1gtgeizcqfthkclhxdq.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742915372/lbgzkmdpgtjdjsmaqykd.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742915371/wvqugp5kbqdrdzfxnqq7.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742915371/fojpre8jkrgqye0pffsy.png"
+  ],
+  "specifications": [
+    {
+      "$oid": "68675fde4b0cebc9550ce604"
+    },
+    {
+      "$oid": "686761834b0cebc9550ce65c"
+    },
+    {
+      "$oid": "686761914b0cebc9550ce681"
+    },
+    {
+      "$oid": "6867619d4b0cebc9550ce6a6"
+    },
+    {
+      "$oid": "686761ba4b0cebc9550ce6cb"
+    },
+    {
+      "$oid": "686761c84b0cebc9550ce6f0"
+    },
+    {
+      "$oid": "686761f64b0cebc9550ce718"
+    },
+    {
+      "$oid": "6867621c4b0cebc9550ce73d"
+    },
+    {
+      "$oid": "6867622c4b0cebc9550ce762"
+    },
+    {
+      "$oid": "686763054b0cebc9550ce787"
+    },
+    {
+      "$oid": "686763134b0cebc9550ce7ac"
+    },
+    {
+      "$oid": "686763524b0cebc9550ce7d1"
+    },
+    {
+      "$oid": "686763a84b0cebc9550ce7f6"
+    },
+    {
+      "$oid": "686763e14b0cebc9550ce81b"
+    },
+    {
+      "$oid": "686763f54b0cebc9550ce840"
+    },
+    {
+      "$oid": "686763ff4b0cebc9550ce865"
+    },
+    {
+      "$oid": "686764124b0cebc9550ce88a"
+    },
+    {
+      "$oid": "6867641f4b0cebc9550ce8af"
+    },
+    {
+      "$oid": "686764264b0cebc9550ce8d4"
+    },
+    {
+      "$oid": "6867642e4b0cebc9550ce8f9"
+    },
+    {
+      "$oid": "686764384b0cebc9550ce91e"
+    },
+    {
+      "$oid": "686764484b0cebc9550ce943"
+    },
+    {
+      "$oid": "686764704b0cebc9550ce968"
+    },
+    {
+      "$oid": "686764874b0cebc9550ce98d"
+    }
+  ],
+  "relatedProducts": [],
+  "keywords": [
+    "apple",
+    "watch",
+    "ultra",
+    "2",
+    "gps"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Nintendo Switch Oled Neon Red Blue V2",
+  "description": "Upgraded version of Nintendo Switch V2\r\nUpgraded 7-inch OLED screen, larger than V2 version (6.2-inch)\r\nLarger stand and adjustable angle\r\nInternal memory upgraded to 64Gb\r\nDock outputs images to TV with additional Ethernet port for LAN cable\r\nImproved sound quality of external speakers\r\nMulti-use: Handheld mode/TV Mode/Tabletop mode",
+  "price": 7290000,
+  "offerPrice": 7000000,
+  "category": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "date": 1742917235213,
+  "__v": 4,
+  "stock": 99,
+  "brand": {
+    "$oid": "682de3a6ca659b94c3f0bc27"
+  },
+  "reviews": [
+    {
+      "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+      "rating": 5,
+      "comment": "tốt",
+      "createdAt": {
+        "$date": "2025-04-29T14:14:36.987Z"
+      },
+      "_id": {
+        "$oid": "6810decc915de6c17f387d46"
+      },
+      "username": "Anonymous"
+    },
+    {
+      "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+      "username": "hỷ thắng",
+      "rating": 4,
+      "comment": "cũng được",
+      "createdAt": {
+        "$date": "2025-04-29T14:45:41.050Z"
+      },
+      "_id": {
+        "$oid": "6810e615af4b16190092c50d"
+      }
+    },
+    {
+      "userId": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+      "username": "hỷ thắng",
+      "rating": 5,
+      "comment": "rất tuyệt vời tôi rất thích",
+      "createdAt": {
+        "$date": "2025-04-29T15:03:49.358Z"
+      },
+      "_id": {
+        "$oid": "6810ea55af4b16190092c51d"
+      }
+    }
+  ],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742917237/u8hwjlrxm2llsrjlrju2.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742917236/yjuhxdj5puxyskin9sa1.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742917237/tqmydzaecaakbfmtl9gd.jpg",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1742917237/skgj0gbi3htyjibnwks3.jpg"
+  ],
+  "specifications": [
+    {
+      "$oid": "68675d604b0cebc9550ce32d"
+    },
+    {
+      "$oid": "68675e6c4b0cebc9550ce39d"
+    },
+    {
+      "$oid": "68675e764b0cebc9550ce3ca"
+    },
+    {
+      "$oid": "68675edc4b0cebc9550ce3f7"
+    },
+    {
+      "$oid": "68675ef04b0cebc9550ce424"
+    },
+    {
+      "$oid": "68675f074b0cebc9550ce451"
+    },
+    {
+      "$oid": "68675f184b0cebc9550ce47e"
+    },
+    {
+      "$oid": "68675f254b0cebc9550ce4ab"
+    },
+    {
+      "$oid": "68675f3f4b0cebc9550ce4d8"
+    },
+    {
+      "$oid": "68675f484b0cebc9550ce505"
+    },
+    {
+      "$oid": "68675f594b0cebc9550ce532"
+    },
+    {
+      "$oid": "68675f654b0cebc9550ce55f"
+    },
+    {
+      "$oid": "68675f714b0cebc9550ce58c"
+    }
+  ],
+  "relatedProducts": [],
+  "keywords": [
+    "nintendo",
+    "switch",
+    "oled",
+    "neon",
+    "red",
+    "blue",
+    "v2"
+  ]
+},
+{
+  "_id": {
+    "$oid": "6873bb9bb8030b4143ed0e9e"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "test",
+  "description": "adasdsadsadsd",
+  "price": 10000,
+  "offerPrice": 1000,
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1752415130/wn9sqfd5vxt41j20bkty.png"
+  ],
+  "category": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "createdAt": {
+    "$date": "2025-07-13T13:58:51.084Z"
+  },
+  "brand": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "specifications": [],
+  "relatedProducts": [],
+  "variants": [
+    {
+      "$oid": "6873bf08b8030b4143ed111e"
+    }
+  ],
+  "productType": "other",
+  "keywords": [
+    "dienthoai",
+    "dien",
+    "thoai",
+    "dien",
+    "thoai",
+    "thong",
+    "minh",
+    "iphone",
+    "apple"
+  ],
+  "reviews": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875c7c250063a6283110aa0"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "test01",
+  "description": "test sản phẩm",
+  "price": 10000,
+  "offerPrice": 1000,
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1752549314/oqcsg8nrynbulxhk1jiv.webp",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1752549316/f9ndomxkmjfremsccsq2.png",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1752549315/dgkmybuh83dkosagwizf.png"
+  ],
+  "category": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "createdAt": {
+    "$date": "2025-07-15T03:15:14.480Z"
+  },
+  "brand": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "specifications": [],
+  "relatedProducts": [],
+  "variants": [
+    {
+      "$oid": "6875c7f750063a6283110add"
+    },
+    {
+      "$oid": "6875c81650063a6283110b02"
+    }
+  ],
+  "productType": "other",
+  "keywords": [
+    "dienthoai",
+    "dien",
+    "thoai",
+    "dien",
+    "thoai",
+    "thong",
+    "minh",
+    "iphone",
+    "apple"
+  ],
+  "reviews": [
+    {
+      "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+      "username": "Thắng",
+      "rating": 5,
+      "comment": "tốt",
+      "createdAt": {
+        "$date": "2025-07-15T03:34:04.855Z"
+      },
+      "_id": {
+        "$oid": "6875cc2c489a49598ae578f2"
+      }
+    }
+  ],
+  "__v": 1
+}]

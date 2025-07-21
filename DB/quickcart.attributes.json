@@ -1,0 +1,48 @@
+[{
+  "_id": {
+    "$oid": "68490f7fc54487e9841c13aa"
+  },
+  "name": "Màu sắc",
+  "values": [
+    {
+      "text": "Trắng",
+      "color": "#ffffff"
+    },
+    {
+      "text": "Xanh",
+      "color": "#0f9d58"
+    },
+    {
+      "text": "Titan",
+      "color": "#dcdcdc"
+    },
+    {
+      "text": "Vàng",
+      "color": "#fbff00"
+    },
+    {
+      "text": "Đỏ",
+      "color": "#f93434"
+    }
+  ],
+  "__v": 0,
+  "updatedAt": {
+    "$date": "2025-07-06T04:09:13.153Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68490f94c54487e9841c13b1"
+  },
+  "name": "Dung lượng",
+  "values": [
+    "128GB",
+    "256GB",
+    "512GB",
+    "2TB"
+  ],
+  "__v": 0,
+  "updatedAt": {
+    "$date": "2025-07-06T04:57:13.891Z"
+  }
+}]

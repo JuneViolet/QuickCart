@@ -1,0 +1,26 @@
+{
+  "type": "Compass Connections",
+  "version": {
+    "$numberInt": "1"
+  },
+  "connections": [
+    {
+      "id": "9f1c3210-167f-4918-9ba2-8528ff6e5461",
+      "lastUsed": {
+        "$date": {
+          "$numberLong": "1752551069818"
+        }
+      },
+      "favorite": {
+        "name": "cluster0.wrgdp.mongodb.net"
+      },
+      "savedConnectionType": "recent",
+      "connectionOptions": {
+        "connectionString": "mongodb+srv://tieuhythang2000:thang123@cluster0.wrgdp.mongodb.net/quickcart?retryWrites=true&w=majority",
+        "oidc": {
+          "serializedState": "eyJvaWRjUGx1Z2luU3RhdGVWZXJzaW9uIjowLCJzdGF0ZSI6W119"
+        }
+      }
+    }
+  ]
+}

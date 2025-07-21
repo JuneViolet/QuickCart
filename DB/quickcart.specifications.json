@@ -1,0 +1,2973 @@
+[{
+  "_id": {
+    "$oid": "682e9496467028b525566060"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Cảm biến",
+  "value": "CMOS full-frame 45 megapixel",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e94aa467028b525566074"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Bộ xử lý hình ảnh",
+  "value": "DIGIC X",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e95af467028b52556609f"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Dải ISO",
+  "value": [
+    "Ảnh tĩnh: 100–51.200 (mở rộng 50–102.400)",
+    "Video: 100–25.600 (mở rộng 51.200)"
+  ],
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e95df467028b5255660b3"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Quay video",
+  "value": [
+    "8K RAW 12-bit (24/25/30p)",
+    "4K 120p 10-bit 4:2:2"
+  ],
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e9692467028b5255660d6"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Kính ngắm điện tử",
+  "value": "(EVF) OLED 0.5 inch, 5.76 triệu điểm ảnh",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e96a3467028b5255660ea"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Màn hình LCD",
+  "value": "Cảm ứng, xoay lật, 3.2 inch, 2.1 triệu điểm ảnh",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e96b0467028b5255660fe"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Khe thẻ nhớ",
+  "value": "1 CFexpress + 1 SD UHS-II",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e96bc467028b525566112"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Kết nối",
+  "value": "Wi-Fi 2.4/5GHz, Bluetooth",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e96c8467028b525566126"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Kích thước",
+  "value": "138.5 × 97.5 × 88.0 mm",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e96dd467028b52556613a"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Trọng lượng",
+  "value": "738g (bao gồm pin và thẻ nhớ)",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682e9705467028b52556614e"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "key": "Tốc độ chụp liên tục",
+  "value": [
+    "20 fps với màn trập điện tử",
+    "12 fps với màn trập cơ"
+  ],
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837f158c2bdea3d6eaef153"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "key": "Chip",
+  "value": [
+    "Apple H2"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837f16bc2bdea3d6eaef166"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "key": "Kết nối",
+  "value": "Bluetooth 5.3",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837f17ac2bdea3d6eaef179"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "key": "Tương thích",
+  "value": "iPhone (iOS 17+), iPad (iPadOS 17+), Apple Watch, Mac, Apple TV",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837f1cac2bdea3d6eaef1a3"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "key": "Âm thanh",
+  "value": [
+    "Chống ồn chủ động (ANC): Giảm tiếng ồn lên đến 2x so với thế hệ 1",
+    "Chế độ xuyên âm (Transparency): Adaptive Transparency tự động giảm tiếng ồn cao tần",
+    "Âm thanh không gian cá nhân hóa: Spatial Audio với Theo dõi chuyển động đầu",
+    "Driver tùy chỉnh + Bộ khuếch đại mới",
+    "EQ tự động: Điều chỉnh âm thanh theo hình dáng tai"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837f1ecc2bdea3d6eaef1b6"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "key": "Trọng lượng",
+  "value": "5.3g",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837f203c2bdea3d6eaef1c9"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "key": "Cổng sạc hộp",
+  "value": "USB-C (hỗ trợ sạc MagSafe, Apple Watch charger)",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837f228c2bdea3d6eaef1dc"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "key": "Pin",
+  "value": [
+    "Tai nghe: 6h (ANC bật), 7h (tắt ANC)",
+    "Hộp sạc: 30h tổng (có MagSafe)"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6837f261c2bdea3d6eaef1ef"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "key": "Tính năng",
+  "value": [
+    "Kháng nước: Chuẩn IPX4 (cả tai nghe lẫn hộp sạc)",
+    "Micro: 4 micro chống ồn + Voice Isolation (lọc giọng nói)",
+    "Tìm thiết bị: Hỗ trợ Precision Finding (U1 chip) + phát âm thanh riêng từng tai nghe",
+    "Phụ kiện: 4 size cốc tai (XS, S, M, L)"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6866a57af824b00f44d45c55"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Hệ điều hành",
+  "value": "iOS 18",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6866a59bf824b00f44d45c67"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Chip xử lý",
+  "value": "Apple A18 Pro 6 nhân",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6866a5e5f824b00f44d45c79"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Ram",
+  "value": "8 GB",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6866a6398e60352e0bda0d0f"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Chip đồ họa",
+  "value": "Apple GPU 6 nhân",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674afdbec5bdd7455b2eb9"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Độ phân giải camera sau",
+  "value": "Chính 48 MP & Phụ 48 MP, 12 MP",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674b61bec5bdd7455b2edd"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Quay phim camera sau",
+  "value": [
+    "HD 720p@30fps",
+    "FullHD 1080p@60fps",
+    "FullHD 1080p@30fps",
+    "FullHD 1080p@25fps",
+    "FullHD 1080p@240fps",
+    "FullHD 1080p@120fps",
+    "4K 2160p@60fps",
+    "4K 2160p@30fps",
+    "4K 2160p@25fps",
+    "4K 2160p@24fps",
+    "4K 2160p@120fps"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674b7ebec5bdd7455b2f01"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Đèn flash camera sau",
+  "value": "Có",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674befbec5bdd7455b2f25"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Tính năng camera sau",
+  "value": [
+    "Điều khiển camera (Camera Control)",
+    "Zoom quang học",
+    "Zoom kỹ thuật số",
+    "Xóa phông",
+    "Trôi nhanh thời gian (Time Lapse)",
+    "Smart HDR 5",
+    "Siêu độ phân giải",
+    "Ban đêm (Night Mode)",
+    "Chế độ hành động (Action Mode)",
+    "Quay video định dạng Log",
+    "Quay chậm (Slow Motion)"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674c05bec5bdd7455b2f49"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Độ phân giải camera trước",
+  "value": "12 MP",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674c4fbec5bdd7455b2f6d"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Tính năng camera trước",
+  "value": [
+    "Smart HDR 5",
+    "Xóa phông",
+    "Trôi nhanh thời gian (Time Lapse)",
+    "Retina Flash",
+    "Quay video ProRes",
+    "Quay video Full HD",
+    "Quay video 4K",
+    "Live Photos",
+    "Chụp đêm",
+    "Bộ lọc màu",
+    "Photonic Engine"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674c85bec5bdd7455b2fbb"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Công nghệ màn hình",
+  "value": "OLED",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674c9abec5bdd7455b2fdf"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Độ phân giải màn hình",
+  "value": "Super Retina XDR (1320 x 2868 Pixels)",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674caebec5bdd7455b3003"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Màn hình rộng",
+  "value": "6.9\" - Tần số quét 120 Hz",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674cbebec5bdd7455b3027"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Độ sáng tối đa",
+  "value": "2000 nits",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674cf9bec5bdd7455b304b"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Pin",
+  "value": "Dung lượng pin 33 giờ",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674d42bec5bdd7455b306f"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Chống nước",
+  "value": "IP68",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674d76bec5bdd7455b3093"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Mạng di động",
+  "value": "Hỗ trợ 5G",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674d83bec5bdd7455b30b7"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "SIM",
+  "value": "1 Nano SIM & 1 eSIM",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674d95bec5bdd7455b30db"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Wifi",
+  "value": [
+    "Wi-Fi MIMO",
+    "Wi-Fi 7"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674db1bec5bdd7455b30ff"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "GPS",
+  "value": [
+    "QZSS",
+    "GPS",
+    "GLONASS",
+    "GALILEO",
+    "BEIDOU"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674dc6bec5bdd7455b3123"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Bluetooth",
+  "value": "v5.3",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674ddbbec5bdd7455b3147"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Cổng kết nối/Sạc",
+  "value": "Type-C",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674de5bec5bdd7455b316b"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Jack tai nghe",
+  "value": "Type-C",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674dfcbec5bdd7455b318f"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "key": "Kết nối khác",
+  "value": "NFC",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674e64bec5bdd7455b31b4"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Hệ điều hành",
+  "value": "Android 13",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674e72bec5bdd7455b31d8"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Chip xử lý",
+  "value": "Snapdragon 8 Gen 2 for Galaxy",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674ecfbec5bdd7455b326e"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Tốc độ CPU",
+  "value": "1 nhân 3.36 GHz, 4 nhân 2.8 GHz & 3 nhân 2 GHz",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674eeabec5bdd7455b3293"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Chip đồ họa",
+  "value": "Adreno 740",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674efbbec5bdd7455b32b8"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Ram",
+  "value": "8 GB",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674f17bec5bdd7455b32e0"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Độ phân giải camera sau",
+  "value": "Chính 50 MP & Phụ 12 MP, 10 MP",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674f35bec5bdd7455b3305"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Quay phim camera sau",
+  "value": [
+    "HD 720p@30fps",
+    "FullHD 1080p@60fps",
+    "FullHD 1080p@30fps",
+    "8K 4320p@30fps",
+    "4K 2160p@60fps",
+    "4K 2160p@30fps"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 2
+},
+{
+  "_id": {
+    "$oid": "68674f45bec5bdd7455b332a"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Đèn flash camera sau",
+  "value": "Có",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674fc6bec5bdd7455b334f"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Tính năng camera sau",
+  "value": [
+    " Ảnh Raw",
+    "Zoom quang học",
+    "Zoom kỹ thuật số",
+    "Xóa phông",
+    "Tự động lấy nét (AF)",
+    "Trôi nhanh thời gian (Time Lapse)",
+    "Toàn cảnh (Panorama)",
+    "Quay Siêu chậm (Super Slow Motion)",
+    "Chống rung quang học (OIS)",
+    "Chuyên nghiệp (Pro)",
+    "Ban đêm (Night Mode)"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68674fe7bec5bdd7455b3374"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Độ phân giải camera trước",
+  "value": "12 MP",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867502ebec5bdd7455b3399"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Tính năng camera trước",
+  "value": [
+    "Xóa phông",
+    "Trôi nhanh thời gian (Time Lapse)",
+    "Quay video 4K",
+    "Quay video Full HD",
+    "Nhận diện khuôn mặt",
+    "Góc siêu rộng (Ultrawide)",
+    "Chụp đêm",
+    "Chuyên nghiệp (Pro)",
+    "Bộ lọc màu"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867503ebec5bdd7455b33be"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Công nghệ màn hình",
+  "value": "Dynamic AMOLED 2X",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675052bec5bdd7455b33e3"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Độ phân giải màn hình",
+  "value": "Full HD+ (1080 x 2340 Pixels)",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675060bec5bdd7455b3408"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Màn hình rộng",
+  "value": " 6.6\" - Tần số quét 120 Hz",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867506abec5bdd7455b342d"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Độ sáng tối đa",
+  "value": "1750 nits",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867508abec5bdd7455b3452"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Pin",
+  "value": "Dung lượng pin: 4700 mAh",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686750c2bec5bdd7455b3477"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Chống nước",
+  "value": "IP68",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686750d9bec5bdd7455b349c"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Mạng di động",
+  "value": "Hỗ trợ 5G",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686750e4bec5bdd7455b34c1"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "SIM",
+  "value": "2 Nano SIM hoặc 1 Nano SIM + 1 eSIM",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686750febec5bdd7455b34e6"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Wifi",
+  "value": [
+    "Wi-Fi Direct",
+    "Wi-Fi 802.11 a/b/g/n/ac/ax",
+    "Dual-band (2.4 GHz/5 GHz)",
+    "6 GHz"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675124bec5bdd7455b350b"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "GPS",
+  "value": [
+    "QZSS",
+    "GPS",
+    "GLONASS",
+    "GALILEO",
+    "BEIDOU"
+  ],
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675133bec5bdd7455b3530"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Bluetooth",
+  "value": "v5.3",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675142bec5bdd7455b3555"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Cổng kết nối/Sạc",
+  "value": "Type-C",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867514abec5bdd7455b357a"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Jack tai nghe",
+  "value": "Type-C",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686753d1bec5bdd7455b363e"
+  },
+  "productId": {
+    "$oid": "67e2bbbf3f5e7df5265b049b"
+  },
+  "key": "Công nghệ hiển thị",
+  "value": "Laser/Triple Laser",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686753edbec5bdd7455b365e"
+  },
+  "productId": {
+    "$oid": "67e2bbbf3f5e7df5265b049b"
+  },
+  "key": "Kết nối",
+  "value": "WiFi, Bluetooth, HDMI",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675405bec5bdd7455b367e"
+  },
+  "productId": {
+    "$oid": "67e2bbbf3f5e7df5265b049b"
+  },
+  "key": "Smart TV",
+  "value": "Có tích hợp Smart TV features",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675417bec5bdd7455b369e"
+  },
+  "productId": {
+    "$oid": "67e2bbbf3f5e7df5265b049b"
+  },
+  "key": "Tính năng",
+  "value": "Gaming Hub, streaming apps",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867547fbec5bdd7455b36be"
+  },
+  "productId": {
+    "$oid": "67e2bbbf3f5e7df5265b049b"
+  },
+  "key": "Trọng lượng",
+  "value": "11 kg",
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867574abec5bdd7455b38cb"
+  },
+  "productId": {
+    "$oid": "67e02e280804d574079f0c19"
+  },
+  "key": "Kích thước",
+  "value": "7.68 x 6.18 x 3.15 inch",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675756bec5bdd7455b38e5"
+  },
+  "productId": {
+    "$oid": "67e02e280804d574079f0c19"
+  },
+  "key": "Trọng lượng",
+  "value": "450g",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867575fbec5bdd7455b38ff"
+  },
+  "productId": {
+    "$oid": "67e02e280804d574079f0c19"
+  },
+  "key": "Bluetooth",
+  "value": "5.1",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867576cbec5bdd7455b3919"
+  },
+  "productId": {
+    "$oid": "67e02e280804d574079f0c19"
+  },
+  "key": "Thời gian sử dụng",
+  "value": "24 giờ",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675778bec5bdd7455b3933"
+  },
+  "productId": {
+    "$oid": "67e02e280804d574079f0c19"
+  },
+  "key": "Cổng sạc",
+  "value": "Type-C",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675782bec5bdd7455b394d"
+  },
+  "productId": {
+    "$oid": "67e02e280804d574079f0c19"
+  },
+  "key": "Sử dụng pin",
+  "value": "Có",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675798bec5bdd7455b3967"
+  },
+  "productId": {
+    "$oid": "67e02e280804d574079f0c19"
+  },
+  "key": "Thời gian sạc",
+  "value": [
+    "2.5 giờ đầy",
+    "Sạc nhanh: 15 phút cho 2.5 giờ sử dụng"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686757b1bec5bdd7455b3981"
+  },
+  "productId": {
+    "$oid": "67e02e280804d574079f0c19"
+  },
+  "key": "Thông tin khác",
+  "value": [
+    "Phạm vi Bluetooth: lên đến 30 ft (9 m)",
+    "Ứng dụng tương thích: Ứng dụng Bose Music",
+    "Tích hợp công nghệ Acoustic Noise Cancelling"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867585ebec5bdd7455b399c"
+  },
+  "productId": {
+    "$oid": "67e2b9e23f5e7df5265b0495"
+  },
+  "key": "Kích thước",
+  "value": "Hộp sạc: 64.6 x 40 x 26.5 mm",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675888bec5bdd7455b39b5"
+  },
+  "productId": {
+    "$oid": "67e2b9e23f5e7df5265b0495"
+  },
+  "key": "Trọng lượng",
+  "value": "45g",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675916bec5bdd7455b3a11"
+  },
+  "productId": {
+    "$oid": "67e2b9e23f5e7df5265b0495"
+  },
+  "key": "Công nghệ âm thanh",
+  "value": [
+    "Hi-Res Audio",
+    "DSEE Extreme™",
+    "Âm thanh 360"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867591ebec5bdd7455b3a2e"
+  },
+  "productId": {
+    "$oid": "67e2b9e23f5e7df5265b0495"
+  },
+  "key": "Micro",
+  "value": "Có",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867592fbec5bdd7455b3a4b"
+  },
+  "productId": {
+    "$oid": "67e2b9e23f5e7df5265b0495"
+  },
+  "key": "Thời lượng sử dụng Pin",
+  "value": [
+    "Tai nghe: 8 giờ (Bật ANC)",
+    "Hộp sạc: 24 giờ"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675939bec5bdd7455b3a68"
+  },
+  "productId": {
+    "$oid": "67e2b9e23f5e7df5265b0495"
+  },
+  "key": "Phương thức điều khiển",
+  "value": "Chạm cảm ứng",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867594fbec5bdd7455b3a85"
+  },
+  "productId": {
+    "$oid": "67e2b9e23f5e7df5265b0495"
+  },
+  "key": "Thông tin khác",
+  "value": [
+    "Chức năng theo dõi đầu",
+    "Chống ồn đàm thoại",
+    "Chống nước IPX4"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867598fbec5bdd7455b3aa3"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "key": "Micro",
+  "value": "Có",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675a02bec5bdd7455b3b03"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "key": "Tính năng",
+  "value": [
+    "Có mic đàm thoại"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675a0cbec5bdd7455b3b20"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "key": "Bluetooth",
+  "value": "5.1",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675a37bec5bdd7455b3b3d"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "key": "Thời gian sử dụng",
+  "value": "22 giờ",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675a42bec5bdd7455b3b5a"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "key": "Cổng sạc",
+  "value": "Type-C",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675a51bec5bdd7455b3b77"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "key": "Thời gian sạc",
+  "value": [
+    "3 giờ"
+  ],
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675a5dbec5bdd7455b3b94"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "key": "Phương thức điều khiển",
+  "value": "Nút bấm vật lý",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675a6ebec5bdd7455b3bb1"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "key": "Trọng lượng",
+  "value": "185g",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675b314b0cebc9550ce0da"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "key": "Phạm vi kết nối",
+  "value": "10 m",
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675c5d4b0cebc9550ce1a0"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Dung lượng RAM",
+  "value": "16 GB",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675c6a4b0cebc9550ce1c1"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Loại CPU",
+  "value": "AMD Zen 8 nhân 3.5GHZ",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675c744b0cebc9550ce1e2"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "GPU",
+  "value": "RDNA 2 AMD",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675c804b0cebc9550ce203"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Tính năng khác",
+  "value": "Ray tracing,hỗ trợ 120Fps",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675c9f4b0cebc9550ce224"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Tiện ích",
+  "value": [
+    "Chế độ Remote Play cho truyền hình ảnh sang thiết bị khác",
+    "Có thể tùy chỉnh độ khó của trò chơi trước khi bắt đầu",
+    "Chơi chung với bạn bè nhờ tính năng Share Play",
+    "Tự động lưu lại kết quả cuối cùng bạn đạt được",
+    "Chuyển đổi giữa các tựa game"
+  ],
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675cae4b0cebc9550ce245"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Chipset",
+  "value": "AMD",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675cb84b0cebc9550ce266"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Số nhân",
+  "value": 8,
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675cc04b0cebc9550ce287"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Số luồng\t",
+  "value": 16,
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675cc94b0cebc9550ce2a8"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Tốc độ xử lý",
+  "value": "3.5 GHz",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675cd64b0cebc9550ce2c9"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Bộ nhớ hỗ trợ",
+  "value": "825GB SSD tốc độ đạt 5,5 GB/s",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675ce14b0cebc9550ce2ea"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "Chip đồ họa",
+  "value": "Kiến trúc RDNA 2 của AMD, sức mạnh 10.3 TFLOPS, tốc độ 2.23GHz, hỗ trợ Ray-Tracing",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675ce94b0cebc9550ce30b"
+  },
+  "productId": {
+    "$oid": "67e02c4fca09637ce259c590"
+  },
+  "key": "TDP",
+  "value": "350W",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675d604b0cebc9550ce32d"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Trọng lượng",
+  "value": "400g",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675e6c4b0cebc9550ce39d"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Màn hình",
+  "value": [
+    "6.2-inch LCD Screen",
+    "Cảm ứng đa điểm",
+    "Độ phân giải 1280 x 720"
+  ],
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675e764b0cebc9550ce3ca"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "CPU/GPU",
+  "value": "NVIDIA Custom Tegra processor",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675edc4b0cebc9550ce3f7"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Bộ nhớ trong",
+  "value": [
+    "Bộ nhớ trong 32GB",
+    "Có thể mở rộng bằng thẻ nhớ Micro SD dung lượng tối đa 2TB"
+  ],
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675ef04b0cebc9550ce424"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Wireless",
+  "value": [
+    "Wi-Fi (IEEE 802.11 a/b/g/n/ac)(*)",
+    "Bluetooth 4.1",
+    "Có thể kết nối mạng LAN với chế độ TV Mode"
+  ],
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675f074b0cebc9550ce451"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Video output",
+  "value": [
+    "Độ phân giải 720p",
+    "Độ phân giải 1080p khi cắm HDMI ở chế độ TV mode"
+  ],
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675f184b0cebc9550ce47e"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Audio output",
+  "value": [
+    "Jack 3.5mm",
+    "Xuất âm thanh ra TV ở chế độ TV mode"
+  ],
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675f254b0cebc9550ce4ab"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Loa",
+  "value": "Tích hợp Stereo",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675f3f4b0cebc9550ce4d8"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Kết nối",
+  "value": [
+    "USB Type-C",
+    "Kết nối để sạc, sử dụng với dock để xuất hình ảnh, âm thanh lên TV"
+  ],
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675f484b0cebc9550ce505"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Game card slot",
+  "value": "Khe cắm băng game",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675f594b0cebc9550ce532"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Pin",
+  "value": [
+    "Lithium-ion battery/4310mAh",
+    "Thời gian sử dụng từ 4,5 tiếng tới 9 tiếng tùy vào game."
+  ],
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675f654b0cebc9550ce55f"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Thời gian sạc",
+  "value": "Thời gian sạc đầy từ 0% lên 100% khoảng 3 tiếng (trong trạng thái máy không hoạt động)",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675f714b0cebc9550ce58c"
+  },
+  "productId": {
+    "$oid": "67e2ce733f5e7df5265b052e"
+  },
+  "key": "Phiên bản quốc gia/ Country Version",
+  "value": "Switch v2, Switch v2 + Mario Kart 8",
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68675fde4b0cebc9550ce604"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Màn hình",
+  "value": "OLED",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686761834b0cebc9550ce65c"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Kích thước màn hình",
+  "value": "1.92 inch",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686761914b0cebc9550ce681"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Độ phân giải",
+  "value": "410 x 502 pixels",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867619d4b0cebc9550ce6a6"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Kích thước mặt",
+  "value": "49 mm",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686761ba4b0cebc9550ce6cb"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Vật liệu",
+  "value": [
+    "Titanium"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686761c84b0cebc9550ce6f0"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Dây đeo",
+  "value": [
+    "Dây vải"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686761f64b0cebc9550ce718"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Trọng lượng",
+  "value": "62g",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867621c4b0cebc9550ce73d"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Sim",
+  "value": "eSIM",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867622c4b0cebc9550ce762"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Hỗ trợ nghe gọi",
+  "value": "Nghe gọi độc lập",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686763054b0cebc9550ce787"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Tiện ích đặc biệt",
+  "value": [
+    "Màn hình luôn hiển thị",
+    "Phát hiện té ngã",
+    "Nghe nhạc",
+    "Kết nối bluetooth với tai nghe"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686763134b0cebc9550ce7ac"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Chống nước",
+  "value": "Chống nước 10 ATM (Bơi, lặn vùng nước nông)",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686763524b0cebc9550ce7d1"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Tính năng sức khỏe",
+  "value": [
+    "Điện tâm đồ",
+    "Gửi thông báo khi có tai nạn",
+    "Tính quãng đường chạy",
+    "Tính lượng calories tiêu thụ",
+    "Theo dõi giấc ngủ",
+    "Theo dõi chu kỳ kinh nguyệt",
+    "Nhắc nhở nhịp tim cao, thấp",
+    "Đếm số bước chân",
+    "Đo nhịp tim",
+    "Theo dõi nhịp thở 24/7",
+    "Theo dõi Nồng độ oxy trong máu 24h"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686763a84b0cebc9550ce7f6"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Tiện ích khác",
+  "value": [
+    "Nâng cổ tay sáng màn hình",
+    "Trợ lý giọng nói",
+    "Chứng nhận độ bền MIL-STD-810H",
+    "Chế độ tiết kiệm năng lượng",
+    "Ứng dụng Chú Tâm (Mindfulness)",
+    "Phát hiện va chạm",
+    "Loa kép và 3 micro tích hợp",
+    "Apple Pay",
+    "Ngăn xếp thông minh (Smart Stack)",
+    "Cuộc gọi khẩn cấp SOS",
+    "Dự báo thời tiết"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686763e14b0cebc9550ce81b"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Hiển thị thông báo",
+  "value": [
+    "Line",
+    "Messenger (Facebook)",
+    "Viber",
+    "Zalo",
+    "Tin nhắn",
+    "Cuộc gọi"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686763f54b0cebc9550ce840"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Thời gian sử dụng pin",
+  "value": [
+    "Khoảng 36 giờ (ở chế độ sử dụng thông thường)",
+    "Khoảng 72 giờ (Chế độ năng lượng thấp)"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686763ff4b0cebc9550ce865"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Thời gian sạc",
+  "value": "Khoảng 1.5 giờ",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686764124b0cebc9550ce88a"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Cổng sạc",
+  "value": "Cáp sạc nhanh từ tính USB-C",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867641f4b0cebc9550ce8af"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "CPU",
+  "value": "Apple S9",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686764264b0cebc9550ce8d4"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Bộ nhớ trong",
+  "value": "64 GB",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867642e4b0cebc9550ce8f9"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Hệ điều hành",
+  "value": "watchOS phiên bản mới nhất",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686764384b0cebc9550ce91e"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Kết nối được với hệ điều hành",
+  "value": "iPhone Xs trở lên, sử dụng iOS phiên bản mới nhất",
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686764484b0cebc9550ce943"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Kết nối",
+  "value": [
+    "Bluetooth v5.3",
+    "Wi-Fi 4"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686764704b0cebc9550ce968"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Cảm biến",
+  "value": [
+    "Cảm biến ánh sáng môi trường",
+    "Cảm biến nhiệt độ",
+    "Cảm biến điện học (ECG)",
+    "Cảm biến độ sâu",
+    "Cảm biến nhịp tim quang học thế hệ 3",
+    "Cao áp kế",
+    "Gia tốc kế",
+    "La bàn"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686764874b0cebc9550ce98d"
+  },
+  "productId": {
+    "$oid": "67e2c7283f5e7df5265b04ce"
+  },
+  "key": "Định vị",
+  "value": [
+    "Beidou",
+    "GLONASS",
+    "GPS",
+    "QZSS",
+    "Galileo"
+  ],
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676cd04b0cebc9550cea29"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Công nghệ CPU",
+  "value": "Apple M4 Pro - Hãng không công bố",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676cdc4b0cebc9550cea4d"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Số nhân",
+  "value": "14",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676d134b0cebc9550cea71"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Tốc độ CPU",
+  "value": "273 GB/s memory bandwidth",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676d394b0cebc9550cea95"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "RAM",
+  "value": [
+    "24 GB"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676d8a4b0cebc9550ceb05"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Ổ cứng",
+  "value": "512 GB SSD",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676d954b0cebc9550ceb2a"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Màn hình",
+  "value": "16.2\"",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676da04b0cebc9550ceb4f"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Độ phân giải",
+  "value": "Liquid Retina XDR display (3456 x 2234)",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676dac4b0cebc9550ceb74"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Tần số quét",
+  "value": "up to 120 Hz",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676dc84b0cebc9550ceb99"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Công nghệ màn hình",
+  "value": [
+    "Độ sáng XDR: toàn màn hình 1000 nits, cao nhất 1600 nits (chỉ nội dung HDR)",
+    "Độ sáng SDR: lên đến 1000 nits",
+    "Wide color (P3)",
+    "True Tone Technology",
+    "1 tỷ màu"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676ddd4b0cebc9550cebbe"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Card đồ họa",
+  "value": "Card tích hợp - 20 nhân GPU",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676e464b0cebc9550cebe3"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Công nghệ âm thanh",
+  "value": [
+    "Wide stereo sound",
+    "Hệ thống âm thanh 6 loa",
+    "Spatial Audio",
+    "3 microphones",
+    "Dolby Atmos"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676e884b0cebc9550cec08"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Cổng giao tiếp",
+  "value": [
+    "Jack tai nghe 3.5 mm",
+    "MagSafe 3",
+    "HDMI",
+    "3 x Thunderbolt 5 (USB-C) (hỗ trợ Charging, DisplayPort, Thunderbolt",
+    "4 và USB 4 (up to 40Gb/s))"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676e994b0cebc9550cec2d"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Kết nối không dây",
+  "value": [
+    "Wi-Fi 6E (802.11ax)",
+    "Bluetooth 5.3"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676eae4b0cebc9550cec52"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Khe đọc thẻ nhớ",
+  "value": "SD",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676ebb4b0cebc9550cec77"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Webcam",
+  "value": "1080p FaceTime HD camera",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676ee94b0cebc9550cec9c"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Đèn bàn phím",
+  "value": "Đơn sắc - Màu trắng",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676efe4b0cebc9550cece6"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Chất liệu",
+  "value": "Vỏ nhôm tái chế 100%",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676f0d4b0cebc9550ced0b"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Pin",
+  "value": "Li-Po, 100 Wh",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676f484b0cebc9550ced33"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Kích thước",
+  "value": "Dài 355.7 mm - Rộng 248.1 mm - Dày 16.8 mm",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68676f7b4b0cebc9550ced58"
+  },
+  "productId": {
+    "$oid": "67e2b8543f5e7df5265b0469"
+  },
+  "key": "Trọng lượng",
+  "value": "2140g",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867701b4b0cebc9550cedbf"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Công nghệ CPU",
+  "value": "AMD Ryzen AI 9 - HX 370",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686770264b0cebc9550cede4"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Số nhân",
+  "value": "12",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686770694b0cebc9550cee5f"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Số luồng",
+  "value": 24,
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686770774b0cebc9550cee85"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Tốc độ CPU",
+  "value": "2GHz",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771064b0cebc9550cef05"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Tốc độ tối đa",
+  "value": "Turbo Boost 5.1 GHz",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771244b0cebc9550cef2e"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "RAM",
+  "value": [
+    "32 GB"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771794b0cebc9550cefaf"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Loại RAM",
+  "value": "LPDDR5X (Onboard)",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771854b0cebc9550cefdb"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Tốc độ Bus RAM",
+  "value": "7500 MHz",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771904b0cebc9550cf007"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Hỗ trợ RAM tối đa",
+  "value": "Không hỗ trợ nâng cấp",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867719d4b0cebc9550cf033"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Ổ cứng",
+  "value": "1 TB SSD M.2 PCIe Gen 4 (Có thể tháo ra, lắp thanh khác tối đa 2 TB)",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771a94b0cebc9550cf05f"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Màn hình",
+  "value": "16\"",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771b34b0cebc9550cf08b"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Độ phân giải",
+  "value": "WQXGA+ (2560 x 1600) - OLED 16:10",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771bd4b0cebc9550cf0b7"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Tần số quét",
+  "value": "240Hz",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771c64b0cebc9550cf0e3"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Độ phủ màu",
+  "value": "100% DCI-P3",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771e94b0cebc9550cf10f"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Công nghệ màn hình",
+  "value": [
+    "Thời gian phản hồi 0.2 ms",
+    "G-Sync",
+    "ROG Nebula HDR Display",
+    "Màn hình OLED",
+    "Adaptive-Sync",
+    "500 nits brightness"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686771fa4b0cebc9550cf13b"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Card đồ họa",
+  "value": "Card rời - NVIDIA GeForce RTX 4070, 8 GB",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686772084b0cebc9550cf167"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Công nghệ âm thanh",
+  "value": [
+    "Hi-Res Audio",
+    "Công nghệ Smart AMP",
+    "Dolby Atmos"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686772a34b0cebc9550cf193"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Cổng giao tiếp",
+  "value": [
+    "Jack tai nghe 3.5 mm",
+    "2 x USB 3.2",
+    "HDMI",
+    "1 x USB Type-C USB 4 (hỗ trợ DisplayPort và Power Delivery)",
+    "1 x USB Type-C 3.2 (hỗ trợ Power Delivery và DisplayPort)"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686772b54b0cebc9550cf1bf"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Kết nối không dây",
+  "value": [
+    "Wi-Fi 7 (802.11be)",
+    "Bluetooth 5.4"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686772bd4b0cebc9550cf1eb"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Khe đọc thẻ nhớ",
+  "value": "SD",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686772cd4b0cebc9550cf217"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Webcam",
+  "value": "Full HD Webcam ,Camera IR",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686772ea4b0cebc9550cf243"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Tính năng khác",
+  "value": [
+    "MUX Switch",
+    "NVIDIA Optimus",
+    "Mở khóa khuôn mặt"
+  ],
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686772f94b0cebc9550cf26f"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Đèn bàn phím",
+  "value": "Đơn sắc - Màu trắng",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686773054b0cebc9550cf29b"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Kích thước",
+  "value": "Dài 354 mm - Rộng 246 mm - Dày 16.4 mm",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686773184b0cebc9550cf2c7"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Trọng lượng",
+  "value": "1850g",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686773284b0cebc9550cf2f3"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Vật liệu",
+  "value": "Vỏ kim loại",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686773364b0cebc9550cf31f"
+  },
+  "productId": {
+    "$oid": "67e2bdc83f5e7df5265b04a3"
+  },
+  "key": "Pin",
+  "value": "4-cell, 90Wh",
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6867809d4b0cebc9550cf5b2"
+  },
+  "productId": {
+    "$oid": "67e031050804d574079f0c21"
+  },
+  "key": "Kết nối khác",
+  "value": "NFC",
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0
+}]

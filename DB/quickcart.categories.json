@@ -1,0 +1,102 @@
+[{
+  "_id": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "name": "Điện Thoại",
+  "description": "điện thoại thông minh",
+  "createdAt": {
+    "$date": "2025-05-19T15:09:09.239Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "name": "Camera",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T04:10:56.373Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "name": "Tai Nghe",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:19:39.045Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "name": "Gaming Console",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:22:35.042Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "name": "Đồng Hồ",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:28:01.147Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "name": "Laptop",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:28:46.060Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686937bd7647f7f7db2e0b15"
+  },
+  "name": "Loa",
+  "description": "",
+  "subcategories": [],
+  "createdAt": {
+    "$date": "2025-07-05T14:33:33.147Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686937c87647f7f7db2e0b1c"
+  },
+  "name": "Chuột máy tính",
+  "description": "",
+  "subcategories": [],
+  "createdAt": {
+    "$date": "2025-07-05T14:33:44.139Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686942d57647f7f7db2e0c5c"
+  },
+  "name": "Bàn phím",
+  "description": "",
+  "subcategories": [],
+  "createdAt": {
+    "$date": "2025-07-05T15:20:53.146Z"
+  },
+  "__v": 0
+}]

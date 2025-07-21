@@ -1,0 +1,1326 @@
+[{
+  "_id": {
+    "$oid": "682dff9f85d97ec795ff406f"
+  },
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "specs": [
+    {
+      "name": "Thời lượng pin",
+      "type": "string",
+      "_id": {
+        "$oid": "682f414a3411082668a138ef"
+      }
+    },
+    {
+      "name": "Chống nước",
+      "type": "string",
+      "_id": {
+        "$oid": "682f414a3411082668a138f0"
+      }
+    },
+    {
+      "name": "Tính năng",
+      "type": "array",
+      "_id": {
+        "$oid": "682f414a3411082668a138f1"
+      }
+    },
+    {
+      "name": "Chip",
+      "type": "array",
+      "_id": {
+        "$oid": "682f414a3411082668a138f2"
+      }
+    },
+    {
+      "name": "Âm thanh",
+      "type": "array",
+      "_id": {
+        "$oid": "682f414a3411082668a138f3"
+      }
+    },
+    {
+      "name": "Kết nối",
+      "type": "string",
+      "_id": {
+        "$oid": "6837f131c2bdea3d6eaef13a"
+      }
+    },
+    {
+      "name": "Tương thích",
+      "type": "string",
+      "_id": {
+        "$oid": "6837f131c2bdea3d6eaef13b"
+      }
+    },
+    {
+      "name": "Chống ồn",
+      "type": "string",
+      "_id": {
+        "$oid": "6837f131c2bdea3d6eaef13c"
+      }
+    },
+    {
+      "name": "Trọng lượng",
+      "type": "string",
+      "_id": {
+        "$oid": "6837f131c2bdea3d6eaef13d"
+      }
+    },
+    {
+      "name": "Cổng sạc hộp",
+      "type": "string",
+      "_id": {
+        "$oid": "6837f131c2bdea3d6eaef13e"
+      }
+    },
+    {
+      "name": "Pin",
+      "type": "array",
+      "_id": {
+        "$oid": "6837f131c2bdea3d6eaef13f"
+      }
+    },
+    {
+      "name": "Kích thước",
+      "type": "string",
+      "_id": {
+        "$oid": "68675736bec5bdd7455b38b9"
+      }
+    },
+    {
+      "name": "Bluetooth",
+      "type": "string",
+      "_id": {
+        "$oid": "68675736bec5bdd7455b38ba"
+      }
+    },
+    {
+      "name": "Thời gian sử dụng",
+      "type": "string",
+      "_id": {
+        "$oid": "68675736bec5bdd7455b38bb"
+      }
+    },
+    {
+      "name": "Cổng sạc",
+      "type": "string",
+      "_id": {
+        "$oid": "68675736bec5bdd7455b38bc"
+      }
+    },
+    {
+      "name": "Sử dụng pin",
+      "type": "string",
+      "_id": {
+        "$oid": "68675736bec5bdd7455b38bd"
+      }
+    },
+    {
+      "name": "Thời gian sạc",
+      "type": "array",
+      "_id": {
+        "$oid": "68675736bec5bdd7455b38be"
+      }
+    },
+    {
+      "name": "Thông tin khác",
+      "type": "array",
+      "_id": {
+        "$oid": "68675736bec5bdd7455b38bf"
+      }
+    },
+    {
+      "name": "Công nghệ âm thanh",
+      "type": "array",
+      "_id": {
+        "$oid": "686758f3bec5bdd7455b3a02"
+      }
+    },
+    {
+      "name": "Micro",
+      "type": "string",
+      "_id": {
+        "$oid": "686758f3bec5bdd7455b3a03"
+      }
+    },
+    {
+      "name": "Phương thức điều khiển",
+      "type": "string",
+      "_id": {
+        "$oid": "686758f3bec5bdd7455b3a04"
+      }
+    },
+    {
+      "name": "Thời lượng sử dụng Pin",
+      "type": "array",
+      "_id": {
+        "$oid": "686758f3bec5bdd7455b3a05"
+      }
+    },
+    {
+      "name": "Phạm vi kết nối",
+      "type": "string",
+      "_id": {
+        "$oid": "68675a9fbec5bdd7455b3c0b"
+      }
+    }
+  ],
+  "__v": 7
+},
+{
+  "_id": {
+    "$oid": "682e9431467028b525566049"
+  },
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "specs": [
+    {
+      "name": "Cảm biến",
+      "type": "string",
+      "_id": {
+        "$oid": "682e9431467028b52556604a"
+      }
+    },
+    {
+      "name": "Bộ xử lý hình ảnh",
+      "type": "string",
+      "_id": {
+        "$oid": "682e9431467028b52556604b"
+      }
+    },
+    {
+      "name": "Dải ISO",
+      "type": "array",
+      "_id": {
+        "$oid": "682e9431467028b52556604c"
+      }
+    },
+    {
+      "name": "Quay video",
+      "type": "array",
+      "_id": {
+        "$oid": "682e9431467028b52556604d"
+      }
+    },
+    {
+      "name": "Kính ngắm điện tử",
+      "type": "string",
+      "_id": {
+        "$oid": "682e9431467028b52556604e"
+      }
+    },
+    {
+      "name": "Màn hình LCD",
+      "type": "string",
+      "_id": {
+        "$oid": "682e9431467028b52556604f"
+      }
+    },
+    {
+      "name": "Khe thẻ nhớ",
+      "type": "string",
+      "_id": {
+        "$oid": "682e9431467028b525566050"
+      }
+    },
+    {
+      "name": "Kết nối",
+      "type": "string",
+      "_id": {
+        "$oid": "682e9431467028b525566051"
+      }
+    },
+    {
+      "name": "Kích thước",
+      "type": "string",
+      "_id": {
+        "$oid": "682e9431467028b525566052"
+      }
+    },
+    {
+      "name": "Trọng lượng",
+      "type": "string",
+      "_id": {
+        "$oid": "682e9431467028b525566053"
+      }
+    },
+    {
+      "name": "Tốc độ chụp liên tục",
+      "type": "array",
+      "_id": {
+        "$oid": "682e9431467028b525566054"
+      }
+    },
+    {
+      "name": "Khả năng quay video",
+      "type": "array",
+      "_id": {
+        "$oid": "682e9431467028b525566055"
+      }
+    },
+    {
+      "name": "Dung lượng pin",
+      "type": "string",
+      "_id": {
+        "$oid": "682e9431467028b525566056"
+      }
+    },
+    {
+      "name": "Độ phân giải",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b3627"
+      }
+    },
+    {
+      "name": "Độ sáng",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b3628"
+      }
+    },
+    {
+      "name": "Nguồn sáng",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b3629"
+      }
+    },
+    {
+      "name": "Tỷ lệ thu phóng",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b362a"
+      }
+    },
+    {
+      "name": "Công nghệ",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b362b"
+      }
+    },
+    {
+      "name": "Độ phân giải",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b362c"
+      }
+    },
+    {
+      "name": "Khoảng cách chiếu",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b362d"
+      }
+    },
+    {
+      "name": "Loại",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b362e"
+      }
+    },
+    {
+      "name": "Smart TV",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b362f"
+      }
+    },
+    {
+      "name": "Công nghệ hiển thị",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b3630"
+      }
+    },
+    {
+      "name": "Kết nối ",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b3631"
+      }
+    },
+    {
+      "name": "Tính năng",
+      "type": "string",
+      "_id": {
+        "$oid": "686753b3bec5bdd7455b3632"
+      }
+    }
+  ],
+  "__v": 1
+},
+{
+  "_id": {
+    "$oid": "6866a26ff824b00f44d45bec"
+  },
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "specs": [
+    {
+      "name": "Màn hình",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bed"
+      }
+    },
+    {
+      "name": "Chip xử lý",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bee"
+      }
+    },
+    {
+      "name": "Ram",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bef"
+      }
+    },
+    {
+      "name": "Độ phân giải camera sau",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bf0"
+      }
+    },
+    {
+      "name": "Camera trước",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bf1"
+      }
+    },
+    {
+      "name": "Pin",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bf2"
+      }
+    },
+    {
+      "name": "Sạc nhanh",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bf3"
+      }
+    },
+    {
+      "name": "Hệ điều hành",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bf4"
+      }
+    },
+    {
+      "name": "Chống nước",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bf5"
+      }
+    },
+    {
+      "name": "Cổng kết nối/Sạc",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bf6"
+      }
+    },
+    {
+      "name": "Kích thước",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bf7"
+      }
+    },
+    {
+      "name": "Trọng lượng",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a26ff824b00f44d45bf8"
+      }
+    },
+    {
+      "name": "Chip đồ họa",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a60204fae48636e6adf5"
+      }
+    },
+    {
+      "name": "Quay phim camera sau",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778185"
+      }
+    },
+    {
+      "name": "Đèn flash camera sau",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778186"
+      }
+    },
+    {
+      "name": "Tính năng camera sau",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778187"
+      }
+    },
+    {
+      "name": "Độ phân giải camera trước",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778188"
+      }
+    },
+    {
+      "name": "Tính năng camera trước",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778189"
+      }
+    },
+    {
+      "name": "Công nghệ màn hình",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb077818a"
+      }
+    },
+    {
+      "name": "Độ phân giải màn hình",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb077818b"
+      }
+    },
+    {
+      "name": "Màn hình rộng",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb077818c"
+      }
+    },
+    {
+      "name": "Độ sáng tối đa",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb077818d"
+      }
+    },
+    {
+      "name": "Mạng di động",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb077818e"
+      }
+    },
+    {
+      "name": "SIM",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb077818f"
+      }
+    },
+    {
+      "name": "Wifi",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778190"
+      }
+    },
+    {
+      "name": "GPS",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778191"
+      }
+    },
+    {
+      "name": "Jack tai nghe",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778192"
+      }
+    },
+    {
+      "name": "Kết nối khác",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778193"
+      }
+    },
+    {
+      "name": "Bluetooth",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a892162fc09cb0778194"
+      }
+    },
+    {
+      "name": "Tốc độ CPU",
+      "type": "string",
+      "_id": {
+        "$oid": "68674eabbec5bdd7455b3262"
+      }
+    }
+  ],
+  "__v": 3
+},
+{
+  "_id": {
+    "$oid": "6866a34cf824b00f44d45c0c"
+  },
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "specs": [
+    {
+      "name": "Chip xử lý",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c0d"
+      }
+    },
+    {
+      "name": "Card đồ họa",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c0e"
+      }
+    },
+    {
+      "name": "Dung lượng RAM",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c0f"
+      }
+    },
+    {
+      "name": "Bộ nhớ trong",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c10"
+      }
+    },
+    {
+      "name": "Độ phân giải",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c11"
+      }
+    },
+    {
+      "name": "Tốc độ khung hình",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c12"
+      }
+    },
+    {
+      "name": "Kết nối",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c13"
+      }
+    },
+    {
+      "name": "Cổng kết nối",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c14"
+      }
+    },
+    {
+      "name": "Tương thích ngược",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c15"
+      }
+    },
+    {
+      "name": "Tay cầm",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c16"
+      }
+    },
+    {
+      "name": "Kích thước",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c17"
+      }
+    },
+    {
+      "name": "Trọng lượng",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c18"
+      }
+    },
+    {
+      "name": "Tiếng ồn",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c19"
+      }
+    },
+    {
+      "name": "Chống nước",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a34cf824b00f44d45c1a"
+      }
+    },
+    {
+      "name": "Loại CPU",
+      "type": "string",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce186"
+      }
+    },
+    {
+      "name": "GPU",
+      "type": "string",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce187"
+      }
+    },
+    {
+      "name": "Tính năng khác",
+      "type": "string",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce188"
+      }
+    },
+    {
+      "name": "Tiện ích",
+      "type": "array",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce189"
+      }
+    },
+    {
+      "name": "Chipset",
+      "type": "string",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce18a"
+      }
+    },
+    {
+      "name": "Số nhân",
+      "type": "number",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce18b"
+      }
+    },
+    {
+      "name": "Số luồng\t",
+      "type": "number",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce18c"
+      }
+    },
+    {
+      "name": "Tốc độ xử lý",
+      "type": "string",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce18d"
+      }
+    },
+    {
+      "name": "Bộ nhớ hỗ trợ",
+      "type": "string",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce18e"
+      }
+    },
+    {
+      "name": "Chip đồ họa",
+      "type": "string",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce18f"
+      }
+    },
+    {
+      "name": "TDP",
+      "type": "string",
+      "_id": {
+        "$oid": "68675c4a4b0cebc9550ce190"
+      }
+    },
+    {
+      "name": "Màn hình",
+      "type": "array",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce388"
+      }
+    },
+    {
+      "name": "CPU/GPU",
+      "type": "string",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce389"
+      }
+    },
+    {
+      "name": "Wireless",
+      "type": "array",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce38a"
+      }
+    },
+    {
+      "name": "Video output",
+      "type": "array",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce38b"
+      }
+    },
+    {
+      "name": "Audio output",
+      "type": "array",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce38c"
+      }
+    },
+    {
+      "name": "Loa",
+      "type": "string",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce38d"
+      }
+    },
+    {
+      "name": "Game card slot",
+      "type": "string",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce38e"
+      }
+    },
+    {
+      "name": "Pin",
+      "type": "array",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce38f"
+      }
+    },
+    {
+      "name": "Thời gian sạc",
+      "type": "string",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce390"
+      }
+    },
+    {
+      "name": "Phiên bản quốc gia/ Country Version",
+      "type": "string",
+      "_id": {
+        "$oid": "68675e4e4b0cebc9550ce391"
+      }
+    }
+  ],
+  "__v": 2
+},
+{
+  "_id": {
+    "$oid": "6866a41cf824b00f44d45c1e"
+  },
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "specs": [
+    {
+      "name": "Màn hình",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c1f"
+      }
+    },
+    {
+      "name": "Chip xử lý",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c20"
+      }
+    },
+    {
+      "name": "Bộ nhớ",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c21"
+      }
+    },
+    {
+      "name": "Pin",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c22"
+      }
+    },
+    {
+      "name": "Chống nước",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c23"
+      }
+    },
+    {
+      "name": "Cảm biến",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c24"
+      }
+    },
+    {
+      "name": "Kết nối",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c25"
+      }
+    },
+    {
+      "name": "Tương thích",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c26"
+      }
+    },
+    {
+      "name": "Vật liệu",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c27"
+      }
+    },
+    {
+      "name": "Dây đeo",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c28"
+      }
+    },
+    {
+      "name": "Tính năng sức khỏe",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c29"
+      }
+    },
+    {
+      "name": "Tính năng thể thao",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c2a"
+      }
+    },
+    {
+      "name": "Kích thước màn hình",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c2b"
+      }
+    },
+    {
+      "name": "Trọng lượng",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a41cf824b00f44d45c2c"
+      }
+    },
+    {
+      "name": "Độ phân giải",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce63b"
+      }
+    },
+    {
+      "name": "Kích thước mặt",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce63c"
+      }
+    },
+    {
+      "name": "Sim",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce63d"
+      }
+    },
+    {
+      "name": "Hỗ trợ nghe gọi",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce63e"
+      }
+    },
+    {
+      "name": "Tiện ích đặc biệt",
+      "type": "array",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce63f"
+      }
+    },
+    {
+      "name": "Tiện ích khác",
+      "type": "array",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce640"
+      }
+    },
+    {
+      "name": "Hiển thị thông báo",
+      "type": "array",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce641"
+      }
+    },
+    {
+      "name": "Thời gian sạc",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce642"
+      }
+    },
+    {
+      "name": "Thời gian sử dụng pin",
+      "type": "array",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce643"
+      }
+    },
+    {
+      "name": "Cổng sạc",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce644"
+      }
+    },
+    {
+      "name": "CPU",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce645"
+      }
+    },
+    {
+      "name": "Bộ nhớ trong",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce646"
+      }
+    },
+    {
+      "name": "Hệ điều hành",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce647"
+      }
+    },
+    {
+      "name": "Kết nối được với hệ điều hành",
+      "type": "string",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce648"
+      }
+    },
+    {
+      "name": "Định vị",
+      "type": "array",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce649"
+      }
+    },
+    {
+      "name": "Ngôn ngữ",
+      "type": "array",
+      "_id": {
+        "$oid": "686761634b0cebc9550ce64a"
+      }
+    }
+  ],
+  "__v": 1
+},
+{
+  "_id": {
+    "$oid": "6866a512f824b00f44d45c30"
+  },
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "specs": [
+    {
+      "name": "Màn hình",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c31"
+      }
+    },
+    {
+      "name": "Chip xử lý",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c32"
+      }
+    },
+    {
+      "name": "RAM",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c33"
+      }
+    },
+    {
+      "name": "Bộ nhớ",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c34"
+      }
+    },
+    {
+      "name": "Card đồ họa",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c35"
+      }
+    },
+    {
+      "name": "Hệ điều hành",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c36"
+      }
+    },
+    {
+      "name": "Pin",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c37"
+      }
+    },
+    {
+      "name": "Cổng kết nối",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c38"
+      }
+    },
+    {
+      "name": "Kết nối",
+      "type": "array",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c39"
+      }
+    },
+    {
+      "name": "Bàn phím",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c3a"
+      }
+    },
+    {
+      "name": "Webcam",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c3b"
+      }
+    },
+    {
+      "name": "Âm thanh",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c3c"
+      }
+    },
+    {
+      "name": "Vật liệu",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c3d"
+      }
+    },
+    {
+      "name": "Kích thước",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c3e"
+      }
+    },
+    {
+      "name": "Trọng lượng",
+      "type": "string",
+      "_id": {
+        "$oid": "6866a512f824b00f44d45c3f"
+      }
+    },
+    {
+      "name": "Công nghệ CPU",
+      "type": "string",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea10"
+      }
+    },
+    {
+      "name": "Số nhân",
+      "type": "number",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea11"
+      }
+    },
+    {
+      "name": "Độ phân giải",
+      "type": "string",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea12"
+      }
+    },
+    {
+      "name": "Tốc độ CPU",
+      "type": "string",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea13"
+      }
+    },
+    {
+      "name": "Tần số quét",
+      "type": "string",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea14"
+      }
+    },
+    {
+      "name": "Công nghệ màn hình",
+      "type": "array",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea15"
+      }
+    },
+    {
+      "name": "Công nghệ âm thanh",
+      "type": "array",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea16"
+      }
+    },
+    {
+      "name": "Cổng giao tiếp",
+      "type": "array",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea17"
+      }
+    },
+    {
+      "name": "Kết nối không dây",
+      "type": "array",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea18"
+      }
+    },
+    {
+      "name": "Khe đọc thẻ nhớ",
+      "type": "string",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea19"
+      }
+    },
+    {
+      "name": "Webcam",
+      "type": "string",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea1a"
+      }
+    },
+    {
+      "name": "Đèn bàn phím",
+      "type": "string",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea1b"
+      }
+    },
+    {
+      "name": "Kích thước",
+      "type": "string",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea1c"
+      }
+    },
+    {
+      "name": "Chất liệu",
+      "type": "string",
+      "_id": {
+        "$oid": "68676ca64b0cebc9550cea1d"
+      }
+    },
+    {
+      "name": "Ổ cứng",
+      "type": "string",
+      "_id": {
+        "$oid": "68676d754b0cebc9550ceaf9"
+      }
+    },
+    {
+      "name": "Số luồng",
+      "type": "number",
+      "_id": {
+        "$oid": "686770564b0cebc9550cee53"
+      }
+    },
+    {
+      "name": "Tốc độ tối đa",
+      "type": "string",
+      "_id": {
+        "$oid": "686770ed4b0cebc9550ceef7"
+      }
+    },
+    {
+      "name": "Độ phủ màu",
+      "type": "string",
+      "_id": {
+        "$oid": "686770ed4b0cebc9550ceef8"
+      }
+    },
+    {
+      "name": "Tính năng khác",
+      "type": "array",
+      "_id": {
+        "$oid": "686770ed4b0cebc9550ceef9"
+      }
+    },
+    {
+      "name": "Loại RAM",
+      "type": "string",
+      "_id": {
+        "$oid": "6867715d4b0cebc9550cefa1"
+      }
+    },
+    {
+      "name": "Tốc độ Bus RAM",
+      "type": "string",
+      "_id": {
+        "$oid": "6867715d4b0cebc9550cefa2"
+      }
+    },
+    {
+      "name": "Hỗ trợ RAM tối đa",
+      "type": "string",
+      "_id": {
+        "$oid": "6867715d4b0cebc9550cefa3"
+      }
+    }
+  ],
+  "__v": 5
+}]

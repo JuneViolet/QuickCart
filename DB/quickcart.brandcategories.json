@@ -1,0 +1,432 @@
+[{
+  "_id": {
+    "$oid": "686933dc7647f7f7db2e0aef"
+  },
+  "brandId": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:17:00.445Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:17:00.445Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686933dc7647f7f7db2e0af0"
+  },
+  "brandId": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:17:00.446Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:17:00.446Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686933dc7647f7f7db2e0aee"
+  },
+  "brandId": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:17:00.445Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:17:00.445Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686933dc7647f7f7db2e0af1"
+  },
+  "brandId": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:17:00.446Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:17:00.446Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686936657647f7f7db2e0b00"
+  },
+  "brandId": {
+    "$oid": "685235fbce51997f5dca5f4f"
+  },
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:27:49.678Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:27:49.678Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686936657647f7f7db2e0b01"
+  },
+  "brandId": {
+    "$oid": "685235fbce51997f5dca5f4f"
+  },
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:27:49.678Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:27:49.678Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686936657647f7f7db2e0b02"
+  },
+  "brandId": {
+    "$oid": "685235fbce51997f5dca5f4f"
+  },
+  "categoryId": {
+    "$oid": "682d5250f60f87fa28ebd62a"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:27:49.678Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:27:49.678Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686936657647f7f7db2e0b03"
+  },
+  "brandId": {
+    "$oid": "685235fbce51997f5dca5f4f"
+  },
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:27:49.678Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:27:49.678Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686939907647f7f7db2e0bd8"
+  },
+  "brandId": {
+    "$oid": "682de21cca659b94c3f0bc12"
+  },
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:41:20.820Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:41:20.820Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686939f17647f7f7db2e0be1"
+  },
+  "brandId": {
+    "$oid": "682de301ca659b94c3f0bc1b"
+  },
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:42:57.297Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:42:57.297Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68693a757647f7f7db2e0bea"
+  },
+  "brandId": {
+    "$oid": "682de358ca659b94c3f0bc21"
+  },
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:45:09.926Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:45:09.926Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68693a757647f7f7db2e0beb"
+  },
+  "brandId": {
+    "$oid": "682de358ca659b94c3f0bc21"
+  },
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:45:09.926Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:45:09.926Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68693a757647f7f7db2e0bec"
+  },
+  "brandId": {
+    "$oid": "682de358ca659b94c3f0bc21"
+  },
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:45:09.926Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:45:09.926Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68693a757647f7f7db2e0bed"
+  },
+  "brandId": {
+    "$oid": "682de358ca659b94c3f0bc21"
+  },
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T14:45:09.926Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T14:45:09.926Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68693dfc7647f7f7db2e0c04"
+  },
+  "brandId": {
+    "$oid": "682de378ca659b94c3f0bc24"
+  },
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:00:12.486Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:00:12.486Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68693ff67647f7f7db2e0c0d"
+  },
+  "brandId": {
+    "$oid": "682de3a6ca659b94c3f0bc27"
+  },
+  "categoryId": {
+    "$oid": "682de1abca659b94c3f0bc0c"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:08:38.946Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:08:38.946Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6869404d7647f7f7db2e0c16"
+  },
+  "brandId": {
+    "$oid": "68593c0baa51f81310129233"
+  },
+  "categoryId": {
+    "$oid": "682de0fbca659b94c3f0bc06"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:10:05.459Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:10:05.459Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686940ea7647f7f7db2e0c1f"
+  },
+  "brandId": {
+    "$oid": "68669ec2f824b00f44d45bcc"
+  },
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:12:42.289Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:12:42.289Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6869414b7647f7f7db2e0c4a"
+  },
+  "brandId": {
+    "$oid": "68669f0720baf76262624c3d"
+  },
+  "categoryId": {
+    "$oid": "682de31eca659b94c3f0bc1e"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:14:19.683Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:14:19.683Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686941fc7647f7f7db2e0c54"
+  },
+  "brandId": {
+    "$oid": "682de238ca659b94c3f0bc15"
+  },
+  "categoryId": {
+    "$oid": "682de2f1ca659b94c3f0bc18"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:17:16.192Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:17:16.192Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686941fc7647f7f7db2e0c53"
+  },
+  "brandId": {
+    "$oid": "682de238ca659b94c3f0bc15"
+  },
+  "categoryId": {
+    "$oid": "682b4995ca4c3aadf924efc3"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:17:16.192Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:17:16.192Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6869432f7647f7f7db2e0c65"
+  },
+  "brandId": {
+    "$oid": "6869432f7647f7f7db2e0c63"
+  },
+  "categoryId": {
+    "$oid": "686937c87647f7f7db2e0b1c"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:22:23.659Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:22:23.659Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6869432f7647f7f7db2e0c66"
+  },
+  "brandId": {
+    "$oid": "6869432f7647f7f7db2e0c63"
+  },
+  "categoryId": {
+    "$oid": "686942d57647f7f7db2e0c5c"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:22:23.659Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:22:23.659Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686946537647f7f7db2e0c78"
+  },
+  "brandId": {
+    "$oid": "6869452d7647f7f7db2e0c6d"
+  },
+  "categoryId": {
+    "$oid": "686942d57647f7f7db2e0c5c"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-05T15:35:47.157Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T15:35:47.157Z"
+  }
+}]

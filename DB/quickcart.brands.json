@@ -1,0 +1,180 @@
+[{
+  "_id": {
+    "$oid": "682d5d1abf3e23f9df693b71"
+  },
+  "name": "Unknown",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T04:56:58.508Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de117ca659b94c3f0bc09"
+  },
+  "name": "Apple",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:20:07.549Z"
+  },
+  "__v": 0,
+  "slug": "apple",
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751725019/uubbw4zdfvau4znr1dfi.jpg"
+},
+{
+  "_id": {
+    "$oid": "682de21cca659b94c3f0bc12"
+  },
+  "name": "Bose",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:24:28.655Z"
+  },
+  "__v": 0,
+  "slug": "bose",
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751726480/wkfpcfchl3pqknetieto.png"
+},
+{
+  "_id": {
+    "$oid": "682de238ca659b94c3f0bc15"
+  },
+  "name": "Samsung",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:24:56.321Z"
+  },
+  "__v": 0,
+  "slug": "samsung",
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751728635/fa8ykqhfzelbxmx4kdn3.png"
+},
+{
+  "_id": {
+    "$oid": "682de301ca659b94c3f0bc1b"
+  },
+  "name": "Garmin",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:28:17.406Z"
+  },
+  "__v": 0,
+  "slug": "garmin",
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751726576/o0hioiqvlqc6z87csyib.png"
+},
+{
+  "_id": {
+    "$oid": "682de358ca659b94c3f0bc21"
+  },
+  "name": "ASUS",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:29:44.200Z"
+  },
+  "__v": 0,
+  "slug": "asus",
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751726709/i4hqsrjdpa0xqbogr8jq.png"
+},
+{
+  "_id": {
+    "$oid": "682de378ca659b94c3f0bc24"
+  },
+  "name": "Havit",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:30:16.228Z"
+  },
+  "__v": 0,
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751727611/hgritgewhgglajilqtcr.png",
+  "slug": "havit"
+},
+{
+  "_id": {
+    "$oid": "682de3a6ca659b94c3f0bc27"
+  },
+  "name": "Nintendo",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-05-21T14:31:02.893Z"
+  },
+  "__v": 0,
+  "slug": "nintendo",
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751728116/oxkmmgkvxzgpngnubimp.svg"
+},
+{
+  "_id": {
+    "$oid": "685235fbce51997f5dca5f4f"
+  },
+  "name": "Sony",
+  "slug": "sony",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-06-18T03:43:55.412Z"
+  },
+  "__v": 0,
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751725669/cyx1qun1t2juqvshffdy.png"
+},
+{
+  "_id": {
+    "$oid": "68593c0baa51f81310129233"
+  },
+  "name": "JBL",
+  "slug": "jbl",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-06-23T11:35:39.601Z"
+  },
+  "__v": 0,
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751728204/e1b2dj7ihro2yaiaoaeq.png"
+},
+{
+  "_id": {
+    "$oid": "68669ec2f824b00f44d45bcc"
+  },
+  "name": "Lenovo",
+  "slug": "lenovo",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-07-03T15:16:18.046Z"
+  },
+  "__v": 0,
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751728361/fjsjdjxgkgm1c31ulsde.jpg"
+},
+{
+  "_id": {
+    "$oid": "68669f0720baf76262624c3d"
+  },
+  "name": "MSI",
+  "slug": "msi",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-07-03T15:17:27.035Z"
+  },
+  "__v": 0,
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751728458/zks9qyebvrjniqoh6m2h.png"
+},
+{
+  "_id": {
+    "$oid": "6869432f7647f7f7db2e0c63"
+  },
+  "name": "Logitech",
+  "slug": "logitech",
+  "description": "",
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751728943/bjldoailqobb3xzmnhku.png",
+  "createdAt": {
+    "$date": "2025-07-05T15:22:23.590Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6869452d7647f7f7db2e0c6d"
+  },
+  "name": "Akko",
+  "slug": "akko",
+  "description": "",
+  "logo": "https://res.cloudinary.com/deqd4cia8/image/upload/v1751729746/bpmmdplekkjenumuoz2q.webp",
+  "createdAt": {
+    "$date": "2025-07-05T15:30:53.215Z"
+  },
+  "__v": 0
+}]

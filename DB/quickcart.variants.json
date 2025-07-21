@@ -1,0 +1,397 @@
+[{
+  "_id": {
+    "$oid": "684991972ef0b27e96fc8c00"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Titan Trắng",
+      "_id": {
+        "$oid": "684991972ef0b27e96fc8c01"
+      }
+    },
+    {
+      "attributeId": {
+        "$oid": "68490f94c54487e9841c13b1"
+      },
+      "value": "256GB",
+      "_id": {
+        "$oid": "684991972ef0b27e96fc8c02"
+      }
+    }
+  ],
+  "price": 33900000,
+  "offerPrice": 30500000,
+  "stock": 10,
+  "sku": "IP16-256GB-TTT",
+  "image": "",
+  "createdAt": {
+    "$date": "2025-06-11T14:24:23.536Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-11T14:24:23.536Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68499eb4791cadd7042a07d7"
+  },
+  "productId": {
+    "$oid": "67e2c15a3f5e7df5265b04a7"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Titan Sa Mạc",
+      "_id": {
+        "$oid": "68499eb4791cadd7042a07d8"
+      }
+    },
+    {
+      "attributeId": {
+        "$oid": "68490f94c54487e9841c13b1"
+      },
+      "value": "256GB",
+      "_id": {
+        "$oid": "68499eb4791cadd7042a07d9"
+      }
+    }
+  ],
+  "price": 40990000,
+  "offerPrice": 36890000,
+  "stock": 10,
+  "sku": "IP16-256GB-TSM",
+  "image": "",
+  "createdAt": {
+    "$date": "2025-06-11T15:20:20.981Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-11T15:20:20.981Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685039921048d9d00abe27d3"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Trắng",
+      "_id": {
+        "$oid": "685039921048d9d00abe27d4"
+      }
+    }
+  ],
+  "price": 5900000,
+  "offerPrice": 5100000,
+  "stock": 80,
+  "sku": "APP-T",
+  "image": "",
+  "createdAt": {
+    "$date": "2025-06-16T15:34:42.435Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-14T14:21:59.298Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685432453433667419a71674"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Xanh",
+      "_id": {
+        "$oid": "685432453433667419a71675"
+      }
+    }
+  ],
+  "price": 1900000,
+  "offerPrice": 1100000,
+  "stock": 44,
+  "sku": "AAP-X",
+  "image": "",
+  "createdAt": {
+    "$date": "2025-06-19T15:52:37.078Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-14T14:57:06.335Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685582979cbebaf0f6add69f"
+  },
+  "productId": {
+    "$oid": "67e2c5243f5e7df5265b04c5"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Trắng",
+      "_id": {
+        "$oid": "685582979cbebaf0f6add6a0"
+      }
+    }
+  ],
+  "price": 600000,
+  "offerPrice": 400000,
+  "stock": 10,
+  "sku": "BH-T",
+  "image": "",
+  "createdAt": {
+    "$date": "2025-06-20T15:47:35.255Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-20T15:47:35.255Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6863fdad28b72375b1cf419e"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Xanh",
+      "_id": {
+        "$oid": "6863fdad28b72375b1cf419f"
+      }
+    }
+  ],
+  "price": 95000000,
+  "offerPrice": 90000000,
+  "stock": 100,
+  "sku": "CNEOS-X",
+  "image": "",
+  "createdAt": {
+    "$date": "2025-07-01T15:24:29.287Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-01T15:24:29.287Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6863fdf528b72375b1cf41b5"
+  },
+  "productId": {
+    "$oid": "67e2b4d73f5e7df5265b0458"
+  },
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Trắng",
+      "_id": {
+        "$oid": "6863fdf528b72375b1cf41b6"
+      }
+    }
+  ],
+  "price": 2000000,
+  "offerPrice": 1000000,
+  "stock": 81,
+  "sku": "CNEOS-T",
+  "image": "",
+  "createdAt": {
+    "$date": "2025-07-01T15:25:41.754Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-02T08:51:10.460Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686b905e91625a81229d005d"
+  },
+  "productId": {
+    "$oid": "67e0297cca09637ce259c58c"
+  },
+  "price": 5900000,
+  "offerPrice": 5100000,
+  "stock": 1,
+  "sku": "app-d",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Đỏ",
+      "_id": {
+        "$oid": "686b905e91625a81229d005e"
+      }
+    }
+  ],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1751879774/ef4etwv93yy1eugs9h3v.webp",
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1751879774/tz5clsjl0voxgjfgkvow.png"
+  ],
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "createdAt": {
+    "$date": "2025-07-07T09:16:14.771Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-13T16:03:58.436Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6873bf08b8030b4143ed111e"
+  },
+  "productId": {
+    "$oid": "6873bb9bb8030b4143ed0e9e"
+  },
+  "price": 10000,
+  "offerPrice": 1000,
+  "stock": 10,
+  "sku": "test-v",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Vàng",
+      "_id": {
+        "$oid": "6873bf08b8030b4143ed111f"
+      }
+    }
+  ],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1752416007/imszigamzflmumjohygs.png"
+  ],
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "createdAt": {
+    "$date": "2025-07-13T14:13:28.565Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-13T14:13:40.041Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875c7f750063a6283110add"
+  },
+  "productId": {
+    "$oid": "6875c7c250063a6283110aa0"
+  },
+  "price": 100000,
+  "offerPrice": 10000,
+  "stock": 10,
+  "sku": "TEST-T",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Trắng",
+      "_id": {
+        "$oid": "6875c7f750063a6283110ade"
+      }
+    },
+    {
+      "attributeId": {
+        "$oid": "68490f94c54487e9841c13b1"
+      },
+      "value": "128GB",
+      "_id": {
+        "$oid": "6875c7f750063a6283110adf"
+      }
+    }
+  ],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1752549369/nja51xvs8qaefsinrxp7.webp"
+  ],
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "createdAt": {
+    "$date": "2025-07-15T03:16:07.760Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-15T03:16:07.760Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6875c81650063a6283110b02"
+  },
+  "productId": {
+    "$oid": "6875c7c250063a6283110aa0"
+  },
+  "price": 1000000,
+  "offerPrice": 10000,
+  "stock": 10,
+  "sku": "TEST-X",
+  "attributeRefs": [
+    {
+      "attributeId": {
+        "$oid": "68490f7fc54487e9841c13aa"
+      },
+      "value": "Xanh",
+      "_id": {
+        "$oid": "6875c81650063a6283110b03"
+      }
+    },
+    {
+      "attributeId": {
+        "$oid": "68490f94c54487e9841c13b1"
+      },
+      "value": "256GB",
+      "_id": {
+        "$oid": "6875c81650063a6283110b04"
+      }
+    }
+  ],
+  "images": [
+    "https://res.cloudinary.com/deqd4cia8/image/upload/v1752549400/yibbqr10inwvs86mfhgp.png"
+  ],
+  "userId": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "createdAt": {
+    "$date": "2025-07-15T03:16:38.778Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-15T03:16:38.778Z"
+  },
+  "__v": 0
+}]

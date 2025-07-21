@@ -1,0 +1,39 @@
+[{
+  "_id": "user_2uRoKW17ThEqkO2SB0ZZrp5FvXM",
+  "name": "Thắng Tiêu Hỷ",
+  "email": "tieuhythang2000@gmail.com",
+  "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18ydVJvS1U5THZQbEpVOTlqMmVYZWtTMFpWUU0ifQ",
+  "__v": 2,
+  "cartItems": []
+},
+{
+  "_id": "user_2ulkkczhJEppd4KsqIkUz5KBgTc",
+  "name": "hỷ thắng tiêu",
+  "email": "tieuhythang123@gmail.com",
+  "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18ydWxra2R4NFZaZGhtZGZwdVB1MVZ6Mkt3bEYifQ",
+  "cartItems": [],
+  "__v": 4
+},
+{
+  "_id": "user_2vB8cTdbmZ8bsqCDpMiuPeprRR1",
+  "name": "Tan Tieu Hy",
+  "email": "tieuhytan@gmail.com",
+  "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18ydkI4Y09KdGFtVUNrOEhaN0hiZEo4bDVVSFAifQ",
+  "cartItems": [],
+  "__v": 0
+},
+{
+  "_id": "user_2wvuV4pqIEppkLsS6MIcmbTo2CG",
+  "name": "null null",
+  "email": "aleo123@gmail.com",
+  "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdCIsImlpZCI6Imluc18ydU05bFZQZ081N1JtcjBLTW12RnVqWGtkdUsiLCJyaWQiOiJ1c2VyXzJ3dnVWNHBxSUVwcGtMc1M2TUljbWJUbzJDRyJ9",
+  "cartItems": [],
+  "__v": 2
+},
+{
+  "_id": "user_2zpHFUyzSuGrPYJhWG13p7jAv6t",
+  "name": "Win Tiêu Hỷ",
+  "email": "tieuhythang1234@gmail.com",
+  "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yenBIRldGMHpNUzJ4WmFBcUZ3MVJGREd5aHYifQ",
+  "__v": 0
+}]
