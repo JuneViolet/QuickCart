@@ -16,7 +16,7 @@ import { useAppContext } from "@/context/AppContext";
 const Product = () => {
   const { id } = useParams();
   const { router, addToCart, formatCurrency } = useAppContext();
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
   const [mainImage, setMainImage] = useState(null);
   const [productData, setProductData] = useState(null);
   const [attributes, setAttributes] = useState([]);
@@ -28,6 +28,8 @@ const Product = () => {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedStorage, setSelectedStorage] = useState("");
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [existingRating, setExistingRating] = useState(null);
   const imageContainerRef = useRef(null);
 
   const fetchProductData = async () => {
@@ -41,6 +43,18 @@ const Product = () => {
         throw new Error(response.data.message || "Failed to fetch product");
       const data = response.data.product;
       console.log("Product Data:", data);
+
+      const userRating = data.ratings.find((r) => r.userId === userId);
+      setExistingRating(userRating ? userRating.rating : null);
+
+      const userComments = data.comments.filter((c) => c.userId === userId);
+      setComment(
+        userComments.length > 0
+          ? userComments[userComments.length - 1]?.comment || ""
+          : ""
+      );
+
+      setHasPurchased(data.hasPurchased || false);
       setProductData(data);
       if (data.variants?.length > 0) {
         const firstVariant = data.variants[0];
@@ -85,29 +99,59 @@ const Product = () => {
     }
   }, [id]);
 
-  const handleSubmitReview = async (e) => {
+  const handleSubmitRating = async (e) => {
     e.preventDefault();
+    if (!hasPurchased) {
+      toast.error("Bạn chỉ có thể đánh giá sau khi mua sản phẩm!");
+      return;
+    }
     if (rating < 1 || rating > 5) {
       toast.error("Please select a rating between 1 and 5 stars.");
       return;
     }
     try {
       const token = await getToken();
-      const res = await axios.post(
-        "/api/product/review",
-        { productId: id, rating, comment },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const reviewData = { productId: id, rating };
+      const res = await axios.put(`/api/product/review/${id}`, reviewData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (res.data.success) {
         await fetchProductData();
         setRating(0);
-        setComment("");
-        toast.success("Review submitted successfully!");
+        toast.success("Rating updated successfully!");
       } else {
-        toast.error("Failed to submit review");
+        toast.error("Failed to update rating");
       }
     } catch (error) {
-      toast.error("Error submitting review: " + error.message);
+      toast.error("Error updating rating: " + error.message);
+    }
+  };
+
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+    if (!hasPurchased) {
+      toast.error("Bạn chỉ có thể bình luận sau khi mua sản phẩm!");
+      return;
+    }
+    if (!comment.trim()) {
+      toast.error("Vui lòng nhập bình luận!");
+      return;
+    }
+    try {
+      const token = await getToken();
+      const commentData = { productId: id, comment };
+      const res = await axios.post(`/api/product/comment`, commentData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success) {
+        await fetchProductData();
+        setComment("");
+        toast.success("Comment added successfully!");
+      } else {
+        toast.error("Failed to submit comment");
+      }
+    } catch (error) {
+      toast.error("Error submitting comment: " + error.message);
     }
   };
 
@@ -128,7 +172,12 @@ const Product = () => {
     router.push("/cart");
   };
 
-  // Cập nhật biến thể và danh sách ảnh khi chọn màu sắc
+  useEffect(() => {
+    if (existingRating) {
+      setRating(existingRating);
+    }
+  }, [existingRating]);
+
   useEffect(() => {
     if (productData?.variants) {
       const matchedVariant = productData.variants.find((v) => {
@@ -146,11 +195,8 @@ const Product = () => {
         return colorMatch && storageMatch;
       });
       setSelectedVariant(matchedVariant || null);
-      // Cập nhật danh sách ảnh từ biến thể
       if (matchedVariant?.images && matchedVariant.images.length > 0) {
-        setMainImage(matchedVariant.images[0]); // Đặt ảnh đầu tiên làm ảnh chính
-        // Đảm bảo carousel hiển thị tất cả ảnh của biến thể
-        // (Đã xử lý trong render, không cần set lại imageContainerRef trực tiếp)
+        setMainImage(matchedVariant.images[0]);
       } else if (productData.images?.[0]) {
         setMainImage(productData.images[0]);
       }
@@ -158,7 +204,6 @@ const Product = () => {
     }
   }, [selectedColor, selectedStorage, productData]);
 
-  // Lấy danh sách duy nhất của màu sắc và dung lượng từ variants
   const getUniqueColors = () => {
     const colors = new Set();
     productData?.variants?.forEach((v) => {
@@ -181,7 +226,6 @@ const Product = () => {
     return Array.from(storages);
   };
 
-  // Lấy mã màu từ attributes
   const getColorCode = (colorValue) => {
     const colorAttr = attributes.find((attr) => attr.name === "Màu sắc");
     if (colorAttr) {
@@ -201,7 +245,6 @@ const Product = () => {
     return defaultColors[colorValue] || "#000000";
   };
 
-  // Xử lý cuộn ảnh
   const scrollLeft = () => {
     if (imageContainerRef.current) {
       imageContainerRef.current.scrollBy({ left: -100, behavior: "smooth" });
@@ -214,15 +257,7 @@ const Product = () => {
     }
   };
 
-  const averageRating =
-    productData?.averageRating !== undefined
-      ? productData.averageRating
-      : productData?.reviews?.length > 0
-      ? (
-          productData.reviews.reduce((sum, review) => sum + review.rating, 0) /
-          productData.reviews.length
-        ).toFixed(1)
-      : 0;
+  const averageRating = productData?.averageRating || 0;
 
   const renderStars = (ratingValue, onClick = null) => {
     return (
@@ -413,7 +448,14 @@ const Product = () => {
                 {getUniqueColors().map((color) => {
                   const colorCode = getColorCode(color);
                   return (
-                    <label key={color} className="flex items-center gap-1">
+                    <label
+                      key={color}
+                      className={`flex items-center gap-1 cursor-pointer p-1 ${
+                        selectedColor === color
+                          ? "border-2 border-blue-500"
+                          : "border border-gray-300"
+                      } rounded-full`}
+                    >
                       <input
                         type="radio"
                         name="color"
@@ -423,11 +465,7 @@ const Product = () => {
                         className="hidden"
                       />
                       <span
-                        className={`w-6 h-6 rounded-full cursor-pointer border ${
-                          selectedColor === color
-                            ? "border-blue-500"
-                            : "border-gray-300"
-                        }`}
+                        className="w-6 h-6 rounded-full"
                         style={{ backgroundColor: colorCode }}
                       ></span>
                       <span className="text-sm">{color}</span>
@@ -510,47 +548,67 @@ const Product = () => {
         </div>
         <div className="mt-6">
           <h2 className="text-xl font-semibold">Add a Review</h2>
-          <form onSubmit={handleSubmitReview} className="mt-4">
-            <div>
-              <label>Rating:</label>
-              <div className="inline-block ml-2">
-                {renderStars(rating, setRating)}
+          <div className="mt-4 space-y-4">
+            <form onSubmit={handleSubmitRating}>
+              <div>
+                <label>Rating:</label>
+                <div className="inline-block ml-2">
+                  {renderStars(rating || existingRating || 0, (newRating) =>
+                    setRating(newRating)
+                  )}
+                </div>
+                {existingRating && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Bạn đã đánh giá trước đó: {existingRating} sao. Bạn có thể
+                    cập nhật!
+                  </p>
+                )}
               </div>
-            </div>
-            <div className="mt-2">
-              <label>Comment:</label>
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="border p-2 w-full mt-2"
-                required
-              />
-            </div>
-            <button type="submit" className="bg-blue-500 text-white p-2 mt-2">
-              Submit Review
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="bg-blue-500 text-white p-2 mt-2"
+                disabled={!hasPurchased}
+              >
+                Update Rating
+              </button>
+            </form>
+            <form onSubmit={handleSubmitComment}>
+              <div>
+                <label>Comment:</label>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  className="border p-2 w-full mt-2"
+                  placeholder="Nhập bình luận của bạn..."
+                  disabled={!hasPurchased}
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-blue-500 text-white p-2 mt-2"
+                disabled={!hasPurchased}
+              >
+                Add Comment
+              </button>
+            </form>
+          </div>
         </div>
         <div className="mt-6">
-          <h2 className="text-xl font-semibold">Reviews</h2>
-          {productData.reviews?.length > 0 ? (
-            productData.reviews.map((review, index) => (
+          <h2 className="text-xl font-semibold">Comments</h2>
+          {productData.comments?.length > 0 ? (
+            productData.comments.map((comment, index) => (
               <div key={index} className="border p-4 mt-2">
                 <p className="font-medium">
-                  {review.username || "Anonymous"} đã bình luận
+                  {comment.username || "Anonymous"} đã bình luận
                 </p>
-                <div className="flex items-center gap-2">
-                  {renderStars(review.rating)}
-                  <p>({review.rating}/5)</p>
-                </div>
-                <p>{review.comment}</p>
+                <p>{comment.comment}</p>
                 <p>
-                  Posted on: {new Date(review.createdAt).toLocaleDateString()}
+                  Posted on: {new Date(comment.createdAt).toLocaleDateString()}
                 </p>
               </div>
             ))
           ) : (
-            <p>No reviews yet.</p>
+            <p>No comments yet.</p>
           )}
         </div>
         <div className="flex flex-col items-center">

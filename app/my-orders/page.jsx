@@ -28,33 +28,7 @@ const MyOrders = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (data.success) {
-        const updatedOrders = await Promise.all(
-          data.orders.map(async (order) => {
-            const tracking = order.trackingCode;
-            if (tracking && !tracking.startsWith("TEMP-")) {
-              try {
-                const { data: ghnData } = await axios.get(
-                  `/api/track-order?order_code=${tracking}`
-                );
-                // Chỉ cập nhật nếu trạng thái khác
-                if (ghnData.data?.status !== order.status) {
-                  return {
-                    ...order,
-                    ghnStatus: ghnData.data?.status || null,
-                    ghnStatusText: ghnData.data?.status_name || order.status,
-                  };
-                }
-              } catch (error) {
-                console.warn(
-                  `Track Order Error for ${tracking}:`,
-                  error.message
-                );
-              }
-            }
-            return { ...order, ghnStatus: null, ghnStatusText: order.status };
-          })
-        );
-        setOrders(updatedOrders.reverse());
+        setOrders(data.orders.reverse());
       } else {
         if (data.message === "Người dùng không được tìm thấy") {
           toast.error(
@@ -76,6 +50,31 @@ const MyOrders = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchTrackingStatus = async () => {
+    const updatedOrders = await Promise.all(
+      orders.map(async (order) => {
+        const tracking = order.trackingCode;
+        if (tracking && !tracking.startsWith("TEMP-")) {
+          try {
+            const { data: ghnData } = await axios.get(
+              `/api/track-order?order_code=${tracking}`
+            );
+            return {
+              ...order,
+              ghnStatus: ghnData.data?.status || null,
+              ghnStatusText: ghnData.data?.status_name || order.status,
+            };
+          } catch (error) {
+            console.warn(`Track Order Error for ${tracking}:`, error.message);
+            return { ...order, ghnStatus: null, ghnStatusText: order.status };
+          }
+        }
+        return { ...order, ghnStatus: null, ghnStatusText: order.status };
+      })
+    );
+    setOrders(updatedOrders);
   };
 
   const getVariantName = (variant) => {
@@ -143,8 +142,8 @@ const MyOrders = () => {
       return;
     }
     if (user && isSignedIn) {
-      fetchOrders();
-      const intervalId = setInterval(fetchOrders, 30000); // Tăng lên 30 giây
+      fetchOrders(); // Lấy danh sách đơn hàng một lần khi load
+      const intervalId = setInterval(fetchTrackingStatus, 60000); // Cập nhật trạng thái mỗi 1 phút
       return () => clearInterval(intervalId);
     } else {
       router.push("/sign-in");

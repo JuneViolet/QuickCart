@@ -1,4 +1,3 @@
-// components/MegaMenu.jsx
 "use client";
 
 import * as React from "react";
@@ -56,7 +55,7 @@ const MegaMenu = ({ categories }) => {
                   <Link
                     href={`/all-products?category=${normalizeString(
                       category.name
-                    )}&brand=${normalizeString(sub.name)}`} // Thêm brand vào URL
+                    )}&brand=${normalizeString(sub.name)}`}
                     passHref
                     legacyBehavior
                   >

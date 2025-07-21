@@ -25,9 +25,7 @@
 //     );
 //   }
 // }
-// app/api/category/mega-menu/route.js
-// app/api/categorys/mega-menu/route.js
-// app/api/categorys/mega-menu/route.js
+
 // app/api/categorys/mega-menu/route.js
 import connectDB from "@/config/db";
 import Category from "@/models/Category";
