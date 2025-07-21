@@ -152,4 +152,4 @@ productSchema.index({ name: "text", description: "text", keywords: "text" });
 const Product =
   mongoose.models.Product || mongoose.model("Product", productSchema);
 export default Product;
-/////// sửa
+
