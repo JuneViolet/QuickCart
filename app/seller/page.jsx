@@ -5,8 +5,6 @@ import Image from "next/image";
 import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { err } from "inngest/types";
-// import { headers } from "next/headers";
 
 const AddProduct = () => {
   const { getToken } = useAppContext();
@@ -15,15 +13,13 @@ const AddProduct = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [offerPrice, setOfferPrice] = useState("");
   const [brand, setBrand] = useState("");
-  const [keywords, setKeywords] = useState(""); // Thêm state cho keywords
+  const [keywords, setKeywords] = useState(""); // Giữ state cho keywords
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(false);
   const [erroName, setErroName] = useState("");
-  const [erroprice, seteroprice] = useState("");
+
   // Tải danh sách categories và brands từ API
   const fetchCategoriesAndBrands = async () => {
     try {
@@ -75,14 +71,6 @@ const AddProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    seteroprice("");
-
-    if (offerPrice <= 0) {
-      seteroprice("giá tiền không hợp lệ");
-      toast.error("Giá tiền không hợp lệ");
-      return;
-    }
-
     try {
       const token = await getToken();
       const res = await axios.get("/api/product/list", {
@@ -114,8 +102,6 @@ const AddProduct = () => {
     formData.append("name", name);
     formData.append("description", description);
     formData.append("category", category);
-    formData.append("price", price);
-    formData.append("offerPrice", offerPrice);
     formData.append("brand", brand);
     // Chuyển keywords thành mảng (cách nhau bởi dấu phẩy hoặc khoảng trắng)
     const keywordArray = keywords
@@ -139,8 +125,6 @@ const AddProduct = () => {
         setFiles([]);
         setName("");
         setDescription("");
-        setPrice("");
-        setOfferPrice("");
         setKeywords(""); // Reset keywords
         if (categories.length > 0) setCategory(categories[0].name); // Reset về category đầu tiên
         if (brands.length > 0) setBrand(brands[0].name); // Reset về brand đầu tiên
@@ -271,35 +255,6 @@ const AddProduct = () => {
                   ))
                 )}
               </select>
-            </div>
-            <div className="flex flex-col gap-1 w-32">
-              <label className="text-base font-medium" htmlFor="product-price">
-                Giá Sản Phẩm (mặc định)
-              </label>
-              <input
-                id="product-price"
-                type="number"
-                placeholder="0"
-                className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-                onChange={(e) => setPrice(e.target.value)}
-                value={price}
-                required
-              />
-            </div>
-            <div className="flex flex-col gap-1 w-32">
-              <label className="text-base font-medium" htmlFor="offer-price">
-                Giá Ưu Đãi (mặc định)
-              </label>
-              <input
-                id="offer-price"
-                type="number"
-                placeholder="0"
-                className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-                onChange={(e) => setOfferPrice(e.target.value)}
-                value={offerPrice}
-                required
-              />
-              {erroprice && <p className="text-sm text-red-500">{erroprice}</p>}
             </div>
           </div>
           {/* Thêm trường keywords */}

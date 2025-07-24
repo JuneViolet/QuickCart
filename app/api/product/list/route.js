@@ -213,29 +213,43 @@ const normalizeString = (str) =>
     .replace(/ /g, "-")
     .replace(/[^a-z0-9-]/g, "");
 
+// Tách từ khóa và loại bỏ khoảng cách dư thừa
+const splitSearchTerms = (query) =>
+  query
+    .split(/\s+/) // Tách bởi bất kỳ khoảng trắng nào
+    .map((term) => normalizeString(term).trim()) // Chuẩn hóa từng từ
+    .filter((term) => term.length > 0);
+
 export async function GET(request) {
   try {
     await connectDB();
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page")) || 1;
-    const limit = parseInt(searchParams.get("limit")) || 50;
+    const limit = parseInt(searchParams.get("limit")) || 10;
     const skip = (page - 1) * limit;
 
     const categoryName = searchParams.get("category");
     const categoryId = searchParams.get("categoryId");
     const brandName = searchParams.get("brand");
     const searchQuery = searchParams.get("query");
-    const userId = searchParams.get("userId"); // Thêm lọc theo seller (tùy chọn)
+    const userId = searchParams.get("userId");
+    const minPrice = parseInt(searchParams.get("minPrice")) || 0;
+    const maxPrice = parseInt(searchParams.get("maxPrice")) || 100000000;
+    const sort = searchParams.get("sort") || "";
 
     let filters = {};
 
     console.log("Received params:", {
       categoryName,
+      categoryId,
       brandName,
       searchQuery,
       userId,
-    }); // Debug
+      minPrice,
+      maxPrice,
+      sort,
+    });
 
     // ==== Category filter ====
     if (categoryId) {
@@ -249,24 +263,16 @@ export async function GET(request) {
     } else if (categoryName && normalizeString(categoryName) !== "all") {
       const normalized = normalizeString(categoryName);
       const categories = await Category.find().lean();
-      console.log(
-        "Available categories:",
-        categories.map((c) => ({
-          name: c.name,
-          normalized: normalizeString(c.name),
-        }))
-      ); // Debug
       const matched = categories.find(
         (cat) => normalizeString(cat.name) === normalized
       );
-      console.log("Category match attempt:", { normalized, matched }); // Debug
       if (!matched) {
-        return NextResponse.json(
-          { success: false, message: `Category not found for ${normalized}` },
-          { status: 404 }
+        console.warn(
+          `Category not found for ${normalized}, using default 'All'`
         );
+      } else {
+        filters.category = matched._id;
       }
-      filters.category = matched._id;
     }
 
     // ==== Brand filter ====
@@ -276,17 +282,14 @@ export async function GET(request) {
       const matched = brands.find(
         (br) => normalizeString(br.name) === normalized
       );
-      console.log("Brand match attempt:", { normalized, matched }); // Debug
       if (!matched) {
-        return NextResponse.json(
-          { success: false, message: `Brand not found for ${normalized}` },
-          { status: 404 }
-        );
+        console.warn(`Brand not found for ${normalized}, using default 'All'`);
+      } else {
+        filters.brand = matched._id;
       }
-      filters.brand = matched._id;
     }
 
-    // ==== Seller filter (tùy chọn) ====
+    // ==== Seller filter ====
     if (userId) {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         return NextResponse.json(
@@ -297,24 +300,29 @@ export async function GET(request) {
       filters.userId = userId;
     }
 
+    // ==== Price filter ====
+    if (minPrice > 0 || maxPrice < 100000000) {
+      filters.offerPrice = { $gte: minPrice, $lte: maxPrice };
+    }
+
     // ==== Query builder ====
     let mongoQuery = { ...filters };
-    console.log("Filters constructed:", filters); // Debug
+    console.log("Initial filters:", filters);
 
     if (searchQuery) {
-      const normalizedQuery = normalizeString(searchQuery);
+      const searchTerms = splitSearchTerms(searchQuery); // Tách và chuẩn hóa từ khóa
+      console.log("Search terms:", searchTerms); // Debug các từ khóa tách ra
+
       mongoQuery = {
         $and: [
           {
-            $or: [
-              { name: { $regex: normalizedQuery, $options: "i" } },
-              { description: { $regex: normalizedQuery, $options: "i" } },
-              {
-                keywords: {
-                  $in: normalizedQuery.split(/[, ]+/).map((k) => k.trim()),
-                },
-              },
-            ],
+            $or: searchTerms.flatMap((term) => [
+              { name: { $regex: term, $options: "i" } },
+              { description: { $regex: term, $options: "i" } },
+              { keywords: { $regex: term, $options: "i" } },
+              { "category.name": { $regex: term, $options: "i" } },
+              { "brand.name": { $regex: term, $options: "i" } },
+            ]),
           },
           filters,
         ],
@@ -325,17 +333,34 @@ export async function GET(request) {
       };
     }
 
-    console.log("MongoDB Query:", mongoQuery); // Debug
+    console.log("MongoDB Query:", mongoQuery);
 
-    // === Fetch products ===
+    // === Fetch products with sorting ===
+    const sortOption = {};
+    if (sort === "low-to-high") sortOption.offerPrice = 1;
+    else if (sort === "high-to-low") sortOption.offerPrice = -1;
+    else sortOption.createdAt = -1;
+
     const products = await Product.find(mongoQuery)
       .select(
         "name description price offerPrice images category stock brand ratings comments keywords"
       )
-      .populate("category brand", "name")
+      .populate("category", "name")
+      .populate("brand", "name")
+      .sort(sortOption)
       .skip(skip)
       .limit(limit)
       .lean();
+
+    // Debug dữ liệu populate
+    products.forEach((product) => {
+      console.log("Product data:", {
+        name: product.name,
+        keywords: product.keywords,
+        category: product.category?.name,
+        brand: product.brand?.name,
+      });
+    });
 
     const totalProducts = await Product.countDocuments(mongoQuery);
 

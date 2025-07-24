@@ -14,7 +14,7 @@ const Promocodes = () => {
   const [promocodes, setPromocodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
-  const [editingPromo, setEditingPromo] = useState(null); // State để lưu mã đang chỉnh sửa
+  const [editingPromo, setEditingPromo] = useState(null);
   const [newPromoData, setNewPromoData] = useState({
     code: "",
     description: "",
@@ -23,6 +23,8 @@ const Promocodes = () => {
     expiresAt: "",
     maxUses: "",
     isActive: true,
+    minOrderValue: "0", // Khởi tạo với giá trị hợp lệ
+    maxOrderValue: "", // Để trống, sẽ xử lý thành Infinity
   });
   const [editPromoData, setEditPromoData] = useState({
     code: "",
@@ -32,6 +34,8 @@ const Promocodes = () => {
     expiresAt: "",
     maxUses: "",
     isActive: true,
+    minOrderValue: "0",
+    maxOrderValue: "",
   });
 
   const fetchSellerPromocodes = async () => {
@@ -62,10 +66,25 @@ const Promocodes = () => {
 
   const handleAddPromo = async (e) => {
     e.preventDefault();
+    const minValue = parseFloat(newPromoData.minOrderValue);
+    const maxValue = newPromoData.maxOrderValue
+      ? parseFloat(newPromoData.maxOrderValue)
+      : Infinity;
+    if (minValue > maxValue) {
+      toast.error("Giá trị tối thiểu không được lớn hơn giá trị tối đa.");
+      return;
+    }
     try {
       const token = await getToken();
-      console.log("Sending add data:", newPromoData); // Log dữ liệu gửi đi
-      const { data } = await axios.post("/api/promos/manage", newPromoData, {
+      const payload = {
+        ...newPromoData,
+        discount: parseFloat(newPromoData.discount),
+        maxUses: newPromoData.maxUses ? parseInt(newPromoData.maxUses, 10) : "",
+        minOrderValue: minValue,
+        maxOrderValue: maxValue,
+      };
+      console.log("Sending add data:", payload);
+      const { data } = await axios.post("/api/promos/manage", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -80,6 +99,8 @@ const Promocodes = () => {
           expiresAt: "",
           maxUses: "",
           isActive: true,
+          minOrderValue: "0",
+          maxOrderValue: "",
         });
         fetchSellerPromocodes();
       } else {
@@ -102,15 +123,39 @@ const Promocodes = () => {
         : "",
       maxUses: promocode.maxUses || "",
       isActive: promocode.isActive !== undefined ? promocode.isActive : true,
+      minOrderValue: promocode.minOrderValue
+        ? promocode.minOrderValue.toString()
+        : "0",
+      maxOrderValue:
+        promocode.maxOrderValue !== Infinity
+          ? promocode.maxOrderValue.toString()
+          : "",
     });
   };
 
   const handleUpdatePromo = async (e) => {
     e.preventDefault();
+    const minValue = parseFloat(editPromoData.minOrderValue);
+    const maxValue = editPromoData.maxOrderValue
+      ? parseFloat(editPromoData.maxOrderValue)
+      : Infinity;
+    if (minValue > maxValue) {
+      toast.error("Giá trị tối thiểu không được lớn hơn giá trị tối đa.");
+      return;
+    }
     try {
       const token = await getToken();
-      console.log("Sending update data:", editPromoData); // Log dữ liệu gửi đi
-      const { data } = await axios.put("/api/promos/manage", editPromoData, {
+      const payload = {
+        ...editPromoData,
+        discount: parseFloat(editPromoData.discount),
+        maxUses: editPromoData.maxUses
+          ? parseInt(editPromoData.maxUses, 10)
+          : "",
+        minOrderValue: minValue,
+        maxOrderValue: maxValue,
+      };
+      console.log("Sending update data:", payload);
+      const { data } = await axios.put("/api/promos/manage", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -157,6 +202,8 @@ const Promocodes = () => {
       expiresAt: "",
       maxUses: "",
       isActive: true,
+      minOrderValue: "0",
+      maxOrderValue: "",
     });
   };
 
@@ -170,6 +217,8 @@ const Promocodes = () => {
       expiresAt: "",
       maxUses: "",
       isActive: true,
+      minOrderValue: "0",
+      maxOrderValue: "",
     });
   };
 
@@ -332,6 +381,50 @@ const Promocodes = () => {
                   <div className="flex flex-col gap-1 w-32">
                     <label
                       className="text-base font-medium"
+                      htmlFor="new-minOrderValue"
+                    >
+                      Giá trị tối thiểu (VND)
+                    </label>
+                    <input
+                      id="new-minOrderValue"
+                      type="number"
+                      placeholder="0"
+                      className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                      onChange={(e) =>
+                        setNewPromoData({
+                          ...newPromoData,
+                          minOrderValue: e.target.value,
+                        })
+                      }
+                      value={newPromoData.minOrderValue}
+                      min="0"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 w-32">
+                    <label
+                      className="text-base font-medium"
+                      htmlFor="new-maxOrderValue"
+                    >
+                      Giá trị tối đa (VND)
+                    </label>
+                    <input
+                      id="new-maxOrderValue"
+                      type="number"
+                      placeholder="Không giới hạn"
+                      className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                      onChange={(e) =>
+                        setNewPromoData({
+                          ...newPromoData,
+                          maxOrderValue: e.target.value,
+                        })
+                      }
+                      value={newPromoData.maxOrderValue}
+                      min="0"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 w-32">
+                    <label
+                      className="text-base font-medium"
                       htmlFor="new-isActive"
                     >
                       Trạng Thái
@@ -395,7 +488,7 @@ const Promocodes = () => {
                     }
                     value={editPromoData.code}
                     required
-                    disabled // Không cho phép chỉnh sửa mã
+                    disabled
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -508,6 +601,50 @@ const Promocodes = () => {
                   <div className="flex flex-col gap-1 w-32">
                     <label
                       className="text-base font-medium"
+                      htmlFor="edit-minOrderValue"
+                    >
+                      Giá trị tối thiểu (VND)
+                    </label>
+                    <input
+                      id="edit-minOrderValue"
+                      type="number"
+                      placeholder="0"
+                      className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                      onChange={(e) =>
+                        setEditPromoData({
+                          ...editPromoData,
+                          minOrderValue: e.target.value,
+                        })
+                      }
+                      value={editPromoData.minOrderValue}
+                      min="0"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 w-32">
+                    <label
+                      className="text-base font-medium"
+                      htmlFor="edit-maxOrderValue"
+                    >
+                      Giá trị tối đa (VND)
+                    </label>
+                    <input
+                      id="edit-maxOrderValue"
+                      type="number"
+                      placeholder="Không giới hạn"
+                      className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                      onChange={(e) =>
+                        setEditPromoData({
+                          ...editPromoData,
+                          maxOrderValue: e.target.value,
+                        })
+                      }
+                      value={editPromoData.maxOrderValue}
+                      min="0"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 w-32">
+                    <label
+                      className="text-base font-medium"
                       htmlFor="edit-isActive"
                     >
                       Trạng Thái
@@ -588,6 +725,12 @@ const Promocodes = () => {
                       <span>
                         Trạng thái:{" "}
                         {promocode.isActive ? "Hoạt động" : "Không hoạt động"}
+                      </span>
+                      <span>
+                        Giá trị đơn: {formatCurrency(promocode.minOrderValue)} -{" "}
+                        {promocode.maxOrderValue === Infinity
+                          ? "Không giới hạn"
+                          : formatCurrency(promocode.maxOrderValue)}
                       </span>
                     </p>
                     <div className="flex gap-2">

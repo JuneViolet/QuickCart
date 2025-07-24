@@ -92,8 +92,8 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   slug: { type: String, unique: true, sparse: true },
   description: { type: String, required: true },
-  price: { type: Number, required: true },
-  offerPrice: { type: Number },
+  // price: { type: Number },
+  // offerPrice: { type: Number },
   images: { type: [String], default: [] },
   category: {
     type: mongoose.Schema.Types.ObjectId,
@@ -152,5 +152,3 @@ productSchema.index({ name: "text", description: "text", keywords: "text" });
 const Product =
   mongoose.models.Product || mongoose.model("Product", productSchema);
 export default Product;
-///sửa
-//// làm lại new

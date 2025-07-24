@@ -115,6 +115,7 @@ const orderSchema = new mongoose.Schema({
       "Đang giao",
       "Đã giao",
       "Đã hủy",
+      "Chờ xác nhận",
     ],
     default: "pending",
   },

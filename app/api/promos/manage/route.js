@@ -57,7 +57,25 @@
 //       );
 //     }
 
-//     const { code, discount, expiresAt, maxUses, isActive } = await req.json();
+//     const {
+//       code,
+//       discount,
+//       discountType,
+//       description,
+//       expiresAt,
+//       maxUses,
+//       isActive,
+//     } = await req.json();
+//     console.log("POST request data:", {
+//       code,
+//       discount,
+//       discountType,
+//       description,
+//       expiresAt,
+//       maxUses,
+//       isActive,
+//     }); // Log để kiểm tra
+
 //     if (!code || discount === undefined) {
 //       return NextResponse.json(
 //         { success: false, message: "Code and discount are required" },
@@ -76,12 +94,15 @@
 //     const promo = new Promo({
 //       code: code.toUpperCase(),
 //       discount,
+//       discountType: discountType || "percentage",
+//       description: description || "",
 //       expiresAt,
 //       maxUses,
 //       isActive,
 //     });
 
 //     await promo.save();
+//     console.log("Saved promo:", promo); // Log để kiểm tra dữ liệu lưu
 
 //     return NextResponse.json({
 //       success: true,
@@ -118,7 +139,25 @@
 //       );
 //     }
 
-//     const { code, discount, expiresAt, maxUses, isActive } = await req.json();
+//     const {
+//       code,
+//       discount,
+//       discountType,
+//       description,
+//       expiresAt,
+//       maxUses,
+//       isActive,
+//     } = await req.json();
+//     console.log("PUT request data:", {
+//       code,
+//       discount,
+//       discountType,
+//       description,
+//       expiresAt,
+//       maxUses,
+//       isActive,
+//     });
+
 //     if (!code) {
 //       return NextResponse.json(
 //         { success: false, message: "Code is required" },
@@ -130,6 +169,8 @@
 //       { code: code.toUpperCase() },
 //       {
 //         discount,
+//         discountType: discountType || "percentage", // Đảm bảo cập nhật discountType
+//         description: description || "", // Đảm bảo cập nhật description
 //         expiresAt,
 //         maxUses,
 //         ...(isActive !== undefined && { isActive }),
@@ -144,6 +185,7 @@
 //       );
 //     }
 
+//     console.log("Updated promo:", promo); // Log dữ liệu sau khi cập nhật
 //     return NextResponse.json({
 //       success: true,
 //       message: "Promo code updated",
@@ -212,7 +254,7 @@ import connectDB from "@/config/db";
 import Promo from "@/models/Promo";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import authSeller from "@/lib/authSeller"; // Import authSeller
+import authSeller from "@/lib/authSeller";
 
 // GET - Lấy danh sách mã khuyến mãi
 export async function GET(req) {
@@ -275,6 +317,8 @@ export async function POST(req) {
       expiresAt,
       maxUses,
       isActive,
+      minOrderValue,
+      maxOrderValue,
     } = await req.json();
     console.log("POST request data:", {
       code,
@@ -284,6 +328,8 @@ export async function POST(req) {
       expiresAt,
       maxUses,
       isActive,
+      minOrderValue,
+      maxOrderValue,
     }); // Log để kiểm tra
 
     if (!code || discount === undefined) {
@@ -309,10 +355,14 @@ export async function POST(req) {
       expiresAt,
       maxUses,
       isActive,
+      minOrderValue:
+        minOrderValue !== undefined ? parseFloat(minOrderValue) : 0, // Xử lý giá trị mặc định
+      maxOrderValue:
+        maxOrderValue !== undefined ? parseFloat(maxOrderValue) : Infinity, // Xử lý giá trị mặc định
     });
 
     await promo.save();
-    console.log("Saved promo:", promo); // Log để kiểm tra dữ liệu lưu
+    console.log("Saved promo:", promo);
 
     return NextResponse.json({
       success: true,
@@ -357,6 +407,8 @@ export async function PUT(req) {
       expiresAt,
       maxUses,
       isActive,
+      minOrderValue,
+      maxOrderValue,
     } = await req.json();
     console.log("PUT request data:", {
       code,
@@ -366,6 +418,8 @@ export async function PUT(req) {
       expiresAt,
       maxUses,
       isActive,
+      minOrderValue,
+      maxOrderValue,
     });
 
     if (!code) {
@@ -379,11 +433,17 @@ export async function PUT(req) {
       { code: code.toUpperCase() },
       {
         discount,
-        discountType: discountType || "percentage", // Đảm bảo cập nhật discountType
-        description: description || "", // Đảm bảo cập nhật description
+        discountType: discountType || "percentage",
+        description: description || "",
         expiresAt,
         maxUses,
         ...(isActive !== undefined && { isActive }),
+        ...(minOrderValue !== undefined && {
+          minOrderValue: parseFloat(minOrderValue),
+        }),
+        ...(maxOrderValue !== undefined && {
+          maxOrderValue: parseFloat(maxOrderValue),
+        }),
       },
       { new: true, runValidators: true }
     );
@@ -395,7 +455,7 @@ export async function PUT(req) {
       );
     }
 
-    console.log("Updated promo:", promo); // Log dữ liệu sau khi cập nhật
+    console.log("Updated promo:", promo);
     return NextResponse.json({
       success: true,
       message: "Promo code updated",
