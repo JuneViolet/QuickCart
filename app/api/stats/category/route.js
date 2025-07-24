@@ -68,56 +68,86 @@ export const GET = async (req) => {
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
 
-    const query = {
+    const matchQuery = {
       status: { $in: ["paid", "shipped"] }, // Thêm "delivered" nếu có
     };
 
     if (startDate && endDate) {
-      query.date = {
+      matchQuery.date = {
         $gte: new Date(startDate),
         $lte: new Date(endDate + "T23:59:59.999Z"), // Đến cuối ngày
       };
     }
 
-    const orders = await Order.find(query)
-      .populate("items.product")
-      .populate("items.variantId");
+    const pipeline = [
+      { $match: matchQuery },
+      { $unwind: "$items" },
+      {
+        $lookup: {
+          from: "products", // Collection products
+          localField: "items.product",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" },
+      {
+        $lookup: {
+          from: "categories", // Collection categories
+          localField: "productDetails.category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      { $unwind: "$categoryDetails" },
+      {
+        $lookup: {
+          from: "variants", // Collection variants (xác nhận tên này)
+          localField: "items.variantId",
+          foreignField: "_id",
+          as: "variantDetails",
+        },
+      },
+      { $unwind: "$variantDetails" },
+      {
+        $group: {
+          _id: "$categoryDetails.name",
+          totalSold: { $sum: "$items.quantity" },
+          totalRevenue: {
+            $sum: {
+              $multiply: [
+                "$items.quantity",
+                { $ifNull: ["$variantDetails.offerPrice", 0] },
+              ],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          category: "$_id",
+          totalSold: 1,
+          totalRevenue: 1,
+          _id: 0,
+        },
+      },
+    ];
 
-    const categoryStats = {};
+    const categoryStats = await Order.aggregate(pipeline);
 
-    for (const order of orders) {
-      for (const item of order.items) {
-        const product = item.product;
-        const variant = item.variantId;
-
-        if (!product || !product.category) continue;
-
-        const populatedProduct = await Product.findById(product._id).populate(
-          "category"
+    // Debug: Kiểm tra dữ liệu
+    console.log("Category Stats:", categoryStats);
+    if (categoryStats.length > 0) {
+      categoryStats.forEach((stat) => {
+        console.log(
+          `Category: ${stat.category}, Total Sold: ${stat.totalSold}, Total Revenue: ${stat.totalRevenue}`
         );
-        const categoryName = populatedProduct?.category?.name;
-        if (!categoryName) continue;
-
-        const quantity = item.quantity;
-        const price = variant?.price ?? 0;
-        const totalPrice = price * quantity;
-
-        if (!categoryStats[categoryName]) {
-          categoryStats[categoryName] = {
-            category: categoryName,
-            totalSold: 0,
-            totalRevenue: 0,
-          };
-        }
-
-        categoryStats[categoryName].totalSold += quantity;
-        categoryStats[categoryName].totalRevenue += totalPrice;
-      }
+      });
+    } else {
+      console.log("No data found.");
     }
 
-    const result = Object.values(categoryStats);
-    console.log("Category Stats:", result);
-    return NextResponse.json(result);
+    return NextResponse.json(categoryStats.length > 0 ? categoryStats : []);
   } catch (err) {
     console.error("Error in category stats:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
