@@ -30,6 +30,10 @@ const Product = () => {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [existingRating, setExistingRating] = useState(null);
+  const [showAllComments, setShowAllComments] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [showRatingForm, setShowRatingForm] = useState(false);
   const imageContainerRef = useRef(null);
 
   const fetchProductData = async () => {
@@ -67,11 +71,96 @@ const Product = () => {
         setSelectedColor(colorAttr || "");
         setSelectedStorage(storageAttr || "");
       }
+
+      // Fetch related products after getting product data
+      await fetchRelatedProducts(data.category?.name, data.brand?.name);
     } catch (error) {
       console.error("Fetch Product Error:", error.message);
       setError(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRelatedProducts = async (categoryName, brandName) => {
+    try {
+      const token = await getToken();
+      console.log("Fetching related products for:", {
+        categoryName,
+        brandName,
+        currentProductId: id,
+      });
+
+      let relatedProducts = [];
+
+      // Bước 1: Lấy sản phẩm cùng category và brand (ưu tiên cao nhất)
+      if (categoryName && brandName) {
+        const sameCategoryBrandResponse = await axios.get(`/api/product/list`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            category: categoryName,
+            brand: brandName,
+            limit: 10,
+          },
+        });
+
+        const sameCategoryBrandProducts =
+          sameCategoryBrandResponse.data.products?.filter(
+            (product) => product._id !== id
+          ) || [];
+
+        relatedProducts = [...sameCategoryBrandProducts];
+        console.log(
+          `Found ${sameCategoryBrandProducts.length} products with same category + brand`
+        );
+      }
+
+      // Bước 2: Nếu chưa có sản phẩm nào, lấy sản phẩm cùng category (khác brand)
+      if (relatedProducts.length === 0 && categoryName) {
+        const sameCategoryResponse = await axios.get(`/api/product/list`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            category: categoryName,
+            limit: 10,
+          },
+        });
+
+        const sameCategoryProducts =
+          sameCategoryResponse.data.products?.filter(
+            (product) => product._id !== id
+          ) || [];
+
+        relatedProducts = [...sameCategoryProducts];
+        console.log(
+          `Found ${sameCategoryProducts.length} products with same category`
+        );
+      }
+
+      // KHÔNG lấy random products nữa - chỉ hiển thị sản phẩm thực sự liên quan
+      // Nếu không có sản phẩm liên quan thì để trống
+
+      console.log(
+        "Final related products:",
+        relatedProducts.map((p) => ({
+          id: p._id,
+          name: p.name,
+          category: p.category?.name,
+          brand: p.brand?.name,
+        }))
+      );
+
+      // Update productData with related products
+      setProductData((prev) => ({
+        ...prev,
+        relatedProducts: relatedProducts,
+      }));
+    } catch (error) {
+      console.error("Fetch Related Products Error:", error.message);
+      // If error, set empty array to prevent crash
+      setProductData((prev) => ({
+        ...prev,
+        relatedProducts: [],
+      }));
     }
   };
 
@@ -152,6 +241,37 @@ const Product = () => {
       }
     } catch (error) {
       toast.error("Error submitting comment: " + error.message);
+    }
+  };
+
+  const handleSubmitReply = async (commentId) => {
+    if (!replyText.trim()) {
+      toast.error("Vui lòng nhập phản hồi!");
+      return;
+    }
+    try {
+      const token = await getToken();
+      const replyData = {
+        productId: id,
+        commentId,
+        reply: replyText,
+      };
+      const res = await axios.post(`/api/product/reply`, replyData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success) {
+        await fetchProductData();
+        setReplyText("");
+        setReplyingTo(null);
+        toast.success("Phản hồi đã được gửi!");
+      } else {
+        toast.error("Gửi phản hồi thất bại: " + res.data.message);
+      }
+    } catch (error) {
+      console.error("Reply error:", error);
+      toast.error(
+        "Lỗi gửi phản hồi: " + (error.response?.data?.message || error.message)
+      );
     }
   };
 
@@ -546,95 +666,333 @@ const Product = () => {
             </div>
           </div>
         </div>
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold">Add a Review</h2>
-          <div className="mt-4 space-y-4">
-            <form onSubmit={handleSubmitRating}>
-              <div>
-                <label>Rating:</label>
-                <div className="inline-block ml-2">
-                  {renderStars(rating || existingRating || 0, (newRating) =>
-                    setRating(newRating)
-                  )}
-                </div>
-                {existingRating && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Bạn đã đánh giá trước đó: {existingRating} sao. Bạn có thể
-                    cập nhật!
-                  </p>
+
+        {/* Rating và Comment Section */}
+        <div className="mt-8 space-y-6">
+          {/* Rating Section */}
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Đánh giá sản phẩm</h2>
+              <div className="flex items-center gap-2">
+                {renderStars(averageRating)}
+                <span className="text-lg font-medium">({averageRating}/5)</span>
+                <span className="text-gray-500">
+                  • {productData.ratings?.length || 0} đánh giá
+                </span>
+              </div>
+            </div>
+
+            {hasPurchased && (
+              <div className="space-y-4">
+                {!showRatingForm && !existingRating && (
+                  <button
+                    onClick={() => setShowRatingForm(true)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                  >
+                    Đánh giá sản phẩm
+                  </button>
+                )}
+
+                {(showRatingForm || existingRating) && (
+                  <form onSubmit={handleSubmitRating} className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {existingRating
+                          ? "Cập nhật đánh giá của bạn:"
+                          : "Đánh giá:"}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        {renderStars(
+                          rating || existingRating || 0,
+                          (newRating) => setRating(newRating)
+                        )}
+                        <span className="text-sm text-gray-600">
+                          ({rating || existingRating || 0}/5 sao)
+                        </span>
+                      </div>
+                      {existingRating && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          Đánh giá hiện tại: {existingRating} sao. Bạn có thể
+                          cập nhật!
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                        disabled={!hasPurchased}
+                      >
+                        {existingRating ? "Cập nhật đánh giá" : "Gửi đánh giá"}
+                      </button>
+                      {showRatingForm && !existingRating && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowRatingForm(false);
+                            setRating(0);
+                          }}
+                          className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition"
+                        >
+                          Hủy
+                        </button>
+                      )}
+                    </div>
+                  </form>
                 )}
               </div>
-              <button
-                type="submit"
-                className="bg-blue-500 text-white p-2 mt-2"
-                disabled={!hasPurchased}
-              >
-                Update Rating
-              </button>
-            </form>
-            <form onSubmit={handleSubmitComment}>
-              <div>
-                <label>Comment:</label>
-                <textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  className="border p-2 w-full mt-2"
-                  placeholder="Nhập bình luận của bạn..."
-                  disabled={!hasPurchased}
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-blue-500 text-white p-2 mt-2"
-                disabled={!hasPurchased}
-              >
-                Add Comment
-              </button>
-            </form>
-          </div>
-        </div>
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold">Comments</h2>
-          {productData.comments?.length > 0 ? (
-            productData.comments.map((comment, index) => (
-              <div key={index} className="border p-4 mt-2">
-                <p className="font-medium">
-                  {comment.username || "Anonymous"} đã bình luận
-                </p>
-                <p>{comment.comment}</p>
-                <p>
-                  Posted on: {new Date(comment.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p>No comments yet.</p>
-          )}
-        </div>
-        <div className="flex flex-col items-center">
-          <div className="flex flex-col items-center mb-4 mt-16">
-            <p className="text-3xl font-medium">
-              Featured{" "}
-              <span className="font-medium text-orange-600">Products</span>
-            </p>
-            <div className="w-28 h-0.5 bg-orange-600 mt-2"></div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-6 pb-14 w-full">
-            {productData.relatedProducts?.length > 0 ? (
-              productData.relatedProducts
-                .slice(0, 10)
-                .map((product, index) => (
-                  <ProductCard key={index} product={product} />
-                ))
-            ) : (
-              <p>No related products</p>
+            )}
+
+            {!hasPurchased && (
+              <p className="text-gray-500 italic">
+                Bạn cần mua sản phẩm này để có thể đánh giá
+              </p>
             )}
           </div>
+
+          {/* Comment Section */}
+          <div className="bg-white border rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">
+              Bình luận từ khách hàng
+            </h2>
+
+            {hasPurchased && (
+              <form onSubmit={handleSubmitComment} className="mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Chia sẻ trải nghiệm của bạn:
+                  </label>
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Nhập bình luận của bạn về sản phẩm..."
+                    rows="3"
+                    disabled={!hasPurchased}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="mt-3 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+                  disabled={!hasPurchased}
+                >
+                  Gửi bình luận
+                </button>
+              </form>
+            )}
+
+            {/* Comments List */}
+            <div className="space-y-4">
+              {productData.comments?.length > 0 ? (
+                <>
+                  {(showAllComments
+                    ? productData.comments
+                    : productData.comments.slice(0, 3)
+                  ).map((commentItem, index) => (
+                    <div
+                      key={index}
+                      className="border-b border-gray-200 pb-4 last:border-b-0"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                            {(commentItem.username || "A")
+                              .charAt(0)
+                              .toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-gray-800">
+                                {commentItem.username || "Khách hàng"}
+                              </p>
+                              {/* Hiển thị rating của user này */}
+                              {(() => {
+                                const userRating = productData.ratings?.find(
+                                  (r) => r.userId === commentItem.userId
+                                );
+                                return userRating ? (
+                                  <div className="flex items-center gap-1">
+                                    {renderStars(userRating.rating)}
+                                    <span className="text-xs text-gray-600">
+                                      ({userRating.rating})
+                                    </span>
+                                  </div>
+                                ) : null;
+                              })()}
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {new Date(
+                                commentItem.createdAt
+                              ).toLocaleDateString("vi-VN", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-gray-700 mb-3 ml-10">
+                        {commentItem.comment}
+                      </p>
+
+                      {/* Reply from seller */}
+                      {commentItem.reply && (
+                        <div className="ml-10 bg-blue-50 p-3 rounded-lg">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
+                              S
+                            </div>
+                            <span className="text-sm font-medium text-orange-600">
+                              Người bán
+                            </span>
+                            {commentItem.replyDate && (
+                              <span className="text-xs text-gray-500">
+                                •{" "}
+                                {new Date(
+                                  commentItem.replyDate
+                                ).toLocaleDateString("vi-VN", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-gray-700 text-sm ml-8">
+                            {commentItem.reply}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Reply button for seller */}
+                      {!commentItem.reply && (
+                        <div className="ml-10">
+                          {/* Debug info */}
+                          {console.log(
+                            "Product userId:",
+                            productData.userId,
+                            "Current userId:",
+                            userId
+                          )}
+
+                          {productData.userId === userId ? (
+                            // Show reply form for seller
+                            replyingTo === index ? (
+                              <div className="mt-2 space-y-2">
+                                <textarea
+                                  value={replyText}
+                                  onChange={(e) => setReplyText(e.target.value)}
+                                  className="w-full p-2 border border-gray-300 rounded text-sm"
+                                  placeholder="Nhập phản hồi của bạn..."
+                                  rows="2"
+                                />
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() =>
+                                      handleSubmitReply(commentItem._id)
+                                    }
+                                    className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+                                  >
+                                    Gửi phản hồi
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setReplyingTo(null);
+                                      setReplyText("");
+                                    }}
+                                    className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400"
+                                  >
+                                    Hủy
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setReplyingTo(index)}
+                                className="text-sm text-blue-500 hover:text-blue-600"
+                              >
+                                Phản hồi
+                              </button>
+                            )
+                          ) : (
+                            // Show message for non-sellers
+                            <p className="text-xs text-gray-400 italic">
+                              Chỉ người bán mới có thể phản hồi
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {productData.comments.length > 3 && (
+                    <button
+                      onClick={() => setShowAllComments(!showAllComments)}
+                      className="w-full py-2 text-blue-500 hover:text-blue-600 font-medium"
+                    >
+                      {showAllComments
+                        ? "Ẩn bớt bình luận"
+                        : `Xem thêm ${
+                            productData.comments.length - 3
+                          } bình luận`}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Chưa có bình luận nào</p>
+                  <p className="text-sm">
+                    Hãy là người đầu tiên chia sẻ trải nghiệm của bạn!
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col items-center">
+          {productData?.relatedProducts?.length > 0 ? (
+            <>
+              <div className="flex flex-col items-center mb-4 mt-16">
+                <p className="text-3xl font-medium">
+                  Sản phẩm liên quan từ{" "}
+                  <span className="font-medium text-orange-600">
+                    {productData.category?.name}
+                  </span>
+                </p>
+                <div className="w-28 h-0.5 bg-orange-600 mt-2"></div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-6 pb-14 w-full">
+                {productData.relatedProducts
+                  .slice(0, 10)
+                  .map((product, index) => (
+                    <ProductCard key={product._id || index} product={product} />
+                  ))}
+              </div>
+            </>
+          ) : (
+            <div className="mt-16 mb-16 text-center">
+              <p className="text-xl text-gray-600 mb-2">
+                Không có sản phẩm liên quan trong danh mục{" "}
+                <span className="font-semibold text-orange-600">
+                  {productData?.category?.name}
+                </span>
+              </p>
+              <p className="text-gray-500 mb-6">
+                Khám phá thêm các sản phẩm khác trong cửa hàng của chúng tôi
+              </p>
+            </div>
+          )}
           <button
             onClick={() => router.push("/all-products")}
             className="px-8 py-2 mb-16 border rounded text-gray-500/70 hover:bg-slate-50/90 transition"
           >
-            See more
+            Xem tất cả sản phẩm
           </button>
         </div>
       </div>

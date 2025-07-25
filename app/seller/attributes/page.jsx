@@ -150,105 +150,173 @@ const Attributes = () => {
   }, [isLoaded]);
 
   return (
-    <div className="flex-1 h-screen overflow-auto flex flex-col p-6 md:p-10 bg-gray-50">
+    <div className="flex-1 h-screen overflow-auto flex flex-col p-6 md:p-8 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen">
       {loading ? (
         <Loading />
       ) : (
         <>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">
-              Quản Lý Thuộc Tính Biến Thể
-            </h2>
+          {/* Header Section */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+                Quản Lý Thuộc Tính Biến Thể
+              </h2>
+              <p className="text-gray-600 text-sm">
+                Quản lý màu sắc và dung lượng cho sản phẩm của bạn
+              </p>
+            </div>
             <button
               onClick={() => setIsAdding(!isAdding)}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${
+                isAdding
+                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              }`}
             >
-              {isAdding ? "Đóng" : "Thêm Thuộc Tính"}
+              {isAdding ? "✕ Đóng" : "+ Thêm Thuộc Tính"}
             </button>
           </div>
 
+          {/* Add Form */}
           {isAdding && (
-            <form
-              onSubmit={handleAddAttribute}
-              className="bg-white rounded-lg shadow p-6 space-y-4 max-w-xl"
-            >
-              <div>
-                <label className="font-medium">Tên Thuộc Tính</label>
-                <select
-                  className="w-full mt-1 border rounded px-3 py-2"
-                  value={newAttribute.name}
-                  onChange={(e) =>
-                    setNewAttribute({ ...newAttribute, name: e.target.value })
-                  }
-                  required
-                >
-                  <option value="">-- Chọn loại --</option>
-                  <option value="Màu sắc">Màu sắc</option>
-                  <option value="Dung lượng">Dung lượng</option>
-                </select>
-              </div>
+            <div className="mb-8">
+              <form
+                onSubmit={handleAddAttribute}
+                className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 max-w-2xl mx-auto"
+              >
+                <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                  <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-3"></span>
+                  Thêm Thuộc Tính Mới
+                </h3>
 
-              <div>
-                <label className="font-medium">Giá Trị</label>
-                <input
-                  type="text"
-                  className="w-full mt-1 border rounded px-3 py-2"
-                  value={newAttribute.value}
-                  onChange={(e) =>
-                    setNewAttribute({ ...newAttribute, value: e.target.value })
-                  }
-                  placeholder="Ví dụ: Đỏ, Xanh, 128GB"
-                  required
-                />
-              </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Tên Thuộc Tính
+                    </label>
+                    <select
+                      className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                      value={newAttribute.name}
+                      onChange={(e) =>
+                        setNewAttribute({
+                          ...newAttribute,
+                          name: e.target.value,
+                        })
+                      }
+                      required
+                    >
+                      <option value="">-- Chọn loại thuộc tính --</option>
+                      <option value="Màu sắc">🎨 Màu sắc</option>
+                      <option value="Dung lượng">💾 Dung lượng</option>
+                    </select>
+                  </div>
 
-              {newAttribute.name === "Màu sắc" && (
-                <div>
-                  <label className="font-medium">Mã Màu</label>
-                  <input
-                    type="color"
-                    className="w-16 h-10 mt-1 border"
-                    value={newAttribute.colorCode}
-                    onChange={(e) =>
-                      setNewAttribute({
-                        ...newAttribute,
-                        colorCode: e.target.value,
-                      })
-                    }
-                  />
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Giá Trị
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                      value={newAttribute.value}
+                      onChange={(e) =>
+                        setNewAttribute({
+                          ...newAttribute,
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder="Ví dụ: Đỏ, Xanh, 128GB..."
+                      required
+                    />
+                  </div>
                 </div>
-              )}
 
-              <div className="flex gap-4">
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-                >
-                  Thêm
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsAdding(false)}
-                  className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
-                >
-                  Hủy
-                </button>
-              </div>
-            </form>
+                {newAttribute.name === "Màu sắc" && (
+                  <div className="mt-6">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Mã Màu
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        className="w-16 h-12 border-2 border-gray-200 rounded-lg cursor-pointer"
+                        value={newAttribute.colorCode}
+                        onChange={(e) =>
+                          setNewAttribute({
+                            ...newAttribute,
+                            colorCode: e.target.value,
+                          })
+                        }
+                      />
+                      <span className="text-sm text-gray-600">
+                        {newAttribute.colorCode}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-4 mt-8">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    ✓ Thêm Thuộc Tính
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsAdding(false)}
+                    className="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
 
-          <div className="mt-6 space-y-6 max-w-4xl">
+          {/* Attributes List */}
+          <div className="space-y-6 max-w-6xl mx-auto w-full">
             {attributes.length === 0 ? (
-              <p className="text-gray-500">Không có thuộc tính nào.</p>
+              <div className="text-center py-16">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                  <span className="text-4xl text-gray-400">📋</span>
+                </div>
+                <p className="text-gray-500 text-lg">
+                  Chưa có thuộc tính nào được tạo
+                </p>
+                <p className="text-gray-400 text-sm mt-2">
+                  Hãy thêm thuộc tính đầu tiên để bắt đầu
+                </p>
+              </div>
             ) : (
               attributes.map((attr) => (
                 <div
                   key={attr._id}
-                  className="bg-white rounded shadow p-4 flex justify-between items-start"
+                  className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
                 >
-                  <div>
-                    <p className="font-semibold">{attr.name}</p>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center">
+                        <span className="w-3 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-4"></span>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            {attr.name === "Màu sắc" ? "🎨" : "💾"}
+                            {attr.name}
+                          </h3>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {attr.values.length} giá trị
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteAttribute(attr._id)}
+                        className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-all duration-200 hover:text-red-700"
+                      >
+                        🗑️ Xóa
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
                       {attr.values.map((v, i) => {
                         const isEditing =
                           editingAttrId === attr._id && editIndex === i;
@@ -257,14 +325,19 @@ const Attributes = () => {
                           return (
                             <div
                               key={i}
-                              className="flex flex-col items-start border px-3 py-2 rounded"
+                              className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4 hover:border-blue-300 transition-all duration-200"
                             >
-                              <div className="flex gap-2 items-center">
+                              <div className="flex items-center gap-3 mb-2">
                                 <span
-                                  className="w-4 h-4 rounded-full inline-block border"
+                                  className="w-6 h-6 rounded-full border-2 border-white shadow-md"
                                   style={{ backgroundColor: v.color }}
                                 ></span>
-                                <span>{v.text}</span>
+                                <span className="font-medium text-gray-700">
+                                  {v.text}
+                                </span>
+                              </div>
+
+                              <div className="flex gap-2">
                                 <button
                                   onClick={() => {
                                     setEditingAttrId(attr._id);
@@ -272,15 +345,15 @@ const Attributes = () => {
                                     setEditingValue(v.text);
                                     setEditingColor(v.color);
                                   }}
-                                  className="text-blue-600 text-xs hover:underline"
+                                  className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all duration-200"
                                 >
-                                  Sửa
+                                  ✏️ Sửa
                                 </button>
                                 <button
                                   onClick={() => handleDeleteValue(attr._id, i)}
-                                  className="text-red-500 text-xs hover:underline"
+                                  className="text-xs px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all duration-200"
                                 >
-                                  Xóa
+                                  ✕ Xóa
                                 </button>
                               </div>
 
@@ -289,99 +362,112 @@ const Attributes = () => {
                                   onSubmit={(e) =>
                                     handleUpdateValue(e, attr._id, i, attr.name)
                                   }
-                                  className="flex items-center gap-2 mt-2"
+                                  className="mt-4 p-4 bg-white rounded-lg border-2 border-blue-200"
                                 >
-                                  <input
-                                    value={editingValue}
-                                    onChange={(e) =>
-                                      setEditingValue(e.target.value)
-                                    }
-                                    className="border px-2 py-1 text-sm rounded"
-                                  />
-                                  <input
-                                    type="color"
-                                    value={editingColor}
-                                    onChange={(e) =>
-                                      setEditingColor(e.target.value)
-                                    }
-                                  />
-                                  <button
-                                    type="submit"
-                                    className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
-                                  >
-                                    Lưu
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setEditingAttrId(null);
-                                      setEditIndex(null);
-                                    }}
-                                    className="text-gray-500 text-sm"
-                                  >
-                                    Hủy
-                                  </button>
+                                  <div className="flex items-center gap-3 mb-3">
+                                    <input
+                                      value={editingValue}
+                                      onChange={(e) =>
+                                        setEditingValue(e.target.value)
+                                      }
+                                      className="flex-1 border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-blue-500"
+                                      placeholder="Tên màu"
+                                    />
+                                    <input
+                                      type="color"
+                                      value={editingColor}
+                                      onChange={(e) =>
+                                        setEditingColor(e.target.value)
+                                      }
+                                      className="w-12 h-10 border-2 border-gray-200 rounded-lg cursor-pointer"
+                                    />
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="submit"
+                                      className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors"
+                                    >
+                                      💾 Lưu
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setEditingAttrId(null);
+                                        setEditIndex(null);
+                                      }}
+                                      className="px-4 py-2 bg-gray-400 text-white rounded-lg text-sm hover:bg-gray-500 transition-colors"
+                                    >
+                                      Hủy
+                                    </button>
+                                  </div>
                                 </form>
                               )}
                             </div>
                           );
                         } else {
                           return (
-                            <div key={i} className="flex items-center gap-2">
+                            <div
+                              key={i}
+                              className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4 hover:border-blue-300 transition-all duration-200"
+                            >
                               {isEditing ? (
                                 <form
                                   onSubmit={(e) =>
                                     handleUpdateValue(e, attr._id, i, attr.name)
                                   }
-                                  className="flex items-center gap-2"
+                                  className="space-y-3"
                                 >
                                   <input
                                     value={editingValue}
                                     onChange={(e) =>
                                       setEditingValue(e.target.value)
                                     }
-                                    className="border px-2 py-1 text-sm rounded"
+                                    className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-blue-500"
                                   />
-                                  <button
-                                    type="submit"
-                                    className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
-                                  >
-                                    Lưu
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setEditingAttrId(null);
-                                      setEditIndex(null);
-                                    }}
-                                    className="text-gray-500 text-sm"
-                                  >
-                                    Hủy
-                                  </button>
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="submit"
+                                      className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors"
+                                    >
+                                      💾 Lưu
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setEditingAttrId(null);
+                                        setEditIndex(null);
+                                      }}
+                                      className="px-4 py-2 bg-gray-400 text-white rounded-lg text-sm hover:bg-gray-500 transition-colors"
+                                    >
+                                      Hủy
+                                    </button>
+                                  </div>
                                 </form>
                               ) : (
                                 <>
-                                  <span className="bg-gray-200 text-sm px-3 py-1 rounded">
+                                  <div className="font-medium text-gray-700 mb-2">
                                     {v}
-                                  </span>
-                                  <button
-                                    onClick={() => {
-                                      setEditingAttrId(attr._id);
-                                      setEditIndex(i);
-                                      setEditingValue(v);
-                                    }}
-                                    className="text-blue-600 text-xs hover:underline"
-                                  >
-                                    Sửa
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      handleDeleteValue(attr._id, i)
-                                    }
-                                    className="text-red-500 text-xs hover:underline"
-                                  >
-                                    Xóa
-                                  </button>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => {
+                                        setEditingAttrId(attr._id);
+                                        setEditIndex(i);
+                                        setEditingValue(v);
+                                      }}
+                                      className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all duration-200"
+                                    >
+                                      ✏️ Sửa
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteValue(attr._id, i)
+                                      }
+                                      className="text-xs px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all duration-200"
+                                    >
+                                      ✕ Xóa
+                                    </button>
+                                  </div>
                                 </>
                               )}
                             </div>
@@ -390,12 +476,6 @@ const Attributes = () => {
                       })}
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDeleteAttribute(attr._id)}
-                    className="text-red-600 hover:underline text-sm"
-                  >
-                    Xóa
-                  </button>
                 </div>
               ))
             )}

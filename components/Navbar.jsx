@@ -133,8 +133,10 @@ const Navbar = () => {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Danh Mục</NavigationMenuTrigger>
-                <NavigationMenuContent className="w-full mt-2">
+                <NavigationMenuTrigger className="text-sm">
+                  Danh Mục
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="left-0 top-0 w-full max-w-sm">
                   <MegaMenu categories={categories} />
                 </NavigationMenuContent>
               </NavigationMenuItem>
@@ -147,8 +149,10 @@ const Navbar = () => {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Danh Mục</NavigationMenuTrigger>
-              <NavigationMenuContent className="w-full mt-2">
+              <NavigationMenuTrigger className="text-sm font-medium">
+                Danh Mục
+              </NavigationMenuTrigger>
+              <NavigationMenuContent className="left-0 top-0 w-auto min-w-[600px]">
                 <MegaMenu categories={categories} />
               </NavigationMenuContent>
             </NavigationMenuItem>

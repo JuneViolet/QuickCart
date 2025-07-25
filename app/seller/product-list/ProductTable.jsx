@@ -6,10 +6,13 @@ import Image from "next/image";
 const ProductTable = ({
   products,
   productStocks,
+  productOrders,
   formatCurrency,
   router,
   handleEditProduct,
   handleDeleteProduct,
+  handleToggleProductActive,
+  togglingProduct,
   isAddingVariant,
   setIsAddingVariant,
   setNewVariantData,
@@ -28,11 +31,14 @@ const ProductTable = ({
                 </th>
                 <th className="w-24 px-4 py-3 font-medium truncate">Loại</th>
                 <th className="w-24 px-4 py-3 font-medium truncate">Hãng</th>
-                <th className="w-24 px-4 py-3 font-medium truncate">
+                <th className="w-20 px-4 py-3 font-medium truncate">
                   Số Lượng
                 </th>
-                <th className="w-28 px-4 py-3 font-medium truncate">
+                <th className="w-24 px-4 py-3 font-medium truncate">
                   Giá tiền
+                </th>
+                <th className="w-20 px-4 py-3 font-medium truncate">
+                  Trạng thái
                 </th>
                 <th className="w-32 px-4 py-3 font-medium">Action</th>
               </tr>
@@ -66,6 +72,17 @@ const ProductTable = ({
                     </td>
                     <td className="px-4 py-3">
                       {formatCurrency(product.offerPrice)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          product.isActive !== false
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {product.isActive !== false ? "Hoạt động" : "Tạm dừng"}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-2">
@@ -104,13 +121,54 @@ const ProductTable = ({
                               />
                             </span>
                           </button>
+                          <button
+                            key={`toggle-${product._id}`}
+                            onClick={() =>
+                              handleToggleProductActive(
+                                product._id,
+                                product.isActive !== false
+                              )
+                            }
+                            disabled={togglingProduct === product._id}
+                            className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm ${
+                              product.isActive !== false
+                                ? "bg-yellow-600 hover:bg-yellow-700"
+                                : "bg-green-600 hover:bg-green-700"
+                            } text-white disabled:opacity-50`}
+                            title={
+                              product.isActive !== false
+                                ? "Tạm dừng"
+                                : "Kích hoạt"
+                            }
+                          >
+                            <span className="w-4 h-4 flex items-center">
+                              {togglingProduct === product._id ? (
+                                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              ) : (
+                                <span className="text-xs font-bold">
+                                  {product.isActive !== false ? "⏸" : "▶"}
+                                </span>
+                              )}
+                            </span>
+                          </button>
                         </div>
                         <div className="flex gap-2">
                           <button
                             key={`delete-${product._id}`}
                             onClick={() => handleDeleteProduct(product._id)}
-                            className="flex items-center gap-1 px-2 py-1 bg-red-600 text-white rounded-md text-sm"
-                            title="Xóa"
+                            disabled={productOrders[product._id] > 0}
+                            className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm relative group ${
+                              productOrders[product._id] > 0
+                                ? "bg-gray-400 cursor-not-allowed opacity-60"
+                                : "bg-red-600 hover:bg-red-700"
+                            } text-white transition-all`}
+                            title={
+                              productOrders[product._id] > 0
+                                ? `❌ Không thể xóa - Sản phẩm có ${
+                                    productOrders[product._id]
+                                  } đơn hàng liên quan`
+                                : "🗑️ Xóa sản phẩm"
+                            }
                           >
                             <span className="w-4 h-4 flex items-center">
                               <Image
@@ -121,6 +179,13 @@ const ProductTable = ({
                                 height={16}
                               />
                             </span>
+                            {/* Tooltip cho mobile */}
+                            {productOrders[product._id] > 0 && (
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap pointer-events-none">
+                                Có {productOrders[product._id]} đơn hàng
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
+                              </div>
+                            )}
                           </button>
                           <button
                             key={`add-variant-${product._id}`}

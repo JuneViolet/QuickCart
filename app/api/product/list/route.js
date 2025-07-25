@@ -298,6 +298,9 @@ export async function GET(request) {
         );
       }
       filters.userId = userId;
+    } else {
+      // Nếu không phải seller request, chỉ hiển thị sản phẩm active
+      filters.isActive = { $ne: false };
     }
 
     // ==== Price filter ====

@@ -77,6 +77,8 @@ const commentSchema = new mongoose.Schema({
   userId: { type: String, required: true, ref: "User" },
   username: { type: String, required: true },
   comment: { type: String, required: true },
+  reply: { type: String }, // Phản hồi từ seller
+  replyDate: { type: Date }, // Ngày phản hồi
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -118,6 +120,7 @@ const productSchema = new mongoose.Schema({
     default: "other",
   },
   keywords: { type: [String], default: [], index: true },
+  isActive: { type: Boolean, default: true }, // Trường để kiểm soát trạng thái hoạt động của sản phẩm
 });
 
 // Middleware để tự động tạo slug và xử lý trùng lặp
