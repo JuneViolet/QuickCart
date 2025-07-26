@@ -57,7 +57,7 @@ export async function GET(req) {
   const endDate = searchParams.get("endDate");
 
   const query = {
-    status: { $in: ["paid", "shipped"] }, // Thêm "delivered" nếu có
+    status: { $in: ["paid", "shipped", "delivered"] }, // Thêm "delivered" cho đơn giao thành công
   };
 
   if (startDate && endDate) {

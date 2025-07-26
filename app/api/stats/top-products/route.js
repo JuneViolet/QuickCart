@@ -62,7 +62,7 @@ export const GET = async () => {
     await connectDB();
 
     const orders = await Order.find({
-      status: { $in: ["Đã thanh toán", "Đang giao", "delivered"] }, // Đồng bộ với dashboard
+      status: { $in: ["paid", "shipped", "delivered"] }, // Thêm "delivered" cho đơn giao thành công
     })
       .populate("items.product")
       .populate("items.variantId");

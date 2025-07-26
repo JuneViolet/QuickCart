@@ -153,87 +153,172 @@ const MyOrders = () => {
   return (
     <>
       <Navbar />
-      <div className="flex flex-col justify-between px-6 md:px-16 lg:px-32 py-6 min-h-screen">
-        <div className="space-y-5">
-          <h2 className="text-lg font-medium mt-6">Đơn Đặt Hàng</h2>
+      <div className="flex flex-col justify-between px-4 sm:px-6 md:px-16 lg:px-32 py-6 min-h-screen bg-gray-50">
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Đơn Đặt Hàng Của Tôi
+            </h2>
+            <p className="text-gray-600">
+              Theo dõi tình trạng các đơn hàng của bạn
+            </p>
+          </div>
+
           {loading ? (
-            <Loading />
+            <div className="flex justify-center items-center py-16">
+              <Loading />
+            </div>
           ) : (
-            <div className="max-w-5xl border-t border-gray-300 text-sm">
+            <div className="space-y-4">
               {orders.length === 0 ? (
-                <p className="text-gray-500">Không Tìm Thấy Đơn Đặt Hàng</p>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                  <div className="text-gray-400 text-6xl mb-4">📦</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Chưa có đơn hàng nào
+                  </h3>
+                  <p className="text-gray-500">
+                    Hãy khám phá và mua sắm những sản phẩm yêu thích của bạn
+                  </p>
+                </div>
               ) : (
                 orders.map((order) => (
                   <div
                     key={order._id}
-                    className="flex flex-col md:flex-row gap-5 justify-between p-5 border-b border-gray-300"
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
                   >
-                    <div className="flex-1 flex gap-5 max-w-80">
-                      <Image
-                        className="max-w-16 max-h-16 object-cover"
-                        src={assets.box_icon}
-                        alt="box_icon"
-                      />
-                      <p className="flex flex-col gap-3">
-                        <span className="font-medium text-base">
-                          {order.items
-                            .map((item) => {
-                              const product = item.product;
-                              if (!product?.name || !item.variantId) {
-                                console.log("Missing data:", { product, item });
-                                return `${
-                                  product?.name || "Sản phẩm không xác định"
-                                } x ${item.quantity}`;
-                              }
-                              const productName =
-                                product?.name || "Sản phẩm không xác định";
-                              const variantName = getVariantName(
-                                item.variantId
-                              );
-                              return `${productName}${variantName} x ${item.quantity}`;
-                            })
-                            .join(", ")}
-                        </span>
-                        <span>Sản Phẩm: {order.items.length}</span>
-                      </p>
-                    </div>
-                    <div>
-                      <p>
-                        <span className="font-medium">
-                          {order.address?.fullName || "Tên không xác định"}
-                        </span>
-                        <br />
-                        <span>{order.address?.area || "N/A"}</span>
-                        <br />
-                        <span>
-                          {order.address?.ward && order.address?.ward !== "Khác"
-                            ? `${order.address.ward}, `
-                            : ""}
-                          {order.address?.city && order.address?.state
-                            ? `${order.address.city}, ${order.address.state}`
-                            : "N/A"}
-                        </span>
-                        <br />
-                        <span>{order.address?.phoneNumber || "N/A"}</span>
-                      </p>
-                    </div>
-                    <p className="font-medium my-auto">
-                      {formatCurrency(order.amount)}
-                    </p>
-                    <div>
-                      <p className="flex flex-col">
-                        <span>
-                          Phương thức:{" "}
-                          {getPaymentMethodText(order.paymentMethod)}
-                        </span>
-                        <span>
-                          Ngày: {new Date(order.date).toLocaleDateString()}
-                        </span>
-                        <span>
-                          Trạng thái:{" "}
-                          {getStatusText(order.status, order.ghnStatusText)}
-                        </span>
-                      </p>
+                    <div className="p-6">
+                      <div className="flex flex-col lg:flex-row gap-6">
+                        {/* Sản phẩm */}
+                        <div className="flex-1 flex gap-4 min-w-0">
+                          <div className="flex-shrink-0">
+                            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <Image
+                                className="w-full h-full object-cover rounded-lg"
+                                src={assets.box_icon}
+                                alt="order icon"
+                                width={64}
+                                height={64}
+                              />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-gray-900 mb-2 line-clamp-2">
+                              {order.items
+                                .map((item) => {
+                                  const product = item.product;
+                                  if (!product?.name || !item.variantId) {
+                                    console.log("Missing data:", {
+                                      product,
+                                      item,
+                                    });
+                                    return `${
+                                      product?.name || "Sản phẩm không xác định"
+                                    } x ${item.quantity}`;
+                                  }
+                                  const productName =
+                                    product?.name || "Sản phẩm không xác định";
+                                  const variantName = getVariantName(
+                                    item.variantId
+                                  );
+                                  return `${productName}${variantName} x ${item.quantity}`;
+                                })
+                                .join(", ")}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {order.items.length} sản phẩm
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Thông tin giao hàng */}
+                        <div className="flex-1 min-w-0 lg:max-w-xs">
+                          <h4 className="text-sm font-medium text-gray-900 mb-2">
+                            Thông tin giao hàng
+                          </h4>
+                          <div className="text-sm text-gray-600 space-y-1">
+                            <div className="font-medium text-gray-900">
+                              {order.address?.fullName || "Tên không xác định"}
+                            </div>
+                            <div>{order.address?.area || "N/A"}</div>
+                            <div>
+                              {order.address?.ward &&
+                              order.address?.ward !== "Khác"
+                                ? `${order.address.ward}, `
+                                : ""}
+                              {order.address?.city && order.address?.state
+                                ? `${order.address.city}, ${order.address.state}`
+                                : "N/A"}
+                            </div>
+                            <div className="font-medium">
+                              📞 {order.address?.phoneNumber || "N/A"}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Tổng tiền */}
+                        <div className="flex-shrink-0 text-center lg:text-right">
+                          <h4 className="text-sm font-medium text-gray-900 mb-2">
+                            Tổng tiền
+                          </h4>
+                          <div className="text-2xl font-bold text-green-600">
+                            {formatCurrency(order.amount)}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Thông tin đơn hàng */}
+                      <div className="mt-6 pt-6 border-t border-gray-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-500">
+                              Phương thức thanh toán:
+                            </span>
+                            <div className="font-medium text-gray-900 mt-1">
+                              {getPaymentMethodText(order.paymentMethod)}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">
+                              Ngày đặt hàng:
+                            </span>
+                            <div className="font-medium text-gray-900 mt-1">
+                              {new Date(order.date).toLocaleDateString("vi-VN")}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Mã đơn hàng:</span>
+                            <div className="font-medium text-gray-900 mt-1 font-mono text-xs">
+                              #{order._id.slice(-8).toUpperCase()}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Trạng thái:</span>
+                            <div className="mt-1">
+                              <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  order.status === "delivered" ||
+                                  order.status === "Đã giao"
+                                    ? "bg-green-100 text-green-800"
+                                    : order.status === "canceled" ||
+                                      order.status === "Đã hủy"
+                                    ? "bg-red-100 text-red-800"
+                                    : order.status === "shipped" ||
+                                      order.status === "Đang giao"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                                }`}
+                              >
+                                {getStatusText(
+                                  order.status,
+                                  order.ghnStatusText
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))

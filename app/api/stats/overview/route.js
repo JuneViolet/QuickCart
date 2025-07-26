@@ -9,7 +9,7 @@ export const GET = async () => {
     await connectDB();
 
     const orders = await Order.find({
-      status: { $in: ["pending", "ghn_success", "paid"] },
+      status: { $in: ["paid", "shipped", "delivered"] }, // Thêm "delivered" cho đơn giao thành công
     });
 
     const totalOrders = orders.length;

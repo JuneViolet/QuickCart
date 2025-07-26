@@ -43,6 +43,24 @@ export default function DashboardPage() {
     isFiltering: false,
   });
 
+  // Function để chuyển đổi trạng thái sang tiếng Việt
+  const getStatusText = (status) => {
+    const statusMap = {
+      pending: "Chờ xác nhận",
+      paid: "Đã thanh toán", 
+      confirmed: "Đã xác nhận",
+      shipped: "Đang giao",
+      delivered: "Giao thành công",
+      canceled: "Đã hủy",
+      ghn_failed: "Lỗi GHN",
+      "Chờ lấy hàng": "Chờ lấy hàng",
+      "Đang giao": "Đang giao",
+      "Đã giao": "Giao thành công",
+      "Đã hủy": "Đã hủy"
+    };
+    return statusMap[status] || status;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -525,7 +543,7 @@ export default function DashboardPage() {
                         outerRadius={130}
                         innerRadius={60}
                         label={({ status, percent }) =>
-                          `${status} (${(percent * 100).toFixed(0)}%)`
+                          `${getStatusText(status)} (${(percent * 100).toFixed(0)}%)`
                         }
                         labelLine={false}
                         stroke="#ffffff"
@@ -547,11 +565,13 @@ export default function DashboardPage() {
                           borderRadius: "8px",
                           boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                         }}
+                        formatter={(value, name) => [value, getStatusText(name)]}
                       />
                       <Legend
                         verticalAlign="bottom"
                         height={36}
                         wrapperStyle={{ paddingTop: "20px" }}
+                        formatter={(value) => getStatusText(value)}
                       />
                     </PieChart>
                   </ResponsiveContainer>

@@ -1,153 +1,3 @@
-// //ỔN ĐỊNH
-// "use client";
-// import React, { useEffect, useState } from "react";
-// import { assets } from "@/assets/assets";
-// import Image from "next/image";
-// import { useAppContext } from "@/context/AppContext";
-// import Footer from "@/components/seller/Footer";
-// import Loading from "@/components/Loading";
-// import axios from "axios";
-// import toast from "react-hot-toast";
-
-// const Orders = () => {
-//   const { currency, getToken, user, formatCurrency } = useAppContext();
-//   const [orders, setOrders] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   const fetchSellerOrders = async () => {
-//     try {
-//       const token = await getToken();
-//       const { data } = await axios.get("/api/order/seller-orders", {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-//       if (data.success) {
-//         console.log("Seller Orders:", data.orders);
-//         // Sắp xếp danh sách theo date giảm dần (mới nhất lên đầu)
-//         const sortedOrders = [...data.orders].sort(
-//           (a, b) => new Date(b.date) - new Date(a.date)
-//         );
-//         setOrders(sortedOrders);
-//       } else {
-//         toast.error(data.message);
-//       }
-//     } catch (error) {
-//       toast.error(error.message);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (user) {
-//       fetchSellerOrders();
-//     }
-//   }, [user]);
-
-//   return (
-//     <div className="flex-1 h-screen overflow-scroll flex flex-col justify-between text-sm">
-//       {loading ? (
-//         <Loading />
-//       ) : (
-//         <div className="md:p-10 p-4 space-y-5">
-//           <h2 className="text-lg font-medium">Đơn Hàng Của Seller</h2>
-//           <div className="max-w-4xl rounded-md">
-//             {orders.length === 0 ? (
-//               <p className="text-gray-500">
-//                 Không tìm thấy đơn hàng nào cho Seller
-//               </p>
-//             ) : (
-//               orders.map((order) => (
-//                 <div
-//                   key={order._id}
-//                   className="flex flex-col md:flex-row gap-5 justify-between p-5 border-t border-gray-300 hover:bg-gray-50 transition"
-//                 >
-//                   {/* Sản phẩm và biến thể */}
-//                   <div className="flex-1 flex gap-5 max-w-80">
-//                     {order.items[0]?.product?.images &&
-//                     order.items[0]?.product?.images.length > 0 ? (
-//                       <Image
-//                         className="max-w-16 max-h-16 object-cover rounded"
-//                         src={order.items[0].product.images[0]}
-//                         alt={order.items[0].product.name || "Product Image"}
-//                         width={64}
-//                         height={64}
-//                       />
-//                     ) : (
-//                       <Image
-//                         className="max-w-16 max-h-16 object-cover rounded"
-//                         src={assets.placeholder_image}
-//                         alt="Placeholder"
-//                         width={64}
-//                         height={64}
-//                       />
-//                     )}
-//                     <div className="flex flex-col gap-2">
-//                       <span className="font-medium">
-//                         {order.items
-//                           .map((item) =>
-//                             item.product?.name
-//                               ? `${item.product.name} (${
-//                                   item.variantId?.attributeRefs
-//                                     ?.map((ref) => ref.value)
-//                                     .join("/") || "Default"
-//                                 }) x ${item.quantity}`
-//                               : `Unknown Product x ${item.quantity}`
-//                           )
-//                           .join(", ")}
-//                       </span>
-//                       <span>Items: {order.items.length}</span>
-//                     </div>
-//                   </div>
-
-//                   {/* Thông tin giao hàng */}
-//                   <div className="flex-1">
-//                     <p className="text-gray-700">
-//                       <span className="font-medium">
-//                         {order.address?.fullName || "Unknown Name"}
-//                       </span>
-//                       <br />
-//                       <span>{order.address?.area || "N/A"}</span>
-//                       <br />
-//                       <span>
-//                         {order.address?.city && order.address?.state
-//                           ? `${order.address.city}, ${order.address.state}`
-//                           : "N/A"}
-//                       </span>
-//                       <br />
-//                       <span>{order.address?.phoneNumber || "N/A"}</span>
-//                     </p>
-//                   </div>
-
-//                   {/* Tổng tiền */}
-//                   <div className="flex-1 text-center">
-//                     <p className="font-medium text-lg">
-//                       {formatCurrency(order.amount, currency)}
-//                     </p>
-//                   </div>
-
-//                   {/* Trạng thái và ngày */}
-//                   <div className="flex-1 text-right">
-//                     <p className="flex flex-col items-end">
-//                       <span>Phương thức: COD</span>
-//                       <span>
-//                         Ngày: {new Date(order.date).toLocaleDateString("vi-VN")}
-//                       </span>
-//                       <span>Trạng thái: {order.status || "Pending"}</span>
-//                       <span>Mã theo dõi: {order.trackingCode || "N/A"}</span>
-//                     </p>
-//                   </div>
-//                 </div>
-//               ))
-//             )}
-//           </div>
-//         </div>
-//       )}
-//       {/* <Footer /> */}
-//     </div>
-//   );
-// };
-
-// export default Orders;
 "use client";
 import React, { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
@@ -161,7 +11,10 @@ import toast from "react-hot-toast";
 const Orders = () => {
   const { currency, getToken, user, formatCurrency } = useAppContext();
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const fetchSellerOrders = async () => {
     try {
@@ -175,6 +28,7 @@ const Orders = () => {
           (a, b) => new Date(b.date) - new Date(a.date)
         );
         setOrders(sortedOrders);
+        setFilteredOrders(sortedOrders); // Khởi tạo filtered orders
       } else {
         toast.error(data.message);
       }
@@ -244,6 +98,48 @@ const Orders = () => {
     }
   };
 
+  // Tìm kiếm và lọc đơn hàng
+  const handleSearch = () => {
+    let filtered = [...orders];
+
+    // Lọc theo từ khóa tìm kiếm
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((order) => {
+        const orderId = order._id.slice(-8).toUpperCase();
+        const customerName = order.address?.fullName?.toLowerCase() || "";
+        const customerPhone = order.address?.phoneNumber || "";
+        const trackingCode = order.trackingCode || "";
+
+        return (
+          orderId.includes(query.toUpperCase()) ||
+          customerName.includes(query) ||
+          customerPhone.includes(query) ||
+          trackingCode.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    // Lọc theo trạng thái
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((order) => order.status === statusFilter);
+    }
+
+    setFilteredOrders(filtered);
+  };
+
+  // Reset bộ lọc
+  const handleReset = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setFilteredOrders(orders);
+  };
+
+  // Tự động tìm kiếm khi thay đổi
+  useEffect(() => {
+    handleSearch();
+  }, [searchQuery, statusFilter, orders]);
+
   useEffect(() => {
     if (user) {
       fetchSellerOrders();
@@ -251,24 +147,94 @@ const Orders = () => {
   }, [user]);
 
   return (
-    <div className="flex-1 h-screen overflow-scroll flex flex-col justify-between text-sm">
+    <div className="h-screen overflow-scroll flex flex-col justify-between text-sm min-w-0">
       {loading ? (
         <Loading />
       ) : (
-        <div className="md:p-10 p-4 space-y-5">
-          <h2 className="text-lg font-medium">Đơn Hàng Của Seller</h2>
-          <div className="max-w-4xl rounded-md">
-            {orders.length === 0 ? (
-              <p className="text-gray-500">
-                Không tìm thấy đơn hàng nào cho Seller
-              </p>
+        <div className="w-full max-w-none px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header và tìm kiếm */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Quản Lý Đơn Hàng
+            </h2>
+
+            {/* Thanh tìm kiếm */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Tìm theo mã đơn hàng, tên khách hàng, số điện thoại..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div className="sm:w-48">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="pending">Chờ xác nhận</option>
+                  <option value="paid">Đã thanh toán</option>
+                  <option value="confirmed">Đã xác nhận</option>
+                  <option value="shipped">Đang giao</option>
+                  <option value="delivered">Giao thành công</option>
+                  <option value="canceled">Đã hủy</option>
+                </select>
+              </div>
+              <button
+                onClick={handleReset}
+                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Reset
+              </button>
+            </div>
+
+            {/* Thống kê */}
+            <div className="flex flex-wrap gap-4 text-sm">
+              <span className="text-gray-600">
+                Tổng:{" "}
+                <span className="font-semibold text-gray-900">
+                  {orders.length}
+                </span>{" "}
+                đơn hàng
+              </span>
+              <span className="text-gray-600">
+                Hiển thị:{" "}
+                <span className="font-semibold text-blue-600">
+                  {filteredOrders.length}
+                </span>{" "}
+                đơn hàng
+              </span>
+            </div>
+          </div>
+
+          <div className="w-full overflow-x-auto">
+            {/* Thêm scroll ngang cho mobile */}
+            {filteredOrders.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                <div className="text-gray-400 text-6xl mb-4">🔍</div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {searchQuery || statusFilter !== "all"
+                    ? "Không tìm thấy đơn hàng"
+                    : "Chưa có đơn hàng nào"}
+                </h3>
+                <p className="text-gray-500">
+                  {searchQuery || statusFilter !== "all"
+                    ? "Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc"
+                    : "Đơn hàng mới sẽ xuất hiện ở đây"}
+                </p>
+              </div>
             ) : (
-              orders.map((order) => (
+              filteredOrders.map((order) => (
                 <div
                   key={order._id}
-                  className="flex flex-col md:flex-row gap-5 justify-between p-5 border-t border-gray-300 hover:bg-gray-50 transition"
+                  className="flex flex-col xl:flex-row gap-4 justify-between p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm mb-4 min-w-max"
                 >
-                  <div className="flex-1 flex gap-5 max-w-80">
+                  {/* Sản phẩm - mở rộng chiều rộng */}
+                  <div className="flex-1 flex gap-4 min-w-0 lg:min-w-80 xl:max-w-96">
                     {order.items[0]?.product?.images &&
                     order.items[0]?.product?.images.length > 0 ? (
                       <Image
@@ -287,8 +253,8 @@ const Orders = () => {
                         height={64}
                       />
                     )}
-                    <div className="flex flex-col gap-2">
-                      <span className="font-medium">
+                    <div className="flex flex-col gap-2 min-w-0">
+                      <span className="font-medium text-gray-900 line-clamp-2">
                         {order.items
                           .map((item) =>
                             item.product?.name
@@ -301,62 +267,126 @@ const Orders = () => {
                           )
                           .join(", ")}
                       </span>
-                      <span>Items: {order.items.length}</span>
+                      <span className="text-sm text-gray-600">
+                        Items: {order.items.length}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-gray-700">
-                      <span className="font-medium">
+
+                  {/* Thông tin giao hàng - mở rộng */}
+                  <div className="flex-1 min-w-0 lg:min-w-64">
+                    <div className="text-gray-700 space-y-1">
+                      <div className="font-medium text-gray-900">
                         {order.address?.fullName || "Unknown Name"}
-                      </span>
-                      <br />
-                      <span>{order.address?.area || "N/A"}</span>
-                      <br />
-                      <span>
+                      </div>
+                      <div className="text-sm">
+                        {order.address?.area || "N/A"}
+                      </div>
+                      <div className="text-sm">
                         {order.address?.city && order.address?.state
                           ? `${order.address.city}, ${order.address.state}`
                           : "N/A"}
-                      </span>
-                      <br />
-                      <span>{order.address?.phoneNumber || "N/A"}</span>
-                    </p>
+                      </div>
+                      <div className="text-sm">
+                        {order.address?.phoneNumber || "N/A"}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 text-center">
-                    <p className="font-medium text-lg">
+
+                  {/* Tổng tiền */}
+                  <div className="flex-1 text-center lg:min-w-32">
+                    <div className="font-semibold text-lg text-green-600">
                       {formatCurrency(order.amount, currency)}
-                    </p>
+                    </div>
                   </div>
-                  <div className="flex-1 text-right">
-                    <p className="flex flex-col items-end gap-2">
-                      <span>
-                        Phương thức: {getPaymentMethodText(order.paymentMethod)}
-                      </span>
-                      <span>
-                        Ngày: {new Date(order.date).toLocaleDateString("vi-VN")}
-                      </span>
-                      <span>Trạng thái: {getStatusText(order.status)}</span>
-                      <span>Mã theo dõi: {order.trackingCode || "N/A"}</span>
-                      {(order.status === "pending" ||
-                        order.status === "Chờ lấy hàng" ||
-                        order.status === "ghn_success" ||
-                        (order.status === "paid" &&
-                          order.trackingCode?.startsWith("TEMP-"))) && (
-                        <>
+
+                  {/* Trạng thái và hành động - mở rộng */}
+                  <div className="flex-1 lg:min-w-80">
+                    <div className="flex flex-col items-end gap-3">
+                      {/* Thông tin đơn hàng */}
+                      <div className="text-right space-y-1">
+                        <div className="text-xs text-gray-500 uppercase tracking-wide">
+                          Mã đơn hàng
+                        </div>
+                        <div className="font-mono text-sm font-semibold text-gray-900">
+                          #{order._id.slice(-8).toUpperCase()}
+                        </div>
+                        <div className="text-sm text-gray-600 mt-2">
+                          Phương thức:{" "}
+                          {getPaymentMethodText(order.paymentMethod)}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Ngày:{" "}
+                          {new Date(order.date).toLocaleDateString("vi-VN")}
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium">Trạng thái: </span>
+                          <span
+                            className={`font-semibold ${
+                              order.status === "delivered" ||
+                              order.status === "Đã giao"
+                                ? "text-green-600"
+                                : order.status === "canceled" ||
+                                  order.status === "Đã hủy"
+                                ? "text-red-600"
+                                : order.status === "shipped" ||
+                                  order.status === "Đang giao"
+                                ? "text-blue-600"
+                                : "text-yellow-600"
+                            }`}
+                          >
+                            {getStatusText(order.status)}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Mã theo dõi: {order.trackingCode || "N/A"}
+                        </div>
+                      </div>
+
+                      {/* Nút hành động */}
+                      <div className="flex flex-wrap gap-2 justify-end">
+                        {/* Nút xác nhận - chỉ hiển thị cho đơn chờ xác nhận */}
+                        {(order.status === "pending" ||
+                          order.status === "Chờ lấy hàng" ||
+                          order.status === "ghn_success" ||
+                          (order.status === "paid" &&
+                            order.trackingCode?.startsWith("TEMP-"))) && (
                           <button
                             onClick={() => handleAction(order._id, "confirm")}
-                            className="mt-2 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
+                            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors text-sm font-medium"
                           >
-                            Xác nhận
+                            ✅ Xác nhận
                           </button>
+                        )}
+
+                        {/* Nút giao thành công - chỉ hiển thị cho đơn đang giao */}
+                        {(order.status === "shipped" ||
+                          order.status === "Đang giao" ||
+                          order.status === "confirmed") && (
+                          <button
+                            onClick={() => handleAction(order._id, "delivered")}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm font-medium"
+                          >
+                            🚚 Giao thành công
+                          </button>
+                        )}
+
+                        {/* Nút hủy - chỉ hiển thị cho đơn chưa giao */}
+                        {(order.status === "pending" ||
+                          order.status === "Chờ lấy hàng" ||
+                          order.status === "ghn_success" ||
+                          order.status === "confirmed" ||
+                          (order.status === "paid" &&
+                            order.trackingCode?.startsWith("TEMP-"))) && (
                           <button
                             onClick={() => handleAction(order._id, "cancel")}
-                            className="mt-2 bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+                            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors text-sm font-medium"
                           >
-                            Hủy
+                            ❌ Hủy
                           </button>
-                        </>
-                      )}
-                    </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))

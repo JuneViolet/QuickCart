@@ -345,6 +345,24 @@ export async function POST(req) {
           { status: 400 }
         );
       }
+    } else if (action === "delivered") {
+      // Thêm action để đánh dấu giao hàng thành công
+      if (["shipped", "Đang giao", "confirmed"].includes(order.status)) {
+        order.status = "delivered"; // Chuyển sang giao thành công
+        await order.save();
+        return NextResponse.json({
+          success: true,
+          message: "Đơn hàng đã được đánh dấu giao thành công",
+        });
+      } else {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Không thể đánh dấu giao thành công cho đơn hàng này",
+          },
+          { status: 400 }
+        );
+      }
     } else {
       return NextResponse.json(
         { success: false, message: "Hành động không hợp lệ" },

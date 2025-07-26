@@ -72,7 +72,7 @@ const Home = () => {
         </Suspense>
         <FeaturedProduct />
         <Banner />
-        <NewsLetter />
+        {/* <NewsLetter /> */}
       </div>
       <Footer />
     </>
