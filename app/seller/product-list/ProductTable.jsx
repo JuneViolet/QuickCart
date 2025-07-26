@@ -24,7 +24,7 @@ const ProductTable = ({
       <div className="hidden sm:block w-full">
         <div className="max-h-96 overflow-y-auto border border-gray-600/20 rounded-md">
           <table className="table-fixed w-full">
-            <thead className="text-gray-900 text-sm text-left bg-gray-100 sticky top-0">
+            <thead className="text-gray-900 text-sm text-left bg-gray-100 sticky top-0 z-20">
               <tr>
                 <th className="w-48 px-4 py-3 font-medium truncate">
                   Sản Phẩm
@@ -181,7 +181,7 @@ const ProductTable = ({
                             </span>
                             {/* Tooltip cho mobile */}
                             {productOrders[product._id] > 0 && (
-                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap pointer-events-none">
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-30 whitespace-nowrap pointer-events-none">
                                 Có {productOrders[product._id]} đơn hàng
                                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
                               </div>

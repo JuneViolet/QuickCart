@@ -1,454 +1,3 @@
-// // app/seller/manage-categories-brands
-// "use client";
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import toast from "react-hot-toast";
-// import { useAuth } from "@clerk/nextjs";
-
-// const ManageCategoriesBrands = () => {
-//   const { getToken } = useAuth();
-//   const [categories, setCategories] = useState([]);
-//   const [brands, setBrands] = useState([]);
-//   const [newItem, setNewItem] = useState({
-//     type: "category",
-//     name: "",
-//     description: "",
-//     selectedCategories: [],
-//   });
-//   const [editingItem, setEditingItem] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [actionLoading, setActionLoading] = useState(false);
-//   const [newCategoryId, setNewCategoryId] = useState("");
-
-//   const fetchData = async () => {
-//     try {
-//       setLoading(true);
-//       const token = await getToken();
-//       if (!token) {
-//         toast.error("Vui lòng đăng nhập để tiếp tục.");
-//         return;
-//       }
-//       const [catRes, brandRes] = await Promise.all([
-//         axios.get("/api/seller/manage", {
-//           headers: { Authorization: `Bearer ${token}` },
-//           params: { type: "categories" },
-//         }),
-//         axios.get("/api/seller/manage", {
-//           headers: { Authorization: `Bearer ${token}` },
-//           params: { type: "brands" },
-//         }),
-//       ]);
-//       if (catRes.data.success) setCategories(catRes.data.items);
-//       if (brandRes.data.success) setBrands(brandRes.data.items);
-//     } catch (error) {
-//       console.error("Fetch error:", error.response?.data || error.message);
-//       toast.error(
-//         "Lỗi khi tải dữ liệu: " +
-//           (error.response?.data?.message || error.message)
-//       );
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleAddItem = async (e) => {
-//     e.preventDefault();
-//     if (!newItem.name.trim()) {
-//       toast.error("Tên không được để trống");
-//       return;
-//     }
-//     try {
-//       setActionLoading(true);
-//       const token = await getToken();
-//       const { data } = await axios.post(
-//         "/api/seller/manage",
-//         {
-//           type: newItem.type,
-//           name: newItem.name,
-//           description: newItem.description,
-//           categoryIds:
-//             newItem.type === "brand" ? newItem.selectedCategories : undefined,
-//         },
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-//       if (data.success) {
-//         toast.success(
-//           `Thêm ${newItem.type === "category" ? "loại" : "hãng"} thành công`
-//         );
-//         if (newItem.type === "category") {
-//           setCategories([...categories, data.item]);
-//         } else {
-//           setBrands([...brands, data.item]);
-//         }
-//         setNewItem({
-//           type: "category",
-//           name: "",
-//           description: "",
-//           selectedCategories: [],
-//         });
-//         setNewCategoryId("");
-//       } else {
-//         toast.error(data.message || "Lỗi khi thêm");
-//       }
-//     } catch (error) {
-//       console.error("Add error:", error.response?.data || error.message);
-//       toast.error(
-//         "Lỗi khi thêm: " +
-//           (error.response?.data?.message || error.message || "Không xác định")
-//       );
-//     } finally {
-//       setActionLoading(false);
-//     }
-//   };
-
-//   const handleEditItem = (item) => {
-//     setEditingItem({ ...item, type: item.categoryId ? "category" : "brand" });
-//     setNewItem({
-//       type: item.categoryId ? "category" : "brand",
-//       name: item.name,
-//       description: item.description,
-//       selectedCategories:
-//         item.categoryIds || (item.categories || []).map((cat) => cat._id),
-//     });
-//     setNewCategoryId("");
-//   };
-
-//   const handleUpdateItem = async (e) => {
-//     e.preventDefault();
-//     if (!newItem.name.trim()) {
-//       toast.error("Tên không được để trống");
-//       return;
-//     }
-//     try {
-//       setActionLoading(true);
-//       const token = await getToken();
-//       console.log("Update data sent:", {
-//         _id: editingItem._id,
-//         type: newItem.type,
-//         name: newItem.name,
-//         description: newItem.description,
-//         categoryIds:
-//           newItem.type === "brand" ? newItem.selectedCategories : undefined,
-//       });
-//       const { data } = await axios.put(
-//         "/api/seller/manage",
-//         {
-//           _id: editingItem._id,
-//           type: newItem.type,
-//           name: newItem.name,
-//           description: newItem.description,
-//           categoryIds:
-//             newItem.type === "brand" ? newItem.selectedCategories : undefined,
-//         },
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-//       if (data.success) {
-//         toast.success(
-//           `Cập nhật ${newItem.type === "category" ? "loại" : "hãng"} thành công`
-//         );
-//         fetchData();
-//         setEditingItem(null);
-//         setNewItem({
-//           type: "category",
-//           name: "",
-//           description: "",
-//           selectedCategories: [],
-//         });
-//         setNewCategoryId("");
-//       } else {
-//         toast.error(data.message || "Lỗi khi cập nhật");
-//       }
-//     } catch (error) {
-//       console.error("Update error:", error.response?.data || error.message);
-//       toast.error(
-//         "Lỗi khi cập nhật: " +
-//           (error.response?.data?.message || error.message || "Không xác định")
-//       );
-//     } finally {
-//       setActionLoading(false);
-//     }
-//   };
-
-//   const handleDeleteItem = async (id, type) => {
-//     if (
-//       !confirm(
-//         `Bạn có chắc muốn xóa ${type === "category" ? "loại" : "hãng"} này?`
-//       )
-//     )
-//       return;
-//     try {
-//       setActionLoading(true);
-//       const token = await getToken();
-//       const { data } = await axios.delete("/api/seller/manage", {
-//         headers: { Authorization: `Bearer ${token}` },
-//         data: { id, type },
-//       });
-//       if (data.success) {
-//         toast.success(
-//           `Xóa ${type === "category" ? "loại" : "hãng"} thành công`
-//         );
-//         type === "category"
-//           ? setCategories(categories.filter((c) => c._id !== id))
-//           : setBrands(brands.filter((b) => b._id !== id));
-//       } else {
-//         toast.error(data.message || "Lỗi khi xóa");
-//       }
-//     } catch (error) {
-//       console.error("Delete error:", error.response?.data || error.message);
-//       toast.error(
-//         "Lỗi khi xóa: " +
-//           (error.response?.data?.message || error.message || "Không xác định")
-//       );
-//       fetchData();
-//     } finally {
-//       setActionLoading(false);
-//     }
-//   };
-
-//   const handleAddCategory = () => {
-//     if (!newCategoryId) {
-//       toast.error("Vui lòng chọn một loại để thêm");
-//       return;
-//     }
-//     if (newItem.selectedCategories.includes(newCategoryId)) {
-//       toast.error("Loại này đã được chọn");
-//       return;
-//     }
-//     setNewItem({
-//       ...newItem,
-//       selectedCategories: [...newItem.selectedCategories, newCategoryId],
-//     });
-//     setNewCategoryId("");
-//   };
-
-//   const handleRemoveCategory = (categoryId) => {
-//     setNewItem({
-//       ...newItem,
-//       selectedCategories: newItem.selectedCategories.filter(
-//         (id) => id !== categoryId
-//       ),
-//     });
-//   };
-
-//   useEffect(() => {
-//     fetchData();
-//   }, []);
-
-//   return (
-//     <div className="p-4">
-//       <h2 className="text-lg font-medium mb-4">Quản lý Loại và Hãng</h2>
-
-//       {/* Form thêm/sửa */}
-//       <form
-//         onSubmit={editingItem ? handleUpdateItem : handleAddItem}
-//         className="space-y-4 mb-6 border p-4 rounded"
-//       >
-//         <div>
-//           <label className="block">Loại/Danh mục</label>
-//           <select
-//             value={newItem.type}
-//             onChange={(e) => setNewItem({ ...newItem, type: e.target.value })}
-//             className="border p-2 rounded w-full"
-//             disabled={actionLoading}
-//           >
-//             <option value="category">Loại</option>
-//             <option value="brand">Hãng</option>
-//           </select>
-//         </div>
-//         <div>
-//           <label className="block">Tên</label>
-//           <input
-//             type="text"
-//             value={newItem.name}
-//             onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-//             className="border p-2 rounded w-full"
-//             required
-//             disabled={actionLoading}
-//           />
-//         </div>
-//         <div>
-//           <label className="block">Mô tả</label>
-//           <input
-//             type="text"
-//             value={newItem.description}
-//             onChange={(e) =>
-//               setNewItem({ ...newItem, description: e.target.value })
-//             }
-//             className="border p-2 rounded w-full"
-//             disabled={actionLoading}
-//           />
-//         </div>
-//         {newItem.type === "brand" && (
-//           <div>
-//             <label className="block">Thuộc các loại</label>
-//             <div className="mb-2">
-//               {newItem.selectedCategories.length > 0 ? (
-//                 <ul className="space-y-1">
-//                   {newItem.selectedCategories.map((categoryId) => {
-//                     const category = categories.find(
-//                       (cat) => cat._id === categoryId
-//                     );
-//                     return (
-//                       <li
-//                         key={categoryId}
-//                         className="flex items-center justify-between border p-1 rounded"
-//                       >
-//                         <span>
-//                           {category ? category.name : "Không xác định"}
-//                         </span>
-//                         <button
-//                           type="button"
-//                           onClick={() => handleRemoveCategory(categoryId)}
-//                           className="bg-red-500 text-white p-1 rounded text-sm"
-//                           disabled={actionLoading}
-//                         >
-//                           Xóa
-//                         </button>
-//                       </li>
-//                     );
-//                   })}
-//                 </ul>
-//               ) : (
-//                 <p className="text-sm text-gray-500">
-//                   Chưa có loại nào được chọn
-//                 </p>
-//               )}
-//             </div>
-//             <div className="flex items-center space-x-2">
-//               <select
-//                 value={newCategoryId}
-//                 onChange={(e) => setNewCategoryId(e.target.value)}
-//                 className="border p-2 rounded w-full"
-//                 disabled={actionLoading}
-//               >
-//                 <option value="">Chọn loại để thêm</option>
-//                 {categories
-//                   .filter(
-//                     (cat) => !newItem.selectedCategories.includes(cat._id)
-//                   )
-//                   .map((cat) => (
-//                     <option key={cat._id} value={cat._id}>
-//                       {cat.name}
-//                     </option>
-//                   ))}
-//               </select>
-//               <button
-//                 type="button"
-//                 onClick={handleAddCategory}
-//                 className="bg-green-500 text-white p-2 rounded"
-//                 disabled={actionLoading}
-//               >
-//                 Thêm loại
-//               </button>
-//             </div>
-//           </div>
-//         )}
-//         <button
-//           type="submit"
-//           className="bg-blue-500 text-white p-2 rounded"
-//           disabled={actionLoading}
-//         >
-//           {actionLoading
-//             ? "Đang xử lý..."
-//             : editingItem
-//             ? "Cập nhật"
-//             : "Thêm mới"}
-//         </button>
-//         {editingItem && (
-//           <button
-//             type="button"
-//             onClick={() => {
-//               setEditingItem(null);
-//               setNewItem({
-//                 type: "category",
-//                 name: "",
-//                 description: "",
-//                 selectedCategories: [],
-//               });
-//               setNewCategoryId("");
-//             }}
-//             className="bg-gray-500 text-white p-2 rounded ml-2"
-//             disabled={actionLoading}
-//           >
-//             Hủy
-//           </button>
-//         )}
-//       </form>
-
-//       {/* Danh sách Loại */}
-//       <div className="mb-6">
-//         <h3 className="text-md font-medium mb-2">Danh sách Loại</h3>
-//         {loading ? (
-//           <p>Đang tải...</p>
-//         ) : (
-//           <ul className="space-y-2">
-//             {categories.map((cat) => (
-//               <li key={cat._id} className="border p-2 flex justify-between">
-//                 <span>
-//                   {cat.name} - {cat.description}
-//                 </span>
-//                 <div>
-//                   <button
-//                     onClick={() => handleEditItem(cat)}
-//                     className="bg-blue-500 text-white p-1 rounded mr-2"
-//                     disabled={actionLoading}
-//                   >
-//                     Sửa
-//                   </button>
-//                   <button
-//                     onClick={() => handleDeleteItem(cat._id, "category")}
-//                     className="bg-red-500 text-white p-1 rounded"
-//                     disabled={actionLoading}
-//                   >
-//                     Xóa
-//                   </button>
-//                 </div>
-//               </li>
-//             ))}
-//           </ul>
-//         )}
-//       </div>
-
-//       {/* Danh sách Hãng */}
-//       <div>
-//         <h3 className="text-md font-medium mb-2">Danh sách Hãng</h3>
-//         {loading ? (
-//           <p>Đang tải...</p>
-//         ) : (
-//           <ul className="space-y-2">
-//             {brands.map((brand) => (
-//               <li key={brand._id} className="border p-2 flex justify-between">
-//                 <span>
-//                   {brand.name} - {brand.description} -{" "}
-//                   {(brand.categories || []).map((cat) => cat.name).join(", ") ||
-//                     "Không thuộc loại nào"}
-//                 </span>
-//                 <div>
-//                   <button
-//                     onClick={() => handleEditItem(brand)}
-//                     className="bg-blue-500 text-white p-1 rounded mr-2"
-//                     disabled={actionLoading}
-//                   >
-//                     Sửa
-//                   </button>
-//                   <button
-//                     onClick={() => handleDeleteItem(brand._id, "brand")}
-//                     className="bg-red-500 text-white p-1 rounded"
-//                     disabled={actionLoading}
-//                   >
-//                     Xóa
-//                   </button>
-//                 </div>
-//               </li>
-//             ))}
-//           </ul>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ManageCategoriesBrands;
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
@@ -498,15 +47,52 @@ const ManageCategoriesBrands = () => {
     fetchData();
   }, []);
 
-  const resetForm = () =>
+  const resetForm = () => {
+    if (formData.logo && typeof formData.logo === "object") {
+      URL.revokeObjectURL(URL.createObjectURL(formData.logo));
+    }
     setFormData({ name: "", description: "", logo: null, categoryIds: [] });
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file && file.size > 2 * 1024 * 1024) {
-      return toast.error("Logo tối đa 2 MB");
+      return toast.error("Logo tối đa 2 MB");
     }
     setFormData({ ...formData, logo: file });
+  };
+
+  // Xử lý drag & drop
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      const file = files[0];
+      if (!file.type.startsWith("image/")) {
+        return toast.error("Chỉ chấp nhận file ảnh");
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        return toast.error("Logo tối đa 2 MB");
+      }
+      setFormData({ ...formData, logo: file });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -562,8 +148,6 @@ const ManageCategoriesBrands = () => {
 
   const handleEdit = (item) => {
     setEditingItem(item);
-
-    // Không đổi selectedType để giữ đúng tab người dùng đang chọn
     const isBrand = selectedType === "brand";
     setFormData({
       name: item.name,
@@ -602,181 +186,454 @@ const ManageCategoriesBrands = () => {
   const list = selectedType === "category" ? categories : brands;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Quản lý {selectedType === "category" ? "Loại" : "Hãng"}
-      </h2>
-
-      <div className="mb-6 text-center space-x-4">
-        {["category", "brand"].map((type) => (
-          <button
-            key={type}
-            onClick={() => {
-              setSelectedType(type);
-              setEditingItem(null);
-              resetForm();
-            }}
-            className={`px-4 py-2 rounded ${
-              selectedType === type ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-          >
-            Quản lý {type === "category" ? "Loại" : "Hãng"}
-          </button>
-        ))}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="py-6">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Quản lý Danh mục & Thương hiệu
+            </h1>
+            <p className="mt-2 text-sm text-gray-600">
+              Quản lý các loại sản phẩm và thương hiệu trong hệ thống
+            </p>
+          </div>
+        </div>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-4 rounded shadow mb-8 grid grid-cols-1 lg:grid-cols-2 gap-4"
-      >
-        <input
-          type="text"
-          required
-          placeholder="Tên"
-          className="border p-2 rounded"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          disabled={actionLoading}
-        />
-        <input
-          type="text"
-          placeholder="Mô tả"
-          className="border p-2 rounded"
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          disabled={actionLoading}
-        />
-
-        {selectedType === "brand" && (
-          <>
-            <div>
-              <label className="block mb-1">Logo (≤ 2MB)</label>
-              {editingItem?.logo && (
-                <img
-                  src={editingItem.logo}
-                  alt="Logo hiện tại"
-                  className="h-12 mb-2 object-contain"
-                />
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={actionLoading}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1">Loại thuộc về:</label>
-              <select
-                multiple
-                value={formData.categoryIds}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    categoryIds: Array.from(
-                      e.target.selectedOptions,
-                      (o) => o.value
-                    ),
-                  })
-                }
-                className="border p-2 rounded w-full h-24"
-                disabled={actionLoading}
-              >
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </>
-        )}
-
-        <div className="flex items-start gap-2 lg:col-span-2">
-          <button
-            type="submit"
-            disabled={actionLoading}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            {editingItem ? "Cập nhật" : "Thêm mới"}
-          </button>
-          {editingItem && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingItem(null);
-                resetForm();
-              }}
-              disabled={actionLoading}
-              className="bg-gray-500 text-white px-4 py-2 rounded"
-            >
-              Hủy
-            </button>
-          )}
-        </div>
-      </form>
-
-      {loading ? (
-        <p className="text-center">Đang tải...</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-          {list.map((item) => (
-            <div
-              key={item._id}
-              className="bg-white p-4 rounded shadow flex flex-col"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                {selectedType === "brand" && item.logo && (
-                  <img
-                    src={item.logo}
-                    alt={`${item.name} logo`}
-                    className="h-10 w-10 object-contain"
-                  />
-                )}
-                <h3 className="font-semibold">{item.name}</h3>
-              </div>
-              <p className="text-sm text-gray-600 flex-1">{item.description}</p>
-              {selectedType === "brand" && (
+      {/* Main Content */}
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              {[
+                { key: "category", label: "Loại sản phẩm", icon: "📦" },
+                { key: "brand", label: "Thương hiệu", icon: "🏷️" },
+              ].map((tab) => (
                 <button
-                  onClick={() => toggleExpand(item._id)}
-                  className="text-blue-500 text-sm mt-2 self-start"
+                  key={tab.key}
+                  onClick={() => {
+                    setSelectedType(tab.key);
+                    setEditingItem(null);
+                    resetForm();
+                  }}
+                  className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
+                    selectedType === tab.key
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  } transition-colors duration-200`}
                 >
-                  {expandedBrand === item._id ? "Ẩn loại 🎯" : "Xem loại 🎯"}
+                  <span className="mr-2">{tab.icon}</span>
+                  {tab.label}
+                  <span
+                    className={`ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium ${
+                      selectedType === tab.key
+                        ? "bg-blue-100 text-blue-600"
+                        : "bg-gray-100 text-gray-900"
+                    }`}
+                  >
+                    {tab.key === "category" ? categories.length : brands.length}
+                  </span>
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        {/* Form Section */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">
+              {editingItem ? "Chỉnh sửa" : "Thêm mới"}{" "}
+              {selectedType === "category" ? "loại sản phẩm" : "thương hiệu"}
+            </h3>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tên{" "}
+                  {selectedType === "category"
+                    ? "loại sản phẩm"
+                    : "thương hiệu"}{" "}
+                  *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder={`Nhập tên ${
+                    selectedType === "category"
+                      ? "loại sản phẩm"
+                      : "thương hiệu"
+                  }`}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  disabled={actionLoading}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mô tả
+                </label>
+                <input
+                  type="text"
+                  placeholder="Nhập mô tả"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  disabled={actionLoading}
+                />
+              </div>
+
+              {selectedType === "brand" && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Logo thương hiệu (≤ 2MB)
+                    </label>
+
+                    {(formData.logo || editingItem?.logo) && (
+                      <div className="mb-3 p-3 bg-gray-50 rounded-md border border-gray-200">
+                        <div className="relative inline-block">
+                          <img
+                            src={
+                              formData.logo
+                                ? URL.createObjectURL(formData.logo)
+                                : editingItem?.logo
+                            }
+                            alt="Logo preview"
+                            className="h-16 w-16 object-contain rounded-md border border-gray-200 bg-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (
+                                formData.logo &&
+                                typeof formData.logo === "object"
+                              ) {
+                                URL.revokeObjectURL(
+                                  URL.createObjectURL(formData.logo)
+                                );
+                              }
+                              setFormData({ ...formData, logo: null });
+                            }}
+                            disabled={actionLoading}
+                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold transition-colors disabled:opacity-50"
+                            title="Xóa ảnh"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {formData.logo ? "Logo mới" : "Logo hiện tại"}
+                        </p>
+                      </div>
+                    )}
+
+                    <div
+                      className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors cursor-pointer"
+                      onDragOver={handleDragOver}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() =>
+                        document.getElementById("logo-upload").click()
+                      }
+                    >
+                      <div className="space-y-1 text-center">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <div className="flex text-sm text-gray-600">
+                          <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                            <span>Tải ảnh lên</span>
+                            <input
+                              id="logo-upload"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileChange}
+                              disabled={actionLoading}
+                              className="sr-only"
+                            />
+                          </label>
+                          <p className="pl-1">hoặc kéo thả</p>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          PNG, JPG, GIF tối đa 2MB
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Thuộc loại sản phẩm
+                    </label>
+                    <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-300 rounded-md p-3">
+                      {categories.map((cat) => (
+                        <label key={cat._id} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={formData.categoryIds.includes(cat._id)}
+                            onChange={(e) => {
+                              const newIds = e.target.checked
+                                ? [...formData.categoryIds, cat._id]
+                                : formData.categoryIds.filter(
+                                    (id) => id !== cat._id
+                                  );
+                              setFormData({ ...formData, categoryIds: newIds });
+                            }}
+                            disabled={actionLoading}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">
+                            {cat.name}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center justify-end space-x-3">
+              {editingItem && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingItem(null);
+                    resetForm();
+                  }}
+                  disabled={actionLoading}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  Hủy bỏ
                 </button>
               )}
-              {selectedType === "brand" && expandedBrand === item._id && (
-                <div className="mt-2 text-xs text-gray-700 space-y-1">
-                  <strong>Thuộc loại:</strong>
-                  <ul className="list-disc pl-5">
-                    {(item.categories || []).map((cat) => (
-                      <li key={cat._id}>{cat.name}</li>
-                    ))}
-                  </ul>
+              <button
+                type="submit"
+                disabled={actionLoading}
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {actionLoading ? (
+                  <div className="flex items-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Đang xử lý...
+                  </div>
+                ) : editingItem ? (
+                  "Cập nhật"
+                ) : (
+                  "Thêm mới"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* List Section */}
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">Đang tải dữ liệu...</span>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">
+                Danh sách{" "}
+                {selectedType === "category" ? "loại sản phẩm" : "thương hiệu"}
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  ({list.length} mục)
+                </span>
+              </h3>
+            </div>
+
+            <div className="p-6">
+              {list.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 text-6xl mb-4">
+                    {selectedType === "category" ? "📦" : "🏷️"}
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Chưa có{" "}
+                    {selectedType === "category"
+                      ? "loại sản phẩm"
+                      : "thương hiệu"}{" "}
+                    nào
+                  </h3>
+                  <p className="text-gray-500">
+                    Hãy thêm{" "}
+                    {selectedType === "category"
+                      ? "loại sản phẩm"
+                      : "thương hiệu"}{" "}
+                    đầu tiên bằng form ở trên
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                  {list.map((item) => (
+                    <div
+                      key={item._id}
+                      className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200 bg-white"
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center space-x-3 flex-1 min-w-0">
+                          {selectedType === "brand" && item.logo && (
+                            <div className="flex-shrink-0">
+                              <img
+                                src={item.logo}
+                                alt={`${item.name} logo`}
+                                className="h-12 w-12 object-contain rounded-lg border border-gray-200 bg-gray-50"
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-lg font-semibold text-gray-900 truncate">
+                              {item.name}
+                            </h4>
+                            {item.description && (
+                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                {item.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
+                          <button
+                            onClick={() => handleEdit(item)}
+                            disabled={actionLoading}
+                            className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-md transition-colors disabled:opacity-50"
+                            title="Chỉnh sửa"
+                          >
+                            <svg
+                              className="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item)}
+                            disabled={actionLoading}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+                            title="Xóa"
+                          >
+                            <svg
+                              className="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      {selectedType === "brand" && (
+                        <div className="border-t border-gray-100 pt-4">
+                          <button
+                            onClick={() => toggleExpand(item._id)}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium w-full"
+                          >
+                            <span>Thuộc loại sản phẩm</span>
+                            <svg
+                              className={`ml-1 h-4 w-4 transform transition-transform ${
+                                expandedBrand === item._id ? "rotate-180" : ""
+                              }`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </button>
+
+                          {expandedBrand === item._id && (
+                            <div className="mt-3 space-y-2">
+                              {(item.categories || []).length === 0 ? (
+                                <p className="text-sm text-gray-500 italic">
+                                  Chưa thuộc loại sản phẩm nào
+                                </p>
+                              ) : (
+                                <div className="flex flex-wrap gap-2">
+                                  {(item.categories || []).map((cat) => (
+                                    <span
+                                      key={cat._id}
+                                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                    >
+                                      {cat.name}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
-              <div className="mt-4 flex gap-2">
-                <button
-                  onClick={() => handleEdit(item)}
-                  disabled={actionLoading}
-                  className="bg-yellow-400 px-3 py-1 rounded"
-                >
-                  ✏️
-                </button>
-                <button
-                  onClick={() => handleDelete(item)}
-                  disabled={actionLoading}
-                  className="bg-red-600 px-3 py-1 rounded text-white"
-                >
-                  🗑️
-                </button>
-              </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

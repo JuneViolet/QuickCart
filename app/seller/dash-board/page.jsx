@@ -1,367 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import axios from "axios";
-// import {
-//   BarChart,
-//   Bar,
-//   XAxis,
-//   YAxis,
-//   Tooltip,
-//   ResponsiveContainer,
-//   CartesianGrid,
-//   Legend,
-//   PieChart,
-//   Pie,
-//   Cell,
-//   ComposedChart,
-//   Line,
-//   LineChart,
-// } from "recharts";
-
-// const COLORS = [
-//   "#10B981",
-//   "#3B82F6",
-//   "#F59E0B",
-//   "#EF4444",
-//   "#6366F1",
-//   "#F472B6",
-//   "#14B8A6",
-//   "#F97316",
-// ];
-
-// export default function DashboardPage() {
-//   const [summary, setSummary] = useState(null);
-//   const [categoryStats, setCategoryStats] = useState([]);
-//   const [orderDistribution, setOrderDistribution] = useState([]);
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const [summaryRes, categoryRes, distributionRes] = await Promise.all([
-//           axios.get("/api/stats/summary"),
-//           axios.get("/api/stats/category"),
-//           axios.get("/api/stats/order-distribution"),
-//         ]);
-
-//         console.log("Summary:", summaryRes.data);
-//         console.log("Category Stats:", categoryRes.data);
-//         console.log("Order Distribution:", distributionRes.data);
-
-//         setSummary(summaryRes.data);
-//         setCategoryStats(categoryRes.data || []);
-//         setOrderDistribution(distributionRes.data || []);
-//       } catch (error) {
-//         console.error("Lỗi khi fetch dữ liệu:", error);
-//       }
-//     };
-
-//     fetchData();
-//   }, []);
-
-//   const calculatedTotalRevenue = categoryStats.reduce(
-//     (sum, item) => sum + (item.totalRevenue || 0),
-//     0
-//   );
-//   const calculatedTotalSold = categoryStats.reduce(
-//     (sum, item) => sum + (item.totalSold || 0),
-//     0
-//   );
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
-//       {/* Header */}
-//       <div className="bg-white shadow-sm border-b border-gray-200">
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-//           <div className="flex items-center justify-between">
-//             <div>
-//               <h1 className="text-3xl font-bold text-gray-900">
-//                 📊 Dashboard Thống Kê
-//               </h1>
-//               <p className="mt-1 text-sm text-gray-500">
-//                 Tổng quan về tình hình kinh doanh
-//               </p>
-//             </div>
-//             <div className="hidden sm:block">
-//               <div className="flex items-center space-x-2 text-sm text-gray-500">
-//                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-//                 <span>Cập nhật realtime</span>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-
-//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-//         {/* Summary Cards */}
-//         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//           <SummaryCard
-//             title="Tổng đơn hàng"
-//             value={summary?.totalOrders}
-//             icon="🛒"
-//             bgColor="bg-gradient-to-r from-blue-500 to-blue-600"
-//             textColor="text-white"
-//           />
-//           <SummaryCard
-//             title="Tổng doanh thu"
-//             value={summary?.totalRevenue?.toLocaleString("vi-VN", {
-//               style: "currency",
-//               currency: "VND",
-//             })}
-//             note={`Từ danh mục: ${calculatedTotalRevenue.toLocaleString(
-//               "vi-VN",
-//               {
-//                 style: "currency",
-//                 currency: "VND",
-//               }
-//             )}`}
-//             icon="💰"
-//             bgColor="bg-gradient-to-r from-green-500 to-green-600"
-//             textColor="text-white"
-//           />
-//           <SummaryCard
-//             title="Sản phẩm đã bán"
-//             value={summary?.totalSoldProducts}
-//             note={`Từ danh mục: ${calculatedTotalSold}`}
-//             icon="📦"
-//             bgColor="bg-gradient-to-r from-purple-500 to-purple-600"
-//             textColor="text-white"
-//           />
-//         </div>
-
-//         {/* Charts Grid */}
-//         <div className="space-y-8">
-//           {/* Revenue Chart */}
-//           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-//             <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-//               <div className="flex items-center space-x-3">
-//                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-//                 <h2 className="text-xl font-semibold text-gray-800">
-//                   Doanh thu theo loại sản phẩm
-//                 </h2>
-//               </div>
-//               <p className="text-sm text-gray-600 mt-1">
-//                 Phân tích doanh thu từng danh mục
-//               </p>
-//             </div>
-//             <div className="p-6">
-//               <div style={{ width: "100%", height: 500 }}>
-//                 <ResponsiveContainer width="100%" height="100%">
-//                   <ComposedChart
-//                     data={categoryStats}
-//                     margin={{ top: 20, right: 30, left: 40, bottom: 80 }}
-//                   >
-//                     <defs>
-//                       <linearGradient
-//                         id="colorRevenue"
-//                         x1="0"
-//                         y1="0"
-//                         x2="0"
-//                         y2="1"
-//                       >
-//                         <stop
-//                           offset="5%"
-//                           stopColor="#10B981"
-//                           stopOpacity={0.8}
-//                         />
-//                         <stop
-//                           offset="95%"
-//                           stopColor="#10B981"
-//                           stopOpacity={0.3}
-//                         />
-//                       </linearGradient>
-//                       <linearGradient
-//                         id="colorSold"
-//                         x1="0"
-//                         y1="0"
-//                         x2="0"
-//                         y2="1"
-//                       >
-//                         <stop
-//                           offset="5%"
-//                           stopColor="#3B82F6"
-//                           stopOpacity={0.8}
-//                         />
-//                         <stop
-//                           offset="95%"
-//                           stopColor="#3B82F6"
-//                           stopOpacity={0.3}
-//                         />
-//                       </linearGradient>
-//                     </defs>
-//                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-//                     <XAxis
-//                       dataKey="category"
-//                       angle={-45}
-//                       textAnchor="end"
-//                       interval={0}
-//                       tick={{ fontSize: 12 }}
-//                       stroke="#6b7280"
-//                       height={80}
-//                     />
-//                     <YAxis
-//                       yAxisId="revenue"
-//                       orientation="left"
-//                       tickFormatter={(value) =>
-//                         Number(value).toLocaleString("vi-VN", {
-//                           style: "currency",
-//                           currency: "VND",
-//                           maximumFractionDigits: 0,
-//                         })
-//                       }
-//                       tick={{ fontSize: 11 }}
-//                       stroke="#10B981"
-//                     />
-//                     <YAxis
-//                       yAxisId="quantity"
-//                       orientation="right"
-//                       tickFormatter={(value) => `${value} sp`}
-//                       tick={{ fontSize: 11 }}
-//                       stroke="#3B82F6"
-//                     />
-//                     <Tooltip
-//                       formatter={(value, name) => {
-//                         if (name === "totalRevenue") {
-//                           return [
-//                             Number(value).toLocaleString("vi-VN", {
-//                               style: "currency",
-//                               currency: "VND",
-//                               maximumFractionDigits: 0,
-//                             }),
-//                             "Doanh thu",
-//                           ];
-//                         } else if (name === "totalSold") {
-//                           return [`${value} sản phẩm`, "Đã bán"];
-//                         }
-//                         return [value, name];
-//                       }}
-//                       contentStyle={{
-//                         backgroundColor: "#ffffff",
-//                         border: "1px solid #e5e7eb",
-//                         borderRadius: "8px",
-//                         boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-//                       }}
-//                     />
-//                     <Legend />
-//                     <Bar
-//                       yAxisId="revenue"
-//                       dataKey="totalRevenue"
-//                       fill="url(#colorRevenue)"
-//                       barSize={30}
-//                       radius={[4, 4, 0, 0]}
-//                       name="Doanh thu"
-//                     />
-//                     <Bar
-//                       yAxisId="quantity"
-//                       dataKey="totalSold"
-//                       fill="url(#colorSold)"
-//                       barSize={30}
-//                       radius={[4, 4, 0, 0]}
-//                       name="Sản phẩm đã bán"
-//                     />
-//                   </ComposedChart>
-//                 </ResponsiveContainer>
-//               </div>
-//             </div>
-//           </div>
-
-//           {/* Order Distribution Chart */}
-//           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-//             <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-//               <div className="flex items-center space-x-3">
-//                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-//                 <h2 className="text-xl font-semibold text-gray-800">
-//                   Phân bố đơn hàng theo trạng thái
-//                 </h2>
-//               </div>
-//               <p className="text-sm text-gray-600 mt-1">
-//                 Tình trạng xử lý đơn hàng
-//               </p>
-//             </div>
-//             <div className="p-6">
-//               <div style={{ width: "100%", height: 450 }}>
-//                 <ResponsiveContainer width="100%" height="100%">
-//                   <PieChart>
-//                     <Pie
-//                       data={orderDistribution}
-//                       dataKey="count"
-//                       nameKey="status"
-//                       cx="50%"
-//                       cy="50%"
-//                       outerRadius={130}
-//                       innerRadius={60}
-//                       label={({ status, percent }) =>
-//                         `${status} (${(percent * 100).toFixed(0)}%)`
-//                       }
-//                       labelLine={false}
-//                       stroke="#ffffff"
-//                       strokeWidth={2}
-//                     >
-//                       {orderDistribution.map((_, index) => (
-//                         <Cell
-//                           key={`cell-${index}`}
-//                           fill={COLORS[index % COLORS.length]}
-//                         />
-//                       ))}
-//                     </Pie>
-//                     <Tooltip
-//                       contentStyle={{
-//                         backgroundColor: "#ffffff",
-//                         border: "1px solid #e5e7eb",
-//                         borderRadius: "8px",
-//                         boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-//                       }}
-//                     />
-//                     <Legend
-//                       verticalAlign="bottom"
-//                       height={36}
-//                       wrapperStyle={{ paddingTop: "20px" }}
-//                     />
-//                   </PieChart>
-//                 </ResponsiveContainer>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// function SummaryCard({ title, value, note, icon, bgColor, textColor }) {
-//   return (
-//     <div
-//       className={`${bgColor} rounded-2xl shadow-lg border border-gray-200 overflow-hidden transform hover:scale-105 transition-transform duration-200`}
-//     >
-//       <div className="p-6">
-//         <div className="flex items-center justify-between">
-//           <div className="flex-1">
-//             <div className="flex items-center space-x-3 mb-2">
-//               <span className="text-2xl">{icon}</span>
-//               <h3 className={`text-lg font-medium ${textColor}`}>{title}</h3>
-//             </div>
-//             <div className={`text-3xl font-bold ${textColor} mb-2`}>
-//               {value ?? (
-//                 <div className="flex items-center space-x-2">
-//                   <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-//                   <span className="text-lg">Đang tải...</span>
-//                 </div>
-//               )}
-//             </div>
-//             {note && (
-//               <p
-//                 className={`text-sm ${textColor} opacity-90 bg-black bg-opacity-10 rounded-lg px-3 py-1 mt-2`}
-//               >
-//                 {note}
-//               </p>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//       <div className="h-1 bg-white bg-opacity-20"></div>
-//     </div>
-//   );
-// }
 "use client";
 
 import { useEffect, useState } from "react";
@@ -518,7 +154,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                📊 Dashboard Thống Kê
+                Dashboard Thống Kê
               </h1>
               <p className="mt-1 text-sm text-gray-500">
                 Tổng quan về tình hình kinh doanh
@@ -543,380 +179,383 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                📅 Bộ lọc thời gian
-              </h2>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center space-x-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Từ ngày:
-                </label>
-                <input
-                  type="date"
-                  value={dateFilter.startDate}
-                  onChange={(e) =>
-                    handleDateChange("startDate", e.target.value)
-                  }
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Đến ngày:
-                </label>
-                <input
-                  type="date"
-                  value={dateFilter.endDate}
-                  onChange={(e) => handleDateChange("endDate", e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                />
-              </div>
-
-              <div className="flex items-center space-x-2 ml-auto">
-                <span className="text-sm font-medium text-gray-700">
-                  Lọc nhanh:
-                </span>
-                <button
-                  onClick={() => setQuickFilter(7)}
-                  className="px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium"
-                >
-                  7 ngày
-                </button>
-                <button
-                  onClick={() => setQuickFilter(30)}
-                  className="px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium"
-                >
-                  30 ngày
-                </button>
-                <button
-                  onClick={() => setQuickFilter(90)}
-                  className="px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium"
-                >
-                  3 tháng
-                </button>
-                <button
-                  onClick={() => setQuickFilter(365)}
-                  className="px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium"
-                >
-                  1 năm
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-3 text-sm text-gray-600">
-              <span className="font-medium">Khoảng thời gian hiện tại:</span>{" "}
-              <span className="bg-white px-2 py-1 rounded border">
-                {new Date(dateFilter.startDate).toLocaleDateString("vi-VN")} -{" "}
-                {new Date(dateFilter.endDate).toLocaleDateString("vi-VN")}
-              </span>
-              <span className="ml-2">
-                (
-                {Math.ceil(
-                  (new Date(dateFilter.endDate) -
-                    new Date(dateFilter.startDate)) /
-                    (1000 * 60 * 60 * 24)
-                )}{" "}
-                ngày)
-              </span>
-              <button
-                onClick={async () => {
-                  const response = await axios.get(
-                    "/api/export/revenue-report",
-                    {
-                      params: {
-                        startDate: dateFilter.startDate,
-                        endDate: dateFilter.endDate,
-                      },
-                      responseType: "blob", // Quan trọng để nhận file binary
-                    }
-                  );
-                  const url = window.URL.createObjectURL(
-                    new Blob([response.data])
-                  );
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.setAttribute(
-                    "download",
-                    `revenue_report_${dateFilter.startDate}_to_${dateFilter.endDate}.xlsx`
-                  );
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                  window.URL.revokeObjectURL(url);
-                }}
-                className="ml-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
-                disabled={dateFilter.isFiltering}
-              >
-                Xuất báo cáo
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <SummaryCard
-            title="Tổng đơn hàng"
-            value={summary?.totalOrders}
-            icon="🛒"
-            bgColor="bg-gradient-to-r from-blue-500 to-blue-600"
-            textColor="text-white"
-            isLoading={dateFilter.isFiltering}
-          />
-          <SummaryCard
-            title="Tổng doanh thu"
-            value={summary?.totalRevenue?.toLocaleString("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            })}
-            note={`Từ danh mục: ${calculatedTotalRevenue.toLocaleString(
-              "vi-VN",
-              {
-                style: "currency",
-                currency: "VND",
-              }
-            )}`}
-            icon="💰"
-            bgColor="bg-gradient-to-r from-green-500 to-green-600"
-            textColor="text-white"
-            isLoading={dateFilter.isFiltering}
-          />
-          <SummaryCard
-            title="Sản phẩm đã bán"
-            value={summary?.totalSoldProducts}
-            note={`Từ danh mục: ${calculatedTotalSold}`}
-            icon="📦"
-            bgColor="bg-gradient-to-r from-purple-500 to-purple-600"
-            textColor="text-white"
-            isLoading={dateFilter.isFiltering}
-          />
-        </div>
-
+      {/* //điều chỉnh bảng */}
+      <div className="w-screen px-4 sm:px-6 py-8" style={{ maxWidth: "80vw" }}>
+        {" "}
+        {/* Thay đổi này */}
         <div className="space-y-8">
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
                 <h2 className="text-xl font-semibold text-gray-800">
-                  Doanh thu theo loại sản phẩm
+                  Bộ lọc thời gian
                 </h2>
               </div>
-              <p className="text-sm text-gray-600 mt-1">
-                Phân tích doanh thu từng danh mục (
-                {new Date(dateFilter.startDate).toLocaleDateString("vi-VN")} -{" "}
-                {new Date(dateFilter.endDate).toLocaleDateString("vi-VN")})
-              </p>
-            </div>
-            <div className="p-6 relative">
-              {dateFilter.isFiltering && (
-                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-gray-600">
-                      Đang cập nhật dữ liệu...
-                    </span>
-                  </div>
+
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Từ ngày:
+                  </label>
+                  <input
+                    type="date"
+                    value={dateFilter.startDate}
+                    onChange={(e) =>
+                      handleDateChange("startDate", e.target.value)
+                    }
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                  />
                 </div>
-              )}
-              <div style={{ width: "100%", height: 500 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart
-                    data={categoryStats}
-                    margin={{ top: 20, right: 30, left: 40, bottom: 80 }}
+
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Đến ngày:
+                  </label>
+                  <input
+                    type="date"
+                    value={dateFilter.endDate}
+                    onChange={(e) =>
+                      handleDateChange("endDate", e.target.value)
+                    }
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2 ml-auto">
+                  <span className="text-sm font-medium text-gray-700">
+                    Lọc nhanh:
+                  </span>
+                  <button
+                    onClick={() => setQuickFilter(7)}
+                    className="px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium"
                   >
-                    <defs>
-                      <linearGradient
-                        id="colorRevenue"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#10B981"
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#10B981"
-                          stopOpacity={0.3}
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="colorSold"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#3B82F6"
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#3B82F6"
-                          stopOpacity={0.3}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis
-                      dataKey="category"
-                      angle={0}
-                      textAnchor="end"
-                      interval={0}
-                      tick={{ fontSize: 12 }}
-                      stroke="#6b7280"
-                      height={80}
-                    />
-                    <YAxis
-                      yAxisId="revenue"
-                      orientation="left"
-                      tickFormatter={(value) =>
-                        Number(value).toLocaleString("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                          maximumFractionDigits: 0,
-                        })
+                    7 ngày
+                  </button>
+                  <button
+                    onClick={() => setQuickFilter(30)}
+                    className="px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium"
+                  >
+                    30 ngày
+                  </button>
+                  <button
+                    onClick={() => setQuickFilter(90)}
+                    className="px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium"
+                  >
+                    3 tháng
+                  </button>
+                  <button
+                    onClick={() => setQuickFilter(365)}
+                    className="px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium"
+                  >
+                    1 năm
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-3 text-sm text-gray-600">
+                <span className="font-medium">Khoảng thời gian hiện tại:</span>{" "}
+                <span className="bg-white px-2 py-1 rounded border">
+                  {new Date(dateFilter.startDate).toLocaleDateString("vi-VN")} -{" "}
+                  {new Date(dateFilter.endDate).toLocaleDateString("vi-VN")}
+                </span>
+                <span className="ml-2">
+                  (
+                  {Math.ceil(
+                    (new Date(dateFilter.endDate) -
+                      new Date(dateFilter.startDate)) /
+                      (1000 * 60 * 60 * 24)
+                  )}{" "}
+                  ngày)
+                </span>
+                <button
+                  onClick={async () => {
+                    const response = await axios.get(
+                      "/api/export/revenue-report",
+                      {
+                        params: {
+                          startDate: dateFilter.startDate,
+                          endDate: dateFilter.endDate,
+                        },
+                        responseType: "blob", // Quan trọng để nhận file binary
                       }
-                      tick={{ fontSize: 11 }}
-                      stroke="#10B981"
-                    />
-                    <YAxis
-                      yAxisId="quantity"
-                      orientation="right"
-                      tickFormatter={(value) => `${value} sp`}
-                      tick={{ fontSize: 11 }}
-                      stroke="#3B82F6"
-                    />
-                    <Tooltip
-                      formatter={(value, name) => {
-                        if (name === "totalRevenue") {
-                          return [
-                            Number(value).toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                              maximumFractionDigits: 0,
-                            }),
-                            "Doanh thu",
-                          ];
-                        } else if (name === "totalSold") {
-                          return [`${value} sản phẩm`, "Đã bán"];
-                        }
-                        return [value, name];
-                      }}
-                      contentStyle={{
-                        backgroundColor: "#ffffff",
-                        border: "1px solid #e5e7eb",
-                        borderRadius: "8px",
-                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                      }}
-                    />
-                    <Legend />
-                    <Bar
-                      yAxisId="revenue"
-                      dataKey="totalRevenue"
-                      fill="url(#colorRevenue)"
-                      barSize={30}
-                      radius={[4, 4, 0, 0]}
-                      name="Doanh thu"
-                    />
-                    <Bar
-                      yAxisId="quantity"
-                      dataKey="totalSold"
-                      fill="url(#colorSold)"
-                      barSize={30}
-                      radius={[4, 4, 0, 0]}
-                      name="Sản phẩm đã bán"
-                    />
-                  </ComposedChart>
-                </ResponsiveContainer>
+                    );
+                    const url = window.URL.createObjectURL(
+                      new Blob([response.data])
+                    );
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.setAttribute(
+                      "download",
+                      `revenue_report_${dateFilter.startDate}_to_${dateFilter.endDate}.xlsx`
+                    );
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                  }}
+                  className="ml-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
+                  disabled={dateFilter.isFiltering}
+                >
+                  Xuất báo cáo
+                </button>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Phân bố đơn hàng theo trạng thái
-                </h2>
-              </div>
-              <p className="text-sm text-gray-600 mt-1">
-                Tình trạng xử lý đơn hàng (
-                {new Date(dateFilter.startDate).toLocaleDateString("vi-VN")} -{" "}
-                {new Date(dateFilter.endDate).toLocaleDateString("vi-VN")})
-              </p>
-            </div>
-            <div className="p-6 relative">
-              {dateFilter.isFiltering && (
-                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-gray-600">
-                      Đang cập nhật dữ liệu...
-                    </span>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <SummaryCard
+              title="Tổng đơn hàng"
+              value={summary?.totalOrders}
+              bgColor="bg-gradient-to-r from-blue-500 to-blue-600"
+              textColor="text-white"
+              isLoading={dateFilter.isFiltering}
+            />
+            <SummaryCard
+              title="Tổng doanh thu"
+              value={summary?.totalRevenue?.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              })}
+              note={`Từ danh mục: ${calculatedTotalRevenue.toLocaleString(
+                "vi-VN",
+                {
+                  style: "currency",
+                  currency: "VND",
+                }
+              )}`}
+              bgColor="bg-gradient-to-r from-green-500 to-green-600"
+              textColor="text-white"
+              isLoading={dateFilter.isFiltering}
+            />
+            <SummaryCard
+              title="Sản phẩm đã bán"
+              value={summary?.totalSoldProducts}
+              note={`Từ danh mục: ${calculatedTotalSold}`}
+              bgColor="bg-gradient-to-r from-purple-500 to-purple-600"
+              textColor="text-white"
+              isLoading={dateFilter.isFiltering}
+            />
+          </div>
+
+          <div className="space-y-8">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Doanh thu theo loại sản phẩm
+                  </h2>
                 </div>
-              )}
-              <div style={{ width: "100%", height: 450 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={
-                        Array.isArray(orderDistribution)
-                          ? orderDistribution
-                          : []
-                      }
-                      dataKey="count"
-                      nameKey="status"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={130}
-                      innerRadius={60}
-                      label={({ status, percent }) =>
-                        `${status} (${(percent * 100).toFixed(0)}%)`
-                      }
-                      labelLine={false}
-                      stroke="#ffffff"
-                      strokeWidth={2}
+                <p className="text-sm text-gray-600 mt-1">
+                  Phân tích doanh thu từng danh mục (
+                  {new Date(dateFilter.startDate).toLocaleDateString("vi-VN")} -{" "}
+                  {new Date(dateFilter.endDate).toLocaleDateString("vi-VN")})
+                </p>
+              </div>
+              <div className="p-6 relative">
+                {dateFilter.isFiltering && (
+                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-600">
+                        Đang cập nhật dữ liệu...
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <div style={{ width: "100%", height: 500 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart
+                      data={categoryStats}
+                      margin={{ top: 20, right: 30, left: 40, bottom: 80 }}
                     >
-                      {Array.isArray(orderDistribution)
-                        ? orderDistribution.map((_, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={COLORS[index % COLORS.length]}
-                            />
-                          ))
-                        : null}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#ffffff",
-                        border: "1px solid #e5e7eb",
-                        borderRadius: "8px",
-                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                      }}
-                    />
-                    <Legend
-                      verticalAlign="bottom"
-                      height={36}
-                      wrapperStyle={{ paddingTop: "20px" }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                      <defs>
+                        <linearGradient
+                          id="colorRevenue"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#10B981"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#10B981"
+                            stopOpacity={0.3}
+                          />
+                        </linearGradient>
+                        <linearGradient
+                          id="colorSold"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#3B82F6"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#3B82F6"
+                            stopOpacity={0.3}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis
+                        dataKey="category"
+                        angle={0}
+                        textAnchor="end"
+                        interval={0}
+                        tick={{ fontSize: 12 }}
+                        stroke="#6b7280"
+                        height={80}
+                      />
+                      <YAxis
+                        yAxisId="revenue"
+                        orientation="left"
+                        tickFormatter={(value) =>
+                          Number(value).toLocaleString("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                            maximumFractionDigits: 0,
+                          })
+                        }
+                        tick={{ fontSize: 11 }}
+                        stroke="#10B981"
+                      />
+                      <YAxis
+                        yAxisId="quantity"
+                        orientation="right"
+                        tickFormatter={(value) => `${value} sp`}
+                        tick={{ fontSize: 11 }}
+                        stroke="#3B82F6"
+                      />
+                      <Tooltip
+                        formatter={(value, name) => {
+                          if (name === "totalRevenue") {
+                            return [
+                              Number(value).toLocaleString("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                                maximumFractionDigits: 0,
+                              }),
+                              "Doanh thu",
+                            ];
+                          } else if (name === "totalSold") {
+                            return [`${value} sản phẩm`, "Đã bán"];
+                          }
+                          return [value, name];
+                        }}
+                        contentStyle={{
+                          backgroundColor: "#ffffff",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "8px",
+                          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                        }}
+                      />
+                      <Legend />
+                      <Bar
+                        yAxisId="revenue"
+                        dataKey="totalRevenue"
+                        fill="url(#colorRevenue)"
+                        barSize={30}
+                        radius={[4, 4, 0, 0]}
+                        name="Doanh thu"
+                      />
+                      <Bar
+                        yAxisId="quantity"
+                        dataKey="totalSold"
+                        fill="url(#colorSold)"
+                        barSize={30}
+                        radius={[4, 4, 0, 0]}
+                        name="Sản phẩm đã bán"
+                      />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Phân bố đơn hàng theo trạng thái
+                  </h2>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">
+                  Tình trạng xử lý đơn hàng (
+                  {new Date(dateFilter.startDate).toLocaleDateString("vi-VN")} -{" "}
+                  {new Date(dateFilter.endDate).toLocaleDateString("vi-VN")})
+                </p>
+              </div>
+              <div className="p-6 relative">
+                {dateFilter.isFiltering && (
+                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-600">
+                        Đang cập nhật dữ liệu...
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <div style={{ width: "100%", height: 450 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={
+                          Array.isArray(orderDistribution)
+                            ? orderDistribution
+                            : []
+                        }
+                        dataKey="count"
+                        nameKey="status"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={130}
+                        innerRadius={60}
+                        label={({ status, percent }) =>
+                          `${status} (${(percent * 100).toFixed(0)}%)`
+                        }
+                        labelLine={false}
+                        stroke="#ffffff"
+                        strokeWidth={2}
+                      >
+                        {Array.isArray(orderDistribution)
+                          ? orderDistribution.map((_, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={COLORS[index % COLORS.length]}
+                              />
+                            ))
+                          : null}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#ffffff",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "8px",
+                          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                        }}
+                      />
+                      <Legend
+                        verticalAlign="bottom"
+                        height={36}
+                        wrapperStyle={{ paddingTop: "20px" }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           </div>
