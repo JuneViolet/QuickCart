@@ -200,7 +200,16 @@ export async function GET(request, context) {
       const orders = await Order.find({
         userId,
         "items.product": product._id,
-        status: { $in: ["shipped", "ghn_success", "paid"] }, // Chỉ tính đơn đã giao hoặc đã thanh toán
+        status: {
+          $in: [
+            "shipped",
+            "delivered",
+            "ghn_success",
+            "paid",
+            "Đang giao",
+            "Đã giao",
+          ],
+        }, // Bao gồm cả trạng thái delivered
       });
       hasPurchased = orders.length > 0;
     }

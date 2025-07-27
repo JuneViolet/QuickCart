@@ -1,34 +1,51 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { assets } from "@/assets/assets";
 import Image from "next/image";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useAppContext } from "@/context/AppContext";
 
 const HeaderSlider = () => {
+  const { router } = useAppContext();
+
   const sliderData = [
     {
       id: 1,
-      title: "Trải Nghiệm Âm Thanh Thuần Khiết - Tai Nghe Hoàn Hảo Đang Chờ Bạn!",
+      title:
+        "Trải Nghiệm Âm Thanh Thuần Khiết - Tai Nghe Hoàn Hảo Đang Chờ Bạn!",
       offer: "Khuyến Mãi Thời Gian Có Hạn Giảm Giá 30%",
       buttonText1: "Mua Ngay",
       buttonText2: "Tìm Hiểu Thêm",
       imgSrc: assets.header_headphone_image,
+      navigationPath1: "/all-products",
+      categoryFilter1: "tai-nghe",
+      navigationPath2: "/all-products",
+      categoryFilter2: "tai-nghe",
     },
     {
       id: 2,
-      title: "Trải Nghiệm Chơi Game Đẳng Cấp Mới Bắt Đầu Tại Đây - Khám Phá PlayStation 5 Ngay Hôm Nay!",
+      title:
+        "Trải Nghiệm Chơi Game Đẳng Cấp Mới Bắt Đầu Tại Đây - Khám Phá PlayStation 5 Ngay Hôm Nay!",
       offer: "Nhanh Tay Lên, Chỉ Còn Vài Cái Nữa Thôi!",
       buttonText1: "Mua Ngay",
       buttonText2: "Khám phá các giao dịch",
       imgSrc: assets.header_playstation_image,
+      navigationPath1: "/all-products",
+      categoryFilter1: "gaming console",
+      navigationPath2: "/all-products",
+      categoryFilter2: "gaming console",
     },
     {
       id: 3,
-      title: "Sức Mạnh Kết Hợp Với Sự Thanh Lịch - Apple MacBook Pro Dành Cho Bạn!",
+      title:
+        "Sức Mạnh Kết Hợp Với Sự Thanh Lịch - Apple MacBook Pro Dành Cho Bạn!",
       offer: "Ưu Đãi Độc Quyền Giảm Giá 40%",
       buttonText1: "Đặt Hàng Ngay",
       buttonText2: "Tìm Hiểu Thêm",
       imgSrc: assets.header_macbook_image,
+      navigationPath1: "/all-products",
+      categoryFilter1: "laptop",
+      navigationPath2: "/all-products",
+      categoryFilter2: "laptop",
     },
   ];
 
@@ -72,6 +89,16 @@ const HeaderSlider = () => {
     }, 5000);
   };
 
+  const handleButtonClick = (navigationPath, categoryFilter) => {
+    if (categoryFilter) {
+      router.push(
+        `${navigationPath}?category=${encodeURIComponent(categoryFilter)}`
+      );
+    } else {
+      router.push(navigationPath);
+    }
+  };
+
   return (
     <div className="overflow-hidden relative w-full">
       <div
@@ -91,10 +118,26 @@ const HeaderSlider = () => {
                 {slide.title}
               </h1>
               <div className="flex items-center mt-4 md:mt-6 gap-3">
-                <button className="md:px-10 px-7 md:py-2.5 py-2 bg-orange-600 rounded-full text-white font-medium hover:bg-orange-700 transition hover:scale-105">
+                <button
+                  onClick={() =>
+                    handleButtonClick(
+                      slide.navigationPath1,
+                      slide.categoryFilter1
+                    )
+                  }
+                  className="md:px-10 px-7 md:py-2.5 py-2 bg-orange-600 rounded-full text-white font-medium hover:bg-orange-700 transition hover:scale-105"
+                >
                   {slide.buttonText1}
                 </button>
-                <button className="group flex items-center gap-2 px-6 py-2.5 font-medium text-orange-600 hover:text-orange-700 transition">
+                <button
+                  onClick={() =>
+                    handleButtonClick(
+                      slide.navigationPath2,
+                      slide.categoryFilter2
+                    )
+                  }
+                  className="group flex items-center gap-2 px-6 py-2.5 font-medium text-orange-600 hover:text-orange-700 transition"
+                >
                   {slide.buttonText2}
                   <Image
                     className="group-hover:translate-x-1 transition"
