@@ -197,9 +197,9 @@ const Promocodes = () => {
 
     if (orderCount > 0) {
       toast.error(
-        `❌ Không thể xóa mã giảm giá này!\n\n` +
-          `🛒 Mã "${code}" đã được sử dụng trong ${orderCount} đơn hàng.\n\n` +
-          `💡 Gợi ý: Bạn có thể tắt mã giảm giá thay vì xóa để khách hàng không thể sử dụng mã mới.`,
+        ` Không thể xóa mã giảm giá này!\n\n` +
+          `Mã "${code}" đã được sử dụng trong ${orderCount} đơn hàng.\n\n` +
+          `Gợi ý: Bạn có thể tắt mã giảm giá thay vì xóa để khách hàng không thể sử dụng mã mới.`,
         {
           duration: 8000,
           style: {
@@ -211,9 +211,9 @@ const Promocodes = () => {
     }
 
     const confirmMessage =
-      `⚠️ Xác nhận xóa mã giảm giá\n\n` +
+      `Xác nhận xóa mã giảm giá\n\n` +
       `Bạn có chắc chắn muốn xóa mã "${code}" không?\n\n` +
-      `❗ Hành động này không thể hoàn tác!`;
+      ` Hành động này không thể hoàn tác!`;
 
     if (confirm(confirmMessage)) {
       try {
@@ -234,7 +234,7 @@ const Promocodes = () => {
         }
       } catch (error) {
         toast.error(
-          "❌ Lỗi xóa mã: " + (error.response?.data?.message || error.message)
+          " Lỗi xóa mã: " + (error.response?.data?.message || error.message)
         );
       }
     }
@@ -301,7 +301,7 @@ const Promocodes = () => {
                 {promocodes.length} mã giảm giá được tìm thấy
               </p>
               <p className="text-sm text-gray-500 mt-1">
-                💡 <strong>Lưu ý:</strong> Mã giảm giá đã được sử dụng trong đơn
+                <strong>Lưu ý:</strong> Mã giảm giá đã được sử dụng trong đơn
                 hàng sẽ không thể xóa được. Bạn có thể tắt mã thay vì xóa.
               </p>
             </div>
@@ -853,7 +853,7 @@ const Promocodes = () => {
 
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <span className="font-semibold text-lg bg-blue-50 text-blue-700 px-3 py-1 rounded-md">
+                            <span className="font-semibold text-lg text-blue-700 px-3 py-1 rounded-md">
                               {promocode.code}
                             </span>
                             <span
@@ -931,10 +931,10 @@ const Promocodes = () => {
                           }`}
                           title={
                             promoOrdersCount[promocode.code] > 0
-                              ? `❌ Không thể xóa - Mã đã được sử dụng trong ${
+                              ? `Không thể xóa - Mã đã được sử dụng trong ${
                                   promoOrdersCount[promocode.code]
                                 } đơn hàng`
-                              : "🗑️ Xóa mã giảm giá"
+                              : " Xóa mã giảm giá"
                           }
                         >
                           <svg

@@ -138,150 +138,242 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="flex-1 min-h-screen flex flex-col justify-between">
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {loading ? (
-        <p className="p-4">Đang tải danh sách loại và hãng...</p>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="bg-white p-8 rounded-2xl shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-orange-500"></div>
+              <p className="text-gray-600 font-medium">
+                Đang tải danh sách loại và hãng...
+              </p>
+            </div>
+          </div>
+        </div>
       ) : (
-        <form
-          onSubmit={handleSubmit}
-          className="md:p-10 p-4 space-y-5 max-w-lg"
-        >
-          <div>
-            <p className="text-base font-medium">Hình Ảnh Sản Phẩm</p>
-            <div className="flex flex-wrap items-center gap-3 mt-2">
-              {[...Array(4)].map((_, index) => (
-                <label key={index} htmlFor={`image${index}`}>
-                  <input
-                    onChange={(e) => {
-                      const updatedFiles = [...files];
-                      updatedFiles[index] = e.target.files[0];
-                      setFiles(updatedFiles);
-                    }}
-                    type="file"
-                    id={`image${index}`}
-                    hidden
-                  />
-                  <Image
-                    className="max-w-24 cursor-pointer"
-                    src={
-                      files[index]
-                        ? URL.createObjectURL(files[index])
-                        : assets.upload_area
-                    }
-                    alt=""
-                    width={100}
-                    height={100}
-                  />
-                </label>
-              ))}
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Thêm Sản Phẩm Mới
+              </h1>
+              <p className="text-gray-600">
+                Điền thông tin chi tiết để thêm sản phẩm vào cửa hàng của bạn
+              </p>
             </div>
-          </div>
-          <div className="flex flex-col gap-1 max-w-md">
-            <label className="text-base font-medium" htmlFor="product-name">
-              Tên Sản Phẩm
-            </label>
-            {erroName && <p className="text-sm text-red-500">{erroName}</p>}
-            <input
-              id="product-name"
-              type="text"
-              placeholder="Type here"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-              onChange={(e) => {
-                setName(e.target.value);
-                setErroName("");
-              }}
-              value={name}
-              required
-            />
-          </div>
-          <div className="flex flex-col gap-1 max-w-md">
-            <label
-              className="text-base font-medium"
-              htmlFor="product-description"
+
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white rounded-2xl shadow-xl p-8 space-y-8"
             >
-              Chi Tiết Sản Phẩm
-            </label>
-            <textarea
-              id="product-description"
-              rows={4}
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40 resize-none"
-              placeholder="Nhập mô tả chi tiết sản phẩm (ví dụ: Tai nghe không dây, pin 20 giờ...)"
-              onChange={(e) => setDescription(e.target.value)}
-              value={description}
-              required
-            ></textarea>
+              {/* Upload Images Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Hình Ảnh Sản Phẩm
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Tải lên tối đa 4 hình ảnh chất lượng cao
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[...Array(4)].map((_, index) => (
+                    <label
+                      key={index}
+                      htmlFor={`image${index}`}
+                      className="group"
+                    >
+                      <input
+                        onChange={(e) => {
+                          const updatedFiles = [...files];
+                          updatedFiles[index] = e.target.files[0];
+                          setFiles(updatedFiles);
+                        }}
+                        type="file"
+                        id={`image${index}`}
+                        hidden
+                        accept="image/*"
+                      />
+                      <div className="relative aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-400 transition-all duration-300 cursor-pointer group-hover:bg-blue-50 flex items-center justify-center overflow-hidden">
+                        {files[index] ? (
+                          <Image
+                            className="w-full h-full object-cover"
+                            src={URL.createObjectURL(files[index])}
+                            alt={`Product image ${index + 1}`}
+                            width={200}
+                            height={200}
+                          />
+                        ) : (
+                          <div className="text-center">
+                            <Image
+                              className="w-12 h-12 mx-auto opacity-50"
+                              src={assets.upload_area}
+                              alt="Upload"
+                              width={48}
+                              height={48}
+                            />
+                            <p className="text-xs text-gray-500 mt-2">
+                              Tải ảnh {index + 1}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Basic Information */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Product Name */}
+                <div className="md:col-span-2">
+                  <label
+                    className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3"
+                    htmlFor="product-name"
+                  >
+                    <span className="text-xl"></span>
+                    Tên Sản Phẩm
+                  </label>
+                  {erroName && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+                      <p className="text-sm text-red-600 flex items-center gap-2">
+                        <span></span>
+                        {erroName}
+                      </p>
+                    </div>
+                  )}
+                  <input
+                    id="product-name"
+                    type="text"
+                    placeholder="Nhập tên sản phẩm (ví dụ: iPhone 15 Pro Max 256GB)"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300 text-gray-700"
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      setErroName("");
+                    }}
+                    value={name}
+                    required
+                  />
+                </div>
+
+                {/* Category & Brand */}
+                <div>
+                  <label
+                    className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3"
+                    htmlFor="category"
+                  >
+                    <span className="text-xl"></span>
+                    Danh Mục
+                  </label>
+                  <select
+                    id="category"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300 bg-white text-gray-700"
+                    onChange={(e) => setCategory(e.target.value)}
+                    value={category}
+                    disabled={categories.length === 0}
+                  >
+                    {categories.length === 0 ? (
+                      <option value="">Không có danh mục nào</option>
+                    ) : (
+                      categories.map((cat) => (
+                        <option key={cat._id} value={cat.name}>
+                          {cat.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3"
+                    htmlFor="brand"
+                  >
+                    <span className="text-xl"></span>
+                    Thương Hiệu
+                  </label>
+                  <select
+                    id="brand"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300 bg-white text-gray-700"
+                    onChange={(e) => setBrand(e.target.value)}
+                    value={brand}
+                    disabled={brands.length === 0}
+                  >
+                    {brands.length === 0 ? (
+                      <option value="">Không có thương hiệu nào</option>
+                    ) : (
+                      brands.map((br) => (
+                        <option key={br._id} value={br.name}>
+                          {br.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+              </div>
+
+              {/* Product Description */}
+              <div>
+                <label
+                  className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3"
+                  htmlFor="product-description"
+                >
+                  <span className="text-xl"></span>
+                  Mô Tả Sản Phẩm
+                </label>
+                <textarea
+                  id="product-description"
+                  rows={5}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300 resize-none text-gray-700"
+                  placeholder="Mô tả chi tiết về sản phẩm, tính năng nổi bật, chất liệu, kích thước..."
+                  onChange={(e) => setDescription(e.target.value)}
+                  value={description}
+                  required
+                />
+              </div>
+
+              {/* Keywords */}
+              <div>
+                <label
+                  className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3"
+                  htmlFor="keywords"
+                >
+                  <span className="text-xl"></span>
+                  Từ Khóa Tìm Kiếm
+                </label>
+                <input
+                  id="keywords"
+                  type="text"
+                  placeholder="smartphone, 5G, chống nước, camera 48MP"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300 text-gray-700"
+                  onChange={(e) => setKeywords(e.target.value)}
+                  value={keywords}
+                />
+                <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm text-amber-700 flex items-center gap-2">
+                    <span></span>
+                    Nhập các từ khóa giúp khách hàng tìm thấy sản phẩm dễ dàng
+                    hơn, cách nhau bằng dấu phẩy
+                  </p>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end pt-6 border-t border-gray-200">
+                <button
+                  type="submit"
+                  className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-3"
+                >
+                  <span className="text-lg"></span>
+                  THÊM SẢN PHẨM
+                </button>
+              </div>
+            </form>
           </div>
-          <div className="flex items-center gap-5 flex-wrap">
-            <div className="flex flex-col gap-1 w-32">
-              <label className="text-base font-medium" htmlFor="category">
-                Loại
-              </label>
-              <select
-                id="category"
-                className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-                onChange={(e) => setCategory(e.target.value)}
-                value={category}
-                disabled={categories.length === 0}
-              >
-                {categories.length === 0 ? (
-                  <option value="">Không có loại nào</option>
-                ) : (
-                  categories.map((cat) => (
-                    <option key={cat._id} value={cat.name}>
-                      {cat.name}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-            <div className="flex flex-col gap-1 w-32">
-              <label className="text-base font-medium" htmlFor="brand">
-                Hãng
-              </label>
-              <select
-                id="brand"
-                className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-                onChange={(e) => setBrand(e.target.value)}
-                value={brand}
-                disabled={brands.length === 0}
-              >
-                {brands.length === 0 ? (
-                  <option value="">Không có hãng nào</option>
-                ) : (
-                  brands.map((br) => (
-                    <option key={br._id} value={br.name}>
-                      {br.name}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-          </div>
-          {/* Thêm trường keywords */}
-          <div className="flex flex-col gap-1 max-w-md">
-            <label className="text-base font-medium" htmlFor="keywords">
-              Từ Khóa (cách nhau bằng dấu phẩy)
-            </label>
-            <input
-              id="keywords"
-              type="text"
-              placeholder="Ví dụ: Apple, smartphone, 5G"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-              onChange={(e) => setKeywords(e.target.value)}
-              value={keywords}
-            />
-            <p className="text-sm text-gray-500">
-              Nhập các từ khóa liên quan (ví dụ: thương hiệu, tính năng), cách
-              nhau bằng dấu phẩy hoặc khoảng trắng.
-            </p>
-          </div>
-          <button
-            type="submit"
-            className="px-8 py-2.5 bg-orange-600 text-white font-medium rounded"
-          >
-            THÊM
-          </button>
-        </form>
+        </div>
       )}
     </div>
   );

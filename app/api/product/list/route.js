@@ -203,21 +203,21 @@ import Brand from "@/models/Brand";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
-// Chuẩn hóa chuỗi (THAY space bằng - để khớp với MegaMenu.jsx)
+// Chuẩn hóa chuỗi (GIỮ NGUYÊN khoảng cách để khớp với database)
 const normalizeString = (str) =>
   str
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
-    .replace(/ /g, "-")
-    .replace(/[^a-z0-9-]/g, "");
+    .replace(/[^a-z0-9\s]/g, "")
+    .trim();
 
 // Tách từ khóa và loại bỏ khoảng cách dư thừa
 const splitSearchTerms = (query) =>
   query
     .split(/\s+/) // Tách bởi bất kỳ khoảng trắng nào
-    .map((term) => normalizeString(term).trim()) // Chuẩn hóa từng từ
+    .map((term) => term.trim()) // Giữ nguyên từ, chỉ trim khoảng cách đầu cuối
     .filter((term) => term.length > 0);
 
 export async function GET(request) {
@@ -260,18 +260,35 @@ export async function GET(request) {
         );
       }
       filters.category = categoryId;
-    } else if (categoryName && normalizeString(categoryName) !== "all") {
+    } else if (categoryName && categoryName.toLowerCase() !== "all") {
       const normalized = normalizeString(categoryName);
       const categories = await Category.find().lean();
+
+      // Tìm category khớp tên (cả normalize và không normalize)
       const matched = categories.find(
-        (cat) => normalizeString(cat.name) === normalized
+        (cat) =>
+          normalizeString(cat.name) === normalized ||
+          cat.name.toLowerCase() === categoryName.toLowerCase()
       );
+
       if (!matched) {
         console.warn(
-          `Category not found for ${normalized}, using default 'All'`
+          `Category not found for "${categoryName}" (normalized: "${normalized}"), available categories:`,
+          categories.map((cat) => ({
+            name: cat.name,
+            normalized: normalizeString(cat.name),
+          }))
+        );
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Không tìm thấy danh mục: ${categoryName}`,
+          },
+          { status: 400 }
         );
       } else {
         filters.category = matched._id;
+        console.log(`Found category: ${matched.name} (${matched._id})`);
       }
     }
 
@@ -279,24 +296,38 @@ export async function GET(request) {
     if (brandName) {
       const normalized = normalizeString(brandName);
       const brands = await Brand.find().lean();
+
+      // Tìm brand khớp tên (cả normalize và không normalize)
       const matched = brands.find(
-        (br) => normalizeString(br.name) === normalized
+        (br) =>
+          normalizeString(br.name) === normalized ||
+          br.name.toLowerCase() === brandName.toLowerCase()
       );
+
       if (!matched) {
-        console.warn(`Brand not found for ${normalized}, using default 'All'`);
+        console.warn(
+          `Brand not found for "${brandName}" (normalized: "${normalized}"), available brands:`,
+          brands.map((brand) => ({
+            name: brand.name,
+            normalized: normalizeString(brand.name),
+          }))
+        );
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Không tìm thấy thương hiệu: ${brandName}`,
+          },
+          { status: 400 }
+        );
       } else {
         filters.brand = matched._id;
+        console.log(`Found brand: ${matched.name} (${matched._id})`);
       }
     }
 
     // ==== Seller filter ====
     if (userId) {
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return NextResponse.json(
-          { success: false, message: "Invalid userId" },
-          { status: 400 }
-        );
-      }
+      // Không cần kiểm tra ObjectId format vì userId có thể là từ Clerk (user_xxx)
       filters.userId = userId;
     } else {
       // Nếu không phải seller request, chỉ hiển thị sản phẩm active

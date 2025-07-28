@@ -96,6 +96,7 @@ const ProductList = () => {
           query: query || "",
           category: category || "",
           userId: user.id, // Lọc sản phẩm của seller
+          limit: 10000, // Hiển thị tất cả sản phẩm (limit rất lớn)
         },
       });
       if (data?.success) {
@@ -249,7 +250,7 @@ const ProductList = () => {
       return;
     }
 
-    toast.success("✏️ Đã mở form chỉnh sửa sản phẩm", {
+    toast.success("Đã mở form chỉnh sửa sản phẩm", {
       duration: 2000,
     });
 
@@ -274,9 +275,9 @@ const ProductList = () => {
 
     if (hasOrders) {
       toast.error(
-        `❌ Không thể xóa sản phẩm này!\n\n` +
-          `🛒 Sản phẩm đã có ${productOrders[productId]} đơn hàng liên quan.\n\n` +
-          `💡 Gợi ý: Bạn có thể tạm dừng hoạt động sản phẩm thay vì xóa để khách hàng không thể đặt hàng mới.`,
+        ` Không thể xóa sản phẩm này!\n\n` +
+          `Sản phẩm đã có ${productOrders[productId]} đơn hàng liên quan.\n\n` +
+          `Gợi ý: Bạn có thể tạm dừng hoạt động sản phẩm thay vì xóa để khách hàng không thể đặt hàng mới.`,
         {
           duration: 8000,
           style: {
@@ -288,9 +289,9 @@ const ProductList = () => {
     }
 
     const confirmMessage =
-      `⚠️ Xác nhận xóa sản phẩm\n\n` +
+      `Xác nhận xóa sản phẩm\n\n` +
       `Bạn có chắc chắn muốn xóa sản phẩm này không?\n\n` +
-      `❗ Hành động này không thể hoàn tác!`;
+      `Hành động này không thể hoàn tác!`;
 
     if (confirm(confirmMessage)) {
       try {
@@ -300,7 +301,7 @@ const ProductList = () => {
         // Cập nhật lại thông tin đơn hàng sau khi xóa
         checkProductOrders();
       } catch (error) {
-        toast.error("❌ Lỗi khi xóa sản phẩm: " + error.message);
+        toast.error("Lỗi khi xóa sản phẩm: " + error.message);
       }
     }
   };
@@ -308,7 +309,7 @@ const ProductList = () => {
   const handleUpdateProduct = async (e) => {
     e.preventDefault();
     if (!editingProduct) {
-      toast.error("❌ Không có sản phẩm nào được chọn để cập nhật");
+      toast.error("Không có sản phẩm nào được chọn để cập nhật");
       return;
     }
 
@@ -362,13 +363,13 @@ const ProductList = () => {
         error.response?.data || error.message
       );
       toast.error(
-        "❌ Lỗi cập nhật: " + (error.response?.data?.message || error.message)
+        " Lỗi cập nhật: " + (error.response?.data?.message || error.message)
       );
     }
   };
 
   const handleCancelEdit = () => {
-    toast.info("🚫 Đã hủy chỉnh sửa sản phẩm", {
+    toast.info("Đã hủy chỉnh sửa sản phẩm", {
       duration: 2000,
     });
 
@@ -550,8 +551,8 @@ const ProductList = () => {
               Tất Cả Sản Phẩm
             </h2>
             <p className="text-sm text-gray-600">
-              💡 <strong>Lưu ý:</strong> Sản phẩm đã có đơn hàng sẽ không thể
-              xóa được. Bạn có thể tạm dừng hoạt động thay vì xóa.
+              <strong>Lưu ý:</strong> Sản phẩm đã có đơn hàng sẽ không thể xóa
+              được. Bạn có thể tạm dừng hoạt động thay vì xóa.
             </p>
           </div>
           <div className="flex flex-col gap-4 max-w-6xl w-full overflow-hidden rounded-md bg-white border border-gray-600/20">

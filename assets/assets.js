@@ -1,5 +1,6 @@
 import logo from "./logo2.png";
 import view from "./view.png";
+import dashboard from "./dashboard.png";
 import variant from "./variant.png";
 import haf_star from "./half-star.png";
 import deleted from "./delete.png";
@@ -124,6 +125,7 @@ export const assets = {
   view,
   variant,
   haf_star,
+  dashboard,
 };
 
 export const BagIcon = () => {

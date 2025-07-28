@@ -359,7 +359,7 @@ const HomeProducts = () => {
 
           {/* Price Filter Panel */}
           {showPriceFilter && (
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 shadow-sm">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-2 border border-gray-200 shadow-sm">
               <h3 className="text-lg font-semibold mb-6 text-gray-800 flex items-center gap-2">
                 <span className="text-xl"></span>
                 Khoảng giá mong muốn
@@ -375,7 +375,7 @@ const HomeProducts = () => {
                     </div>
                   </div>
                   <div className="flex-1 h-px bg-gray-300 mx-4"></div>
-                  <div className="bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
+                  <div className="bg-white px-3 py-2 rounded-xl border border-gray-200 shadow-sm">
                     <span className="text-sm text-gray-500">Đến</span>
                     <div className="font-bold text-orange-600 text-lg">
                       {formatPrice(priceRange.max)} VND

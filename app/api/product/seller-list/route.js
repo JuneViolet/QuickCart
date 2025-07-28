@@ -25,10 +25,9 @@ export async function GET(request) {
 
     await connectDB();
 
-    // Lấy sản phẩm của seller hiện tại và populate category và brand, giới hạn 50 sản phẩm
+    // Lấy tất cả sản phẩm của seller hiện tại và populate category và brand
     const products = await Product.find({ userId: user.id })
       .populate("category brand", "name")
-      .limit(50)
       .lean(); // Sử dụng .lean() để tăng hiệu suất
 
     if (!products) {

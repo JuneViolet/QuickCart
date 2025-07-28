@@ -44,7 +44,6 @@ const ProductEditForm = ({
     <div className="w-full max-w-4xl mx-auto">
       <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
         <h2 className="text-xl font-semibold text-blue-700 mb-4 flex items-center">
-          <span className="mr-2">✏️</span>
           Chỉnh Sửa Sản Phẩm
         </h2>
         <form onSubmit={handleUpdateProduct} className="space-y-6">
@@ -153,7 +152,7 @@ const ProductEditForm = ({
                 )}
               </select>
             </div>
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
               <label
                 className="text-sm font-semibold text-gray-700"
                 htmlFor="edit-price"
@@ -173,8 +172,8 @@ const ProductEditForm = ({
                 value={formData.price !== undefined ? formData.price : ""}
                 required
               />
-            </div>
-            <div className="flex flex-col gap-1">
+            </div> */}
+            {/* <div className="flex flex-col gap-1">
               <label
                 className="text-sm font-semibold text-gray-700"
                 htmlFor="edit-offer-price"
@@ -196,7 +195,7 @@ const ProductEditForm = ({
                 }
                 required
               />
-            </div>
+            </div> */}
           </div>
           <div className="flex flex-col gap-1">
             <label

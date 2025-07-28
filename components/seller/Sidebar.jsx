@@ -7,6 +7,11 @@ import { usePathname } from "next/navigation";
 const SideBar = () => {
   const pathname = usePathname();
   const menuItems = [
+    {
+      name: "DashBoard",
+      path: "/seller/dash-board",
+      icon: assets.dashboard, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
+    },
     { name: "Add Product", path: "/seller", icon: assets.add_icon },
     {
       name: "Product List",
@@ -17,37 +22,27 @@ const SideBar = () => {
     {
       name: "Promo Codes",
       path: "/seller/promocodes",
-      icon: assets.promocode, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
+      icon: assets.promocode,
     },
     {
       name: "Manage C&B",
       path: "/seller/manage-categories-brands",
-      icon: assets.entity, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
+      icon: assets.entity,
     },
     {
       name: "Specification",
       path: "/seller/specifications",
-      icon: assets.specifications, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
+      icon: assets.specifications,
     },
     {
       name: "Spec Templates",
       path: "/seller/specification-template",
-      icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
-    },
-    {
-      name: "Variants",
-      path: "/seller/variants",
-      icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
+      icon: assets.work_list,
     },
     {
       name: "Attributes",
       path: "/seller/attributes",
-      icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
-    },
-    {
-      name: "DashBoard",
-      path: "/seller/dash-board",
-      icon: assets.work_list, // Tạm dùng icon của Orders, bạn có thể thay bằng icon mới
+      icon: assets.work_list,
     },
   ];
 

@@ -26,12 +26,12 @@ const ProductTable = ({
           <table className="table-fixed w-full">
             <thead className="text-gray-900 text-sm text-left bg-gray-100 sticky top-0 z-20">
               <tr>
-                <th className="w-48 px-4 py-3 font-medium truncate">
+                <th className="w-52 px-4 py-3 font-medium truncate">
                   Sản Phẩm
                 </th>
                 <th className="w-24 px-4 py-3 font-medium truncate">Loại</th>
-                <th className="w-24 px-4 py-3 font-medium truncate">Hãng</th>
-                <th className="w-20 px-4 py-3 font-medium truncate">
+                <th className="w-16 px-4 py-3 font-medium truncate">Hãng</th>
+                <th className="w-16 px-4 py-3 font-medium truncate">
                   Số Lượng
                 </th>
                 <th className="w-24 px-4 py-3 font-medium truncate">
@@ -40,7 +40,7 @@ const ProductTable = ({
                 <th className="w-20 px-4 py-3 font-medium truncate">
                   Trạng thái
                 </th>
-                <th className="w-32 px-4 py-3 font-medium">Action</th>
+                <th className="w-28 px-4 py-3 font-medium">Action</th>
               </tr>
             </thead>
             <tbody className="text-sm text-gray-500">
