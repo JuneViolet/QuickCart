@@ -58,7 +58,7 @@ const MyOrders = () => {
       console.log("No orders to update tracking status");
       return;
     }
-    
+
     try {
       const updatedOrders = await Promise.all(
         orders.map(async (order) => {

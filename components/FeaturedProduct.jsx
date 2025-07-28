@@ -8,20 +8,20 @@ const products = [
   {
     id: 1,
     image: assets.girl_with_headphone_image,
-    title: "Unparalleled Sound",
-    description: "Experience crystal-clear audio with premium headphones.",
+    title: "Âm Thanh Sống Động",
+    description: "Trải nghiệm âm thanh trong trẻo với tai nghe cao cấp.",
   },
   {
     id: 2,
     image: assets.girl_with_earphone_image,
-    title: "Stay Connected",
-    description: "Compact and stylish earphones for every occasion.",
+    title: "Kết Nối Liên Tục",
+    description: "Tai nghe nhỏ gọn và phong cách cho mọi nơi.",
   },
   {
     id: 3,
     image: assets.boy_with_laptop_image,
-    title: "Power in Every Pixel",
-    description: "Shop the latest laptops for work, gaming, and more.",
+    title: "Sức Mạnh Trong Từng Pixel",
+    description: "Khám phá laptop mới nhất cho công việc, chơi game và nhiều hơn nữa.",
   },
 ];
 

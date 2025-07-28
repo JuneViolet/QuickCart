@@ -13,8 +13,9 @@ const HomeProducts = () => {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState(["All"]);
+  const [brands, setBrands] = useState(["All"]);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedBrand, setSelectedBrand] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -58,6 +59,21 @@ const HomeProducts = () => {
     }
   };
 
+  const fetchBrands = async () => {
+    try {
+      const res = await fetch("/api/seller/manage?type=brands");
+      const data = await res.json();
+      if (data.success) {
+        const brandNames = data.items.map((brand) => brand.name);
+        setBrands(["All", ...brandNames]);
+      } else {
+        console.error("Fetch brands error:", data.message);
+      }
+    } catch (err) {
+      console.error("Fetch brands error:", err.message);
+    }
+  };
+
   const fetchProducts = useCallback(
     async (
       query = "",
@@ -77,7 +93,8 @@ const HomeProducts = () => {
         const normalizedQuery = normalizeSearchTerm(query);
         const normalizedCategory =
           category !== "All" ? normalizeSearchTerm(category) : "";
-        const normalizedBrand = brand ? normalizeSearchTerm(brand) : "";
+        const normalizedBrand =
+          brand !== "All" ? normalizeSearchTerm(brand) : "";
 
         url = `/api/product/list?page=${page}&limit=10${
           normalizedQuery ? `&query=${encodeURIComponent(normalizedQuery)}` : ""
@@ -125,6 +142,8 @@ const HomeProducts = () => {
   const resetFilters = () => {
     setPriceRange({ min: 0, max: 100000000 });
     setSortOrder("");
+    setSelectedCategory("All");
+    setSelectedBrand("All");
     setPage(1);
     setSearchTerm(""); // Reset ô tìm kiếm khi xóa bộ lọc
   };
@@ -175,8 +194,9 @@ const HomeProducts = () => {
 
   useEffect(() => {
     fetchCategories();
+    fetchBrands();
     const categoryFromUrl = searchParams.get("category") || "All";
-    const brandFromUrl = searchParams.get("brand") || "";
+    const brandFromUrl = searchParams.get("brand") || "All";
     const minPriceFromUrl = parseInt(searchParams.get("minPrice")) || 0;
     const maxPriceFromUrl = parseInt(searchParams.get("maxPrice")) || 100000000;
     const sortFromUrl = searchParams.get("sort") || "";
@@ -253,7 +273,7 @@ const HomeProducts = () => {
                 placeholder="Tìm kiếm sản phẩm..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200"
+                className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300"
               />
             </div>
             <select
@@ -262,11 +282,25 @@ const HomeProducts = () => {
                 setSelectedCategory(e.target.value);
                 setPage(1);
               }}
-              className="px-4 py-2.5 border border-gray-200 rounded-xl w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200 bg-white"
+              className="px-4 py-2.5 border border-gray-200 rounded-xl w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300 bg-white"
             >
               {categories.map((category) => (
                 <option key={category} value={category}>
                   {category}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedBrand}
+              onChange={(e) => {
+                setSelectedBrand(e.target.value);
+                setPage(1);
+              }}
+              className="px-4 py-2.5 border border-gray-200 rounded-xl w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300 bg-white"
+            >
+              {brands.map((brand) => (
+                <option key={brand} value={brand}>
+                  {brand}
                 </option>
               ))}
             </select>
@@ -278,7 +312,7 @@ const HomeProducts = () => {
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <button
               onClick={() => setShowPriceFilter(!showPriceFilter)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-300 ${
                 showPriceFilter
                   ? "bg-orange-500 text-white shadow-lg"
                   : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
@@ -287,7 +321,7 @@ const HomeProducts = () => {
               <span className="text-lg"></span>
               Lọc theo giá
               <span
-                className={`transform transition-transform duration-200 ${
+                className={`transform transition-transform duration-300 ${
                   showPriceFilter ? "rotate-180" : ""
                 }`}
               >
@@ -301,7 +335,7 @@ const HomeProducts = () => {
                 setSortOrder(e.target.value);
                 setPage(1);
               }}
-              className="px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200 bg-white min-w-[160px]"
+              className="px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300 bg-white min-w-[160px]"
             >
               <option value="">Sắp xếp theo giá</option>
               <option value="low-to-high">Thấp → Cao</option>
@@ -311,10 +345,12 @@ const HomeProducts = () => {
             {(priceRange.min > 0 ||
               priceRange.max < 100000000 ||
               sortOrder ||
+              selectedCategory !== "All" ||
+              selectedBrand !== "All" ||
               searchTerm) && (
               <button
                 onClick={resetFilters}
-                className="flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
+                className="flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all duration-300 text-sm font-medium"
               >
                 <span>✕</span> Xóa bộ lọc
               </button>
@@ -405,7 +441,7 @@ const HomeProducts = () => {
                       type="number"
                       value={priceRange.min}
                       onChange={(e) => handlePriceChange("min", e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300"
                       placeholder="0"
                       min="0"
                       max="100000000"
@@ -419,7 +455,7 @@ const HomeProducts = () => {
                       type="number"
                       value={priceRange.max}
                       onChange={(e) => handlePriceChange("max", e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-300"
                       placeholder="100000000"
                       min="0"
                       max="100000000"
@@ -441,7 +477,7 @@ const HomeProducts = () => {
                       onClick={() => {
                         setPriceRange({ min: range.min, max: range.max });
                         debouncedFetchProducts(
-                          "",
+                          searchTerm,
                           selectedCategory,
                           selectedBrand,
                           range.min,
@@ -449,7 +485,7 @@ const HomeProducts = () => {
                           sortOrder
                         ); // Gọi ngay lập tức
                       }}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                         priceRange.min === range.min &&
                         priceRange.max === range.max
                           ? "bg-orange-500 text-white shadow-md"
@@ -468,6 +504,8 @@ const HomeProducts = () => {
           {(priceRange.min > 0 ||
             priceRange.max < 100000000 ||
             sortOrder ||
+            selectedCategory !== "All" ||
+            selectedBrand !== "All" ||
             searchTerm) && (
             <div className="flex flex-wrap gap-2 mt-4">
               {(priceRange.min > 0 || priceRange.max < 100000000) && (
@@ -481,9 +519,19 @@ const HomeProducts = () => {
                   {sortOrder === "low-to-high" ? "Thấp → Cao" : "Cao → Thấp"}
                 </span>
               )}
+              {selectedCategory !== "All" && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800 border border-purple-200">
+                  {selectedCategory}
+                </span>
+              )}
+              {selectedBrand !== "All" && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800 border border-indigo-200">
+                  {selectedBrand}
+                </span>
+              )}
               {searchTerm && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800 border border-green-200">
-                  🔍 {searchTerm}
+                  {searchTerm}
                 </span>
               )}
             </div>
@@ -543,7 +591,7 @@ const HomeProducts = () => {
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
-              className="flex items-center justify-center w-10 h-10 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center w-10 h-10 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Image
                 src={assets.arrow_left1}
@@ -559,7 +607,7 @@ const HomeProducts = () => {
             <button
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={page === totalPages}
-              className="flex items-center justify-center w-10 h-10 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center w-10 h-10 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Image src={assets.arrow_right1} alt="Next" className="w-4 h-4" />
             </button>
@@ -578,7 +626,7 @@ const HomeProducts = () => {
           cursor: pointer;
           border: 3px solid #ffffff;
           box-shadow: 0 4px 8px rgba(249, 115, 22, 0.3);
-          transition: all 0.2s ease;
+          transition: all 0.3s ease;
         }
 
         .slider-thumb::-webkit-slider-thumb:hover {
@@ -594,6 +642,7 @@ const HomeProducts = () => {
           cursor: pointer;
           border: 3px solid #ffffff;
           box-shadow: 0 4px 8px rgba(249, 115, 22, 0.3);
+          transition: all 0.3s ease;
         }
 
         .slider-thumb::-webkit-slider-track {

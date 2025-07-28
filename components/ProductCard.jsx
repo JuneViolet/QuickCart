@@ -125,12 +125,14 @@ import Image from "next/image";
 import { assets } from "@/assets/assets";
 import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/AppContext";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const ProductCard = ({ product }) => {
   const router = useRouter();
   const { currency, formatCurrency } = useAppContext();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const intervalRef = useRef(null);
 
   // Hàm renderStars để hiển thị sao với hỗ trợ thập phân
   const renderStars = (ratingValue) => {
@@ -197,15 +199,36 @@ const ProductCard = ({ product }) => {
       : [assets.placeholder_image];
   const currentImage = images[currentImageIndex];
 
-  // Xử lý hover để chuyển ảnh
-  const handleMouseEnter = () => {
-    if (images.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length); // Chuyển sang ảnh tiếp theo
+  // Effect để xử lý chuyển ảnh tự động khi hover
+  useEffect(() => {
+    if (isHovered && images.length > 1) {
+      intervalRef.current = setInterval(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      }, 1500); // Chuyển ảnh mỗi 1.5 giây
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      if (!isHovered) {
+        setCurrentImageIndex(0); // Quay lại ảnh đầu tiên khi không hover
+      }
     }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isHovered, images.length]);
+
+  // Xử lý hover để bắt đầu/dừng chuyển ảnh
+  const handleMouseEnter = () => {
+    setIsHovered(true);
   };
 
   const handleMouseLeave = () => {
-    setCurrentImageIndex(0); // Quay lại ảnh đầu tiên
+    setIsHovered(false);
   };
 
   return (
@@ -224,7 +247,7 @@ const ProductCard = ({ product }) => {
         <Image
           src={currentImage} // Sử dụng ảnh hiện tại
           alt={product.name || "Product Image"}
-          className="group-hover:scale-105 transition object-cover w-4/5 h-4/5 md:w-full md:h-full duration-300"
+          className="group-hover:scale-105 transition-all object-cover w-4/5 h-4/5 md:w-full md:h-full duration-500 ease-in-out"
           width={800}
           height={800}
         />

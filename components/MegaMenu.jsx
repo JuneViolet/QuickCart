@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 
@@ -25,11 +26,6 @@ const MegaMenu = ({ categories }) => {
             key={category._id}
             className="p-4 border-r border-b border-gray-100 last:border-r-0 hover:bg-gray-50 transition-colors duration-200"
           >
-            {console.log("Category name:", category.name)}
-            {console.log(
-              "Generated URL category:",
-              normalizeString(category.name)
-            )}
             <Link
               href={`/all-products?category=${normalizeString(category.name)}`}
               passHref
@@ -52,11 +48,6 @@ const MegaMenu = ({ categories }) => {
               <div className="mt-3 space-y-1">
                 {category.subcategories.map((sub) => (
                   <div key={sub._id || sub.name}>
-                    {console.log("Subcategory name:", sub.name)}
-                    {console.log(
-                      "Generated URL subcategory:",
-                      normalizeString(sub.name)
-                    )}
                     <Link
                       href={`/all-products?category=${normalizeString(
                         category.name
@@ -66,10 +57,28 @@ const MegaMenu = ({ categories }) => {
                     >
                       <a
                         className={cn(
-                          "block select-none rounded-sm py-1 px-2 leading-none no-underline text-xs text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-150"
+                          "flex items-center gap-2 select-none rounded-sm py-1 px-2 leading-none no-underline text-xs text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-150"
                         )}
                       >
-                        {sub.name}
+                        {/* Logo brand */}
+                        {sub.logo ? (
+                          <div className="w-4 h-4 flex-shrink-0">
+                            <Image
+                              src={sub.logo}
+                              alt={`${sub.name} logo`}
+                              className="w-full h-full object-contain rounded-sm"
+                              width={16}
+                              height={16}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 flex-shrink-0 bg-gray-200 rounded-sm flex items-center justify-center">
+                            <span className="text-[8px] text-gray-500 font-medium">
+                              {sub.name?.charAt(0)?.toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <span className="truncate">{sub.name}</span>
                       </a>
                     </Link>
                   </div>
@@ -106,9 +115,27 @@ const MegaMenu = ({ categories }) => {
                     href={`/all-products?category=${normalizeString(
                       category.name
                     )}&brand=${normalizeString(sub.name)}`}
-                    className="block text-xs text-gray-600 hover:text-blue-600 transition-colors"
+                    className="flex items-center gap-2 text-xs text-gray-600 hover:text-blue-600 transition-colors py-1"
                   >
-                    {sub.name}
+                    {/* Logo brand */}
+                    {sub.logo ? (
+                      <div className="w-3 h-3 flex-shrink-0">
+                        <Image
+                          src={sub.logo}
+                          alt={`${sub.name} logo`}
+                          className="w-full h-full object-contain rounded-sm"
+                          width={12}
+                          height={12}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-3 h-3 flex-shrink-0 bg-gray-200 rounded-sm flex items-center justify-center">
+                        <span className="text-[6px] text-gray-500 font-medium">
+                          {sub.name?.charAt(0)?.toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <span className="truncate">{sub.name}</span>
                   </Link>
                 ))}
               </div>
