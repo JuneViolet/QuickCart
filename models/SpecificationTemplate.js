@@ -1,19 +1,3 @@
-// import mongoose from "mongoose";
-
-// const specificationTemplateSchema = new mongoose.Schema({
-//   categoryId: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: "Category",
-//     required: true,
-//   },
-//   specs: [{ type: String, required: true }], // Danh sách các thông số hợp lệ (ví dụ: ["chip", "RAM", "ROM"])
-// });
-
-// const SpecificationTemplate =
-//   mongoose.models.SpecificationTemplate ||
-//   mongoose.model("SpecificationTemplate", specificationTemplateSchema);
-
-// export default SpecificationTemplate;
 import mongoose from "mongoose";
 
 const specificationTemplateSchema = new mongoose.Schema({

@@ -386,16 +386,16 @@ const Cart = () => {
         const storage = variant?.attributeRefs?.find(
           (ref) => ref.attributeId.name === "Dung lượng"
         )?.value;
-        const price = item.offerPrice || variant?.offerPrice || 0;
+        const price = variant?.offerPrice || item.offerPrice || 0;
 
         return (
           <tr key={itemKey}>
             <td className="flex items-center gap-4 py-4 md:px-4 px-1">
               <div>
                 <div className="rounded-lg overflow-hidden bg-gray-500/10 p-2">
-                  {variant?.image || item.image ? (
+                  {(variant?.images && variant.images[0]) || item.image ? (
                     <Image
-                      src={variant?.image || item.image}
+                      src={(variant?.images && variant.images[0]) || item.image}
                       alt={item.name}
                       className="w-16 h-auto object-cover mix-blend-multiply"
                       width={1280}

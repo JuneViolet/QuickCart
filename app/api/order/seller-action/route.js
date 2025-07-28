@@ -194,7 +194,10 @@ export async function POST(req) {
 
     const { orderId, action } = await req.json();
 
-    const order = await Order.findById(orderId).populate("items.variantId");
+    const order = await Order.findById(orderId).populate({
+      path: "items.variantId",
+      select: "price offerPrice stock sku attributeRefs images",
+    });
     if (!order) {
       return NextResponse.json(
         { success: false, message: "Order not found" },

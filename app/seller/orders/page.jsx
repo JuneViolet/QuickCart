@@ -233,43 +233,90 @@ const Orders = () => {
                   key={order._id}
                   className="flex flex-col xl:flex-row gap-4 justify-between p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm mb-4 min-w-max"
                 >
-                  {/* Sản phẩm - mở rộng chiều rộng */}
-                  <div className="flex-1 flex gap-4 min-w-0 lg:min-w-80 xl:max-w-96">
-                    {order.items[0]?.product?.images &&
-                    order.items[0]?.product?.images.length > 0 ? (
-                      <Image
-                        className="max-w-16 max-h-16 object-cover rounded"
-                        src={order.items[0].product.images[0]}
-                        alt={order.items[0].product.name || "Product Image"}
-                        width={64}
-                        height={64}
-                      />
-                    ) : (
-                      <Image
-                        className="max-w-16 max-h-16 object-cover rounded"
-                        src={assets.placeholder_image}
-                        alt="Placeholder"
-                        width={64}
-                        height={64}
-                      />
-                    )}
-                    <div className="flex flex-col gap-2 min-w-0">
-                      <span className="font-medium text-gray-900 line-clamp-2">
-                        {order.items
-                          .map((item) =>
-                            item.product?.name
-                              ? `${item.product.name} (${
-                                  item.variantId?.attributeRefs
-                                    ?.map((ref) => ref.value)
-                                    .join("/") || "Default"
-                                }) x ${item.quantity}`
-                              : `Unknown Product x ${item.quantity}`
-                          )
-                          .join(", ")}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        Items: {order.items.length}
-                      </span>
+                  {/* Sản phẩm - hiển thị dọc từng sản phẩm */}
+                  <div className="flex-1 min-w-0 lg:min-w-80 xl:max-w-96">
+                    <div className="space-y-3">
+                      {order.items.map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex gap-3 items-center p-2 bg-gray-50 rounded-lg"
+                        >
+                          {/* Hình ảnh sản phẩm */}
+                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            {(item?.variantId?.images &&
+                              item?.variantId?.images.length > 0) ||
+                            (item?.product?.images &&
+                              item?.product?.images.length > 0) ? (
+                              <Image
+                                className="w-full h-full object-cover rounded-lg"
+                                src={
+                                  (item?.variantId?.images &&
+                                    item?.variantId?.images[0]) ||
+                                  item?.product?.images[0]
+                                }
+                                alt={item.product?.name || "Product Image"}
+                                width={48}
+                                height={48}
+                              />
+                            ) : (
+                              <Image
+                                className="w-full h-full object-cover rounded-lg"
+                                src={assets.placeholder_image}
+                                alt="Placeholder"
+                                width={48}
+                                height={48}
+                              />
+                            )}
+                          </div>
+
+                          {/* Thông tin sản phẩm */}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-gray-900 text-sm line-clamp-2">
+                              {item.product?.name || "Unknown Product"}
+                              {item.variantId?.attributeRefs &&
+                                item.variantId.attributeRefs.length > 0 && (
+                                  <span className="text-gray-600 font-normal">
+                                    {" "}
+                                    (
+                                    {item.variantId.attributeRefs
+                                      .map((ref) => ref.value)
+                                      .join("/")}
+                                    )
+                                  </span>
+                                )}
+                              <span className="text-gray-600 font-normal">
+                                {" "}
+                                x {item.quantity}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Giá tiền sản phẩm */}
+                          <div className="text-right flex-shrink-0">
+                            <div className="text-sm font-semibold text-green-600">
+                              {formatCurrency(
+                                (item.variantId?.offerPrice ||
+                                  item.variantId?.price ||
+                                  item.product?.offerPrice ||
+                                  item.product?.price ||
+                                  0) * item.quantity,
+                                currency
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {formatCurrency(
+                                item.variantId?.offerPrice ||
+                                  item.variantId?.price ||
+                                  item.product?.offerPrice ||
+                                  item.product?.price ||
+                                  0,
+                                currency
+                              )}
+                              /cái
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 

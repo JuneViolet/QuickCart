@@ -138,7 +138,15 @@ export async function GET(request) {
     })
       .populate("address")
       .populate("items.product")
-      .populate("items.variantId") // Thêm populate cho variantId
+      .populate({
+        path: "items.variantId",
+        select: "offerPrice price stock sku images attributeRefs",
+        populate: {
+          path: "attributeRefs.attributeId",
+          model: "Attribute",
+          select: "name values",
+        },
+      })
       .exec();
     console.log("Orders from DB (raw):", ordersFromDB);
 
@@ -152,16 +160,22 @@ export async function GET(request) {
             );
             if (ghnData.success) {
               orderData.ghnStatus = ghnData.data?.status || null;
-              orderData.ghnStatusText = ghnData.data?.status_name || "Chờ lấy hàng";
+              orderData.ghnStatusText =
+                ghnData.data?.status_name || "Chờ lấy hàng";
             }
           } catch (ghnError) {
-            console.warn("GHN Tracking Error for", order.trackingCode, ghnError.message);
+            console.warn(
+              "GHN Tracking Error for",
+              order.trackingCode,
+              ghnError.message
+            );
             orderData.ghnStatus = null;
             orderData.ghnStatusText = "Chờ lấy hàng"; // Mặc định cho test mode
           }
         }
         // Gán trạng thái tổng hợp
-        orderData.statusText = orderData.ghnStatusText || getStatusText(order.status);
+        orderData.statusText =
+          orderData.ghnStatusText || getStatusText(order.status);
         return orderData;
       })
     );
@@ -204,4 +218,3 @@ const getStatusText = (status) => {
       return "Chưa xác định";
   }
 };
-

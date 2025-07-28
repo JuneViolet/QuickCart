@@ -1,53 +1,3 @@
-// // app/api/cart/route.js
-// import { NextResponse } from "next/server";
-// import connectDB from "@/config/db";
-// import Cart from "@/models/Cart";
-// import Product from "@/models/Product";
-// import { getAuth } from "@clerk/nextjs/server";
-
-// export async function GET(request) {
-//   try {
-//     console.log("GET /api/cart called");
-//     const { userId } = getAuth(request);
-//     console.log("User ID from getAuth:", userId);
-//     if (!userId) {
-//       return NextResponse.json(
-//         { success: false, message: "Unauthorized" },
-//         { status: 401 }
-//       );
-//     }
-
-//     await connectDB();
-//     console.log("Connected to DB for GET");
-
-//     let cart = await Cart.findOne({ userId }).populate("items.productId");
-//     console.log("Cart found:", cart ? cart.toJSON() : null);
-//     if (!cart) {
-//       cart = await Cart.create({ userId, items: [] });
-//       console.log("New cart created:", cart.toJSON());
-//     }
-
-//     const cartItems = cart.items.reduce((obj, item) => {
-//       if (item.productId) {
-//         obj[item.productId._id.toString()] = {
-//           quantity: item.quantity,
-//           name: item.productId.name,
-//           price: item.productId.price,
-//           image: item.productId.images[0], // Lấy ảnh đầu tiên
-//         };
-//       }
-//       return obj;
-//     }, {});
-
-//     return NextResponse.json({ success: true, cartItems });
-//   } catch (error) {
-//     console.error("Error in GET /api/cart:", error.message);
-//     return NextResponse.json(
-//       { success: false, message: "Server error: " + error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
 // app/api/cart/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
@@ -57,6 +7,32 @@ import Variant from "@/models/Variants";
 import Attribute from "@/models/Attribute";
 import { getAuth } from "@clerk/nextjs/server";
 import mongoose from "mongoose";
+
+// Helper function to get updated cart items
+async function getUpdatedCartItems(userId) {
+  const updatedCart = await Cart.findOne({ userId })
+    .populate("items.productId")
+    .populate("items.variantId");
+
+  return updatedCart.items.reduce((obj, item) => {
+    if (item.productId && item.variantId) {
+      const key = `${item.productId._id.toString()}_${item.variantId._id.toString()}`;
+      obj[key] = {
+        productId: item.productId._id.toString(),
+        variantId: item.variantId._id.toString(),
+        quantity: item.quantity,
+        name: item.productId.name,
+        price: item.variantId.offerPrice || item.productId.offerPrice,
+        image:
+          (item.variantId.images && item.variantId.images[0]) ||
+          item.productId.images[0] ||
+          "",
+      };
+    }
+    return obj;
+  }, {});
+}
+
 export async function GET(request) {
   try {
     const { userId } = getAuth(request);
@@ -72,7 +48,7 @@ export async function GET(request) {
       .populate("items.productId")
       .populate({
         path: "items.variantId",
-        select: "offerPrice price stock sku image attributeRefs",
+        select: "offerPrice price stock sku images attributeRefs",
         populate: {
           path: "attributeRefs.attributeId",
           model: "Attribute",
@@ -97,7 +73,10 @@ export async function GET(request) {
           quantity: item.quantity,
           name: item.productId.name,
           price: item.variantId.offerPrice || item.productId.offerPrice || 0,
-          image: item.productId.images[0] || item.variantId.image || "",
+          image:
+            (item.variantId.images && item.variantId.images[0]) ||
+            item.productId.images[0] ||
+            "",
         };
       }
       return obj;
@@ -132,6 +111,39 @@ export async function POST(request) {
     }
 
     await connectDB();
+
+    // Kiểm tra tồn kho trước khi thêm vào giỏ hàng
+    const product = await Product.findById(productId);
+    if (!product) {
+      return NextResponse.json(
+        { success: false, message: "Sản phẩm không tồn tại" },
+        { status: 404 }
+      );
+    }
+
+    const variant = await Variant.findById(variantId);
+    if (!variant) {
+      return NextResponse.json(
+        { success: false, message: "Phiên bản sản phẩm không tồn tại" },
+        { status: 404 }
+      );
+    }
+
+    if (variant.stock <= 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Sản phẩm đã hết hàng! Vui lòng chọn sản phẩm khác.",
+        },
+        { status: 400 }
+      );
+    }
+
+    let warningMessage = null;
+    if (quantity > variant.stock) {
+      warningMessage = `⚠️ Bạn đang đặt ${quantity} sản phẩm nhưng kho chỉ còn ${variant.stock}. Đơn hàng sẽ được xử lý theo thứ tự và có thể cần thời gian chờ bổ sung hàng.`;
+    }
+
     let cart = await Cart.findOne({ userId });
     if (!cart) {
       cart = await Cart.create({ userId, items: [] });
@@ -142,33 +154,67 @@ export async function POST(request) {
         item.productId.toString() === productId &&
         item.variantId.toString() === variantId
     );
+
     if (itemIndex > -1) {
+      const newTotalQuantity = cart.items[itemIndex].quantity + quantity;
+      if (newTotalQuantity > variant.stock) {
+        const availableQuantity =
+          variant.stock - cart.items[itemIndex].quantity;
+        if (availableQuantity > 0) {
+          cart.items[itemIndex].quantity = variant.stock;
+          return NextResponse.json(
+            {
+              success: true,
+              warning: true,
+              message: `Chỉ có thể thêm ${availableQuantity} sản phẩm nữa. Đã cập nhật giỏ hàng với số lượng tối đa (${variant.stock}).`,
+              cartItems: await getUpdatedCartItems(userId),
+            },
+            { status: 200 }
+          );
+        } else {
+          return NextResponse.json(
+            {
+              success: false,
+              message: `Không thể thêm thêm sản phẩm. Giỏ hàng đã có tối đa ${cart.items[itemIndex].quantity}/${variant.stock} sản phẩm.`,
+            },
+            { status: 400 }
+          );
+        }
+      }
       cart.items[itemIndex].quantity += quantity;
     } else {
       cart.items.push({ productId, variantId, quantity });
     }
     await cart.save();
-    console.log("Cart updated:", cart.toJSON());
 
     const updatedCart = await Cart.findOne({ userId })
       .populate("items.productId")
       .populate("items.variantId");
     const cartItems = updatedCart.items.reduce((obj, item) => {
       if (item.productId && item.variantId) {
-        const key = `${item.productId._id.toString()}_${item.variantId._id.toString()}`; // Key duy nhất
+        const key = `${item.productId._id.toString()}_${item.variantId._id.toString()}`;
         obj[key] = {
           productId: item.productId._id.toString(),
           variantId: item.variantId._id.toString(),
           quantity: item.quantity,
           name: item.productId.name,
           price: item.variantId.offerPrice || item.productId.offerPrice,
-          image: item.productId.images[0] || item.variantId.image || "",
+          image:
+            (item.variantId.images && item.variantId.images[0]) ||
+            item.productId.images[0] ||
+            "",
         };
       }
       return obj;
     }, {});
 
-    return NextResponse.json({ success: true, cartItems });
+    const response = { success: true, cartItems };
+    if (warningMessage) {
+      response.warning = true;
+      response.message = warningMessage;
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Error in POST /api/cart:", error.message);
     return NextResponse.json(
@@ -180,9 +226,7 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
-    console.log("PUT /api/cart called");
     const { userId } = getAuth(request);
-    console.log("User ID from getAuth:", userId);
     if (!userId) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
@@ -191,7 +235,6 @@ export async function PUT(request) {
     }
 
     const { productId, variantId, quantity } = await request.json();
-    console.log("Request body for PUT:", { productId, variantId, quantity });
     if (
       !productId ||
       !variantId ||
@@ -209,7 +252,6 @@ export async function PUT(request) {
     }
 
     await connectDB();
-    console.log("Connected to DB for PUT");
 
     let cart = await Cart.findOne({ userId });
     if (!cart) {
@@ -224,10 +266,11 @@ export async function PUT(request) {
         item.productId.toString() === productId &&
         item.variantId.toString() === variantId
     );
+
     if (quantity === 0 && itemIndex > -1) {
-      cart.items.splice(itemIndex, 1); // Remove item if quantity is 0
+      cart.items.splice(itemIndex, 1);
     } else if (itemIndex > -1) {
-      cart.items[itemIndex].quantity = Math.max(1, quantity); // Update quantity
+      cart.items[itemIndex].quantity = Math.max(1, quantity);
     } else if (quantity > 0) {
       return NextResponse.json(
         { success: false, message: "Product not in cart, use POST to add" },
@@ -243,13 +286,12 @@ export async function PUT(request) {
     cart.updatedAt = new Date();
     cart.markModified("items");
     await cart.save();
-    console.log("Cart after save:", cart.toJSON());
 
     const updatedCart = await Cart.findOne({ userId })
       .populate("items.productId")
       .populate({
         path: "items.variantId",
-        select: "offerPrice price stock image attributeRefs",
+        select: "offerPrice price stock images attributeRefs",
         populate: {
           path: "attributeRefs.attributeId",
           model: "Attribute",
@@ -265,7 +307,10 @@ export async function PUT(request) {
           quantity: item.quantity,
           name: item.productId.name,
           price: item.variantId.offerPrice || item.productId.offerPrice || 0,
-          image: item.productId.images[0] || item.variantId.image || "",
+          image:
+            (item.variantId.images && item.variantId.images[0]) ||
+            item.productId.images[0] ||
+            "",
         };
       }
       return obj;

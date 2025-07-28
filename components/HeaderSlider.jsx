@@ -26,11 +26,13 @@ const HeaderSlider = () => {
       title:
         "Trải Nghiệm Chơi Game Đẳng Cấp Mới Bắt Đầu Tại Đây - Khám Phá PlayStation 5 Ngay Hôm Nay!",
       offer: "Nhanh Tay Lên, Chỉ Còn Vài Cái Nữa Thôi!",
-      buttonText1: "Mua Ngay",
-      buttonText2: "Khám phá các giao dịch",
+      buttonText1: "Mua Ngay PS5",
+      buttonText2: "Khám phá các console khác",
       imgSrc: assets.header_playstation_image,
-      navigationPath1: "/all-products",
-      categoryFilter1: "gaming console",
+      // Chuyển thẳng đến sản phẩm PlayStation 5
+      navigationPath1: "/product/67e02c4fca09637ce259c590", // Sử dụng ID MongoDB
+      productId1: "67e02c4fca09637ce259c590",
+      // Nút thứ 2 vẫn chuyển đến danh mục gaming console
       navigationPath2: "/all-products",
       categoryFilter2: "gaming console",
     },
@@ -50,7 +52,7 @@ const HeaderSlider = () => {
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
-  const autoSlideRef = useRef(null); // Sửa lại kiểu `useRef`
+  const autoSlideRef = useRef(null);
 
   // Hàm set slide auto chạy
   const startAutoSlide = () => {
@@ -89,12 +91,18 @@ const HeaderSlider = () => {
     }, 5000);
   };
 
-  const handleButtonClick = (navigationPath, categoryFilter) => {
-    if (categoryFilter) {
+  // Cập nhật hàm handleButtonClick để hỗ trợ productId
+  const handleButtonClick = (navigationPath, categoryFilter, productId) => {
+    if (productId) {
+      // Nếu có productId, chuyển thẳng đến trang sản phẩm
+      router.push(`/product/${productId}`);
+    } else if (categoryFilter) {
+      // Nếu có categoryFilter, chuyển đến trang all-products với query parameter
       router.push(
         `${navigationPath}?category=${encodeURIComponent(categoryFilter)}`
       );
     } else {
+      // Nếu không có gì, chuyển đến đường dẫn được chỉ định
       router.push(navigationPath);
     }
   };
@@ -122,7 +130,8 @@ const HeaderSlider = () => {
                   onClick={() =>
                     handleButtonClick(
                       slide.navigationPath1,
-                      slide.categoryFilter1
+                      slide.categoryFilter1,
+                      slide.productId1 // Thay đổi từ productSlug1 thành productId1
                     )
                   }
                   className="md:px-10 px-7 md:py-2.5 py-2 bg-orange-600 rounded-full text-white font-medium hover:bg-orange-700 transition hover:scale-105"
@@ -133,7 +142,8 @@ const HeaderSlider = () => {
                   onClick={() =>
                     handleButtonClick(
                       slide.navigationPath2,
-                      slide.categoryFilter2
+                      slide.categoryFilter2,
+                      slide.productId2 // Thay đổi từ productSlug2 thành productId2
                     )
                   }
                   className="group flex items-center gap-2 px-6 py-2.5 font-medium text-orange-600 hover:text-orange-700 transition"

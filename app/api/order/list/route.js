@@ -18,7 +18,11 @@ export async function GET(request) {
     await connectDB();
 
     const orders = await Order.find({ userId })
-      .populate("address items.product items.variantId")
+      .populate("address items.product")
+      .populate({
+        path: "items.variantId",
+        select: "price offerPrice stock sku attributeRefs images",
+      })
       .lean();
 
     if (!orders || orders.length === 0) {
