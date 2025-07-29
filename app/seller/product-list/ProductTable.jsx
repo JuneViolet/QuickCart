@@ -18,6 +18,7 @@ const ProductTable = ({
   setNewVariantData,
   setSelectedProductId,
   assets,
+  variants, // Thêm variants prop
 }) => {
   return (
     <>
@@ -31,16 +32,13 @@ const ProductTable = ({
                 </th>
                 <th className="w-24 px-4 py-3 font-medium truncate">Loại</th>
                 <th className="w-16 px-4 py-3 font-medium truncate">Hãng</th>
-                <th className="w-16 px-4 py-3 font-medium truncate">
+                <th className="w-20 px-4 py-3 font-medium truncate">
                   Số Lượng
                 </th>
                 <th className="w-24 px-4 py-3 font-medium truncate">
-                  Giá tiền
-                </th>
-                <th className="w-20 px-4 py-3 font-medium truncate">
                   Trạng thái
                 </th>
-                <th className="w-28 px-4 py-3 font-medium">Action</th>
+                <th className="w-32 px-4 py-3 font-medium">Action</th>
               </tr>
             </thead>
             <tbody className="text-sm text-gray-500">
@@ -69,9 +67,6 @@ const ProductTable = ({
                       {productStocks[product._id] !== undefined
                         ? productStocks[product._id]
                         : "0"}
-                    </td>
-                    <td className="px-4 py-3">
-                      {formatCurrency(product.offerPrice)}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -190,14 +185,11 @@ const ProductTable = ({
                           <button
                             key={`add-variant-${product._id}`}
                             onClick={() => {
-                              const productData = products.find(
-                                (p) => p._id === product._id
-                              );
                               setNewVariantData({
                                 productId: product._id,
                                 attributeRefs: [],
-                                price: productData.price || 0,
-                                offerPrice: productData.offerPrice || 0,
+                                price: 0, // Đặt mặc định là 0 vì không có price trong product
+                                offerPrice: 0, // Đặt mặc định là 0 vì không có offerPrice trong product
                                 stock: "",
                                 sku: "",
                                 image: "",
@@ -222,8 +214,8 @@ const ProductTable = ({
                             onClick={() => {
                               setSelectedProductId(product._id);
                             }}
-                            className="flex items-center gap-1 px-2 py-1 bg-purple-600 text-white rounded-md text-sm"
-                            title="Xem Biến Thể"
+                            className="flex items-center gap-1 px-2 py-1 bg-purple-600 text-white rounded-md text-sm relative group"
+                            title="Xem Biến Thể & Giá"
                           >
                             <span className="w-4 h-4 flex items-center">
                               <Image
@@ -234,6 +226,11 @@ const ProductTable = ({
                                 height={16}
                               />
                             </span>
+                            {/* Tooltip hiển thị số lượng variants */}
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity z-30 whitespace-nowrap pointer-events-none">
+                              {variants?.[product._id]?.length || 0} biến thể
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
+                            </div>
                           </button>
                         </div>
                       </div>

@@ -195,7 +195,7 @@ const Product = () => {
       return;
     }
     addToCart(id, 1, selectedVariant._id);
-    toast.success("Đã thêm sản phẩm vào giỏ hàng!");
+    // toast.success("Đã thêm sản phẩm vào giỏ hàng!");
   };
 
   const handleBuyNow = () => {
@@ -292,6 +292,7 @@ const Product = () => {
             comments={productData.comments}
             ratings={productData.ratings}
             hasPurchased={hasPurchased}
+            existingRating={existingRating}
             onCommentUpdate={handleCommentUpdate}
           />
         </div>

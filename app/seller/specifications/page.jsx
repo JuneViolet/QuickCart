@@ -163,7 +163,7 @@ const ManageSpecifications = () => {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
           <div className="flex items-center">
-            <span className="text-red-500 mr-2">⚠️</span>
+            <span className="text-red-500 mr-2"></span>
             {error}
           </div>
         </div>
@@ -215,7 +215,7 @@ const ManageSpecifications = () => {
               className="w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               disabled={!selectedProduct}
             >
-              <span>➕</span>
+              <span></span>
               Thêm Thông Số
             </button>
           </div>
@@ -282,13 +282,13 @@ const ManageSpecifications = () => {
                           onClick={() => handleEditSpec(spec)}
                           className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 transition-colors"
                         >
-                          ✏️ Sửa
+                          Sửa
                         </button>
                         <button
                           onClick={() => handleDeleteSpec(spec._id)}
                           className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 transition-colors"
                         >
-                          🗑️ Xóa
+                          Xóa
                         </button>
                       </div>
                     </td>

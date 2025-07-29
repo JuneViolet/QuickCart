@@ -170,7 +170,7 @@ const Attributes = () => {
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${
                 isAdding
                   ? "bg-red-500 hover:bg-red-600 text-white"
-                  : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  : "bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-purple-700 text-white"
               }`}
             >
               {isAdding ? "✕ Đóng" : "+ Thêm Thuộc Tính"}
@@ -206,8 +206,8 @@ const Attributes = () => {
                       required
                     >
                       <option value="">-- Chọn loại thuộc tính --</option>
-                      <option value="Màu sắc">🎨 Màu sắc</option>
-                      <option value="Dung lượng">💾 Dung lượng</option>
+                      <option value="Màu sắc"> Màu sắc</option>
+                      <option value="Dung lượng"> Dung lượng</option>
                     </select>
                   </div>
 
@@ -299,8 +299,7 @@ const Attributes = () => {
                       <div className="flex items-center">
                         <span className="w-3 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-4"></span>
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                            {attr.name === "Màu sắc" ? "🎨" : "💾"}
+                          <h3 className="text-lg font-semibold text-gray-800">
                             {attr.name}
                           </h3>
                           <p className="text-sm text-gray-500 mt-1">
@@ -312,7 +311,7 @@ const Attributes = () => {
                         onClick={() => handleDeleteAttribute(attr._id)}
                         className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-all duration-200 hover:text-red-700"
                       >
-                        🗑️ Xóa
+                        Xóa
                       </button>
                     </div>
 
@@ -347,13 +346,13 @@ const Attributes = () => {
                                   }}
                                   className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all duration-200"
                                 >
-                                  ✏️ Sửa
+                                  Sửa
                                 </button>
                                 <button
                                   onClick={() => handleDeleteValue(attr._id, i)}
                                   className="text-xs px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all duration-200"
                                 >
-                                  ✕ Xóa
+                                  Xóa
                                 </button>
                               </div>
 
@@ -387,7 +386,7 @@ const Attributes = () => {
                                       type="submit"
                                       className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors"
                                     >
-                                      💾 Lưu
+                                      Lưu
                                     </button>
                                     <button
                                       type="button"
@@ -429,7 +428,7 @@ const Attributes = () => {
                                       type="submit"
                                       className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors"
                                     >
-                                      💾 Lưu
+                                      Lưu
                                     </button>
                                     <button
                                       type="button"
@@ -457,7 +456,7 @@ const Attributes = () => {
                                       }}
                                       className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all duration-200"
                                     >
-                                      ✏️ Sửa
+                                      Sửa
                                     </button>
                                     <button
                                       onClick={() =>

@@ -12,7 +12,7 @@ export async function GET(request, context) {
     const specifications = await Specification.find({ productId }).lean();
     if (!specifications || specifications.length === 0) {
       return NextResponse.json(
-        { success: false, message: "No specifications found" },
+        { success: false, message: "Không tìm thấy thông số nào" },
         { status: 404 }
       );
     }

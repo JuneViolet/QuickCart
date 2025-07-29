@@ -900,6 +900,12 @@ const Promocodes = () => {
                                 {formatCurrency(promocode.minOrderValue)}
                               </span>
                             </div>
+                            <div>
+                              <span className="text-gray-500">Đơn tối đa:</span>{" "}
+                              <span className="font-medium">
+                                {formatCurrency(promocode.maxOrderValue)}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>

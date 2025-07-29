@@ -107,7 +107,7 @@ const AddSpecification = ({ productId, categoryId, onClose }) => {
         {/* Header */}
         <div className="px-6 py-4 border-b">
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <span className="text-purple-600 text-xl">➕</span> Thêm Thông Số Kỹ
+            <span className="text-purple-600 text-xl"></span> Thêm Thông Số Kỹ
             Thuật
           </h2>
         </div>
@@ -172,7 +172,7 @@ const AddSpecification = ({ productId, categoryId, onClose }) => {
                     onClick={handleAddArrayItem}
                     className="text-sm text-purple-600 hover:underline"
                   >
-                    ➕ Thêm giá trị
+                    Thêm giá trị
                   </button>
                 </div>
               ) : (

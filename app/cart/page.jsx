@@ -540,7 +540,7 @@ const Cart = () => {
           ) : (
             memoizedOrderSummary
           )}
-          <button
+          {/* <button
             onClick={handleCheckout}
             disabled={checkoutLoading}
             className={`mt-6 w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition ${
@@ -548,7 +548,7 @@ const Cart = () => {
             }`}
           >
             {checkoutLoading ? "Đang xử lý..." : "Thanh toán"}
-          </button>
+          </button> */}
         </div>
       </div>
     </>

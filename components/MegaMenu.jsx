@@ -27,7 +27,9 @@ const MegaMenu = ({ categories }) => {
             className="p-4 border-r border-b border-gray-100 last:border-r-0 hover:bg-gray-50 transition-colors duration-200"
           >
             <Link
-              href={`/all-products?category=${normalizeString(category.name)}`}
+              href={`/all-products?category=${encodeURIComponent(
+                category.name
+              )}`}
               passHref
               legacyBehavior
             >
@@ -49,9 +51,9 @@ const MegaMenu = ({ categories }) => {
                 {category.subcategories.map((sub) => (
                   <div key={sub._id || sub.name}>
                     <Link
-                      href={`/all-products?category=${normalizeString(
+                      href={`/all-products?category=${encodeURIComponent(
                         category.name
-                      )}&brand=${normalizeString(sub.name)}`}
+                      )}&brand=${encodeURIComponent(sub.name)}`}
                       passHref
                       legacyBehavior
                     >
@@ -99,7 +101,9 @@ const MegaMenu = ({ categories }) => {
         {categories.slice(0, 8).map((category) => (
           <div key={category._id} className="p-3">
             <Link
-              href={`/all-products?category=${normalizeString(category.name)}`}
+              href={`/all-products?category=${encodeURIComponent(
+                category.name
+              )}`}
               passHref
               legacyBehavior
             >
@@ -112,9 +116,9 @@ const MegaMenu = ({ categories }) => {
                 {category.subcategories.slice(0, 3).map((sub) => (
                   <Link
                     key={sub._id || sub.name}
-                    href={`/all-products?category=${normalizeString(
+                    href={`/all-products?category=${encodeURIComponent(
                       category.name
-                    )}&brand=${normalizeString(sub.name)}`}
+                    )}&brand=${encodeURIComponent(sub.name)}`}
                     className="flex items-center gap-2 text-xs text-gray-600 hover:text-blue-600 transition-colors py-1"
                   >
                     {/* Logo brand */}

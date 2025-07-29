@@ -14,26 +14,33 @@ const ProductComments = ({
   ratings,
   hasPurchased,
   onCommentUpdate,
+  existingRating,
 }) => {
   const { getToken, userId } = useAuth();
   const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(existingRating || 0);
   const [showAllComments, setShowAllComments] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
 
-  const renderStars = (ratingValue) => {
+  const renderStars = (ratingValue, onClick = null) => {
     return (
       <div className="flex items-center gap-0.5">
         {[...Array(5)].map((_, index) => (
           <Image
             key={index}
-            className="h-4 w-4"
+            className={`h-4 w-4 ${
+              onClick
+                ? "cursor-pointer hover:scale-110 transition-transform"
+                : ""
+            }`}
             src={
               index < Math.floor(ratingValue)
                 ? assets.star_icon
                 : assets.star_dull_icon
             }
             alt="star_icon"
+            onClick={onClick ? () => onClick(index + 1) : null}
           />
         ))}
       </div>
@@ -50,21 +57,37 @@ const ProductComments = ({
       toast.error("Vui lòng nhập bình luận!");
       return;
     }
+    if (rating < 1 || rating > 5) {
+      toast.error("Vui lòng chọn đánh giá từ 1 đến 5 sao!");
+      return;
+    }
+
     try {
       const token = await getToken();
-      const commentData = { productId, comment };
-      const res = await axios.post(`/api/product/comment`, commentData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+
+      // Gửi cả comment và rating cùng lúc
+      const commentData = { productId, comment, rating };
+      const res = await axios.post(
+        `/api/product/comment-with-rating`,
+        commentData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       if (res.data.success) {
         onCommentUpdate();
         setComment("");
-        toast.success("Comment added successfully!");
+        setRating(existingRating || 0); // Reset về rating hiện tại hoặc 0
+        toast.success("Đã gửi bình luận và đánh giá thành công!");
       } else {
-        toast.error("Failed to submit comment");
+        toast.error("Gửi bình luận thất bại: " + res.data.message);
       }
     } catch (error) {
-      toast.error("Error submitting comment: " + error.message);
+      console.error("Comment submission error:", error);
+      toast.error(
+        "Lỗi gửi bình luận: " + (error.response?.data?.message || error.message)
+      );
     }
   };
 
@@ -105,25 +128,43 @@ const ProductComments = ({
 
       {hasPurchased && (
         <form onSubmit={handleSubmitComment} className="mb-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Chia sẻ trải nghiệm của bạn:
-            </label>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Nhập bình luận của bạn về sản phẩm..."
-              rows="3"
-              disabled={!hasPurchased}
-            />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Đánh giá sản phẩm:
+              </label>
+              <div className="flex items-center gap-2">
+                {renderStars(rating, setRating)}
+                <span className="text-sm text-gray-600">
+                  {rating > 0 ? `(${rating}/5 sao)` : "(Chưa chọn)"}
+                </span>
+                {existingRating && (
+                  <span className="text-xs text-blue-600">
+                    (Đánh giá hiện tại: {existingRating}/5)
+                  </span>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chia sẻ trải nghiệm của bạn:
+              </label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Nhập bình luận của bạn về sản phẩm..."
+                rows="3"
+                disabled={!hasPurchased}
+              />
+            </div>
           </div>
           <button
             type="submit"
-            className="mt-3 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+            className="mt-3 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
             disabled={!hasPurchased}
           >
-            Gửi bình luận
+            Gửi bình luận & đánh giá
           </button>
         </form>
       )}
@@ -188,10 +229,10 @@ const ProductComments = ({
                     <div className="ml-10 bg-blue-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                          S
+                          TT
                         </div>
                         <span className="text-sm font-medium text-orange-600">
-                          Người bán
+                          TechTrend
                         </span>
                         {commentItem.replyDate && (
                           <span className="text-xs text-gray-500">

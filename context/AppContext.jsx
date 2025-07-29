@@ -36,7 +36,12 @@ export const AppContextProvider = ({ children }) => {
   }, [isLoaded, user]);
 
   const formatCurrency = (amount) => {
-    const roundedAmount = Math.floor(amount);
+    // Kiểm tra và xử lý giá trị không hợp lệ
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount < 0) {
+      return `0 ${currency}`;
+    }
+    const roundedAmount = Math.floor(numericAmount);
     return `${roundedAmount
       .toString()
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".")} ${currency}`;

@@ -296,7 +296,7 @@ const ProductList = () => {
     if (confirm(confirmMessage)) {
       try {
         await deleteProduct(productId);
-        toast.success("✅ Đã xóa sản phẩm thành công!");
+
         fetchSellerProduct();
         // Cập nhật lại thông tin đơn hàng sau khi xóa
         checkProductOrders();
@@ -608,6 +608,7 @@ const ProductList = () => {
                 setNewVariantData={setNewVariantData}
                 setSelectedProductId={setSelectedProductId}
                 assets={assets}
+                variants={variants}
               />
             )}
             {/* Form chỉnh sửa sản phẩm */}

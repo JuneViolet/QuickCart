@@ -61,10 +61,10 @@ const HomeProducts = () => {
 
   const fetchBrands = async () => {
     try {
-      const res = await fetch("/api/seller/manage?type=brands");
+      const res = await fetch("/api/brand/list");
       const data = await res.json();
       if (data.success) {
-        const brandNames = data.items.map((brand) => brand.name);
+        const brandNames = data.brands.map((brand) => brand.name);
         setBrands(["All", ...brandNames]);
       } else {
         console.error("Fetch brands error:", data.message);
@@ -91,22 +91,19 @@ const HomeProducts = () => {
 
         let url;
         const normalizedQuery = normalizeSearchTerm(query);
-        const normalizedCategory =
-          category !== "All" ? normalizeSearchTerm(category) : "";
-        const normalizedBrand =
-          brand !== "All" ? normalizeSearchTerm(brand) : "";
+        // Không normalize category và brand, gửi tên gốc
+        const categoryParam = category !== "All" ? category : "";
+        const brandParam = brand !== "All" ? brand : "";
 
         url = `/api/product/list?page=${page}&limit=10${
           normalizedQuery ? `&query=${encodeURIComponent(normalizedQuery)}` : ""
         }${
-          normalizedCategory
-            ? `&category=${encodeURIComponent(normalizedCategory)}`
-            : ""
-        }${
-          normalizedBrand ? `&brand=${encodeURIComponent(normalizedBrand)}` : ""
-        }${minPrice > 0 ? `&minPrice=${minPrice}` : ""}${
-          maxPrice < 100000000 ? `&maxPrice=${maxPrice}` : ""
-        }${sort ? `&sort=${sort}` : ""}`;
+          categoryParam ? `&category=${encodeURIComponent(categoryParam)}` : ""
+        }${brandParam ? `&brand=${encodeURIComponent(brandParam)}` : ""}${
+          minPrice > 0 ? `&minPrice=${minPrice}` : ""
+        }${maxPrice < 100000000 ? `&maxPrice=${maxPrice}` : ""}${
+          sort ? `&sort=${sort}` : ""
+        }`;
 
         console.log("Fetching URL:", url); // Log để debug
         const response = await fetch(url);

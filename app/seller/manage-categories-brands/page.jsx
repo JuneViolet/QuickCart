@@ -208,8 +208,8 @@ const ManageCategoriesBrands = () => {
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
               {[
-                { key: "category", label: "Loại sản phẩm", icon: "📦" },
-                { key: "brand", label: "Thương hiệu", icon: "🏷️" },
+                { key: "category", label: "Loại sản phẩm" },
+                { key: "brand", label: "Thương hiệu" },
               ].map((tab) => (
                 <button
                   key={tab.key}
