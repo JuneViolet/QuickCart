@@ -49,6 +49,15 @@ export async function GET(req) {
     if (ghnData.code === 200) {
       const ghnStatus = ghnData.data.status;
       let updatedStatus = order.status;
+
+      // Không cho phép GHN ghi đè trạng thái đã giao thành công từ seller
+      if (order.status === "delivered" || order.status === "Đã giao") {
+        console.log(
+          `⚠️ Order ${order._id} already marked as delivered by seller, skipping GHN status update`
+        );
+        return NextResponse.json({ success: true, data: ghnData.data });
+      }
+
       if (ghnStatus === "ready_to_pick") updatedStatus = "Chờ lấy hàng";
       else if (ghnStatus === "delivering") updatedStatus = "Đang giao";
       else if (ghnStatus === "delivered") updatedStatus = "Đã giao";

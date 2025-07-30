@@ -67,6 +67,7 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
+    const categoryFilter = searchParams.get("category");
 
     const matchQuery = {
       status: { $in: ["paid", "shipped", "delivered"] }, // Thêm "delivered" cho đơn giao thành công
@@ -100,6 +101,12 @@ export const GET = async (req) => {
         },
       },
       { $unwind: "$categoryDetails" },
+
+      // Filter theo category nếu có
+      ...(categoryFilter
+        ? [{ $match: { "categoryDetails.name": categoryFilter } }]
+        : []),
+
       {
         $lookup: {
           from: "variants", // Collection variants (xác nhận tên này)

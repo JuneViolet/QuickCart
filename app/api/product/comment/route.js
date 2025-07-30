@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import Product from "@/models/Product";
+import Order from "@/models/Order";
 import connectDB from "@/config/db";
+import { getAuth } from "@clerk/nextjs/server";
 import { currentUser } from "@clerk/nextjs/server";
 
 export async function POST(request) {
   try {
     await connectDB();
 
+    const { userId } = getAuth(request);
     const user = await currentUser();
-    if (!user) {
+
+    if (!userId || !user) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
         { status: 401 }
@@ -17,10 +21,46 @@ export async function POST(request) {
 
     const { productId, comment } = await request.json();
 
-    if (!productId || !comment) {
+    if (!productId || !comment?.trim()) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields" },
+        { success: false, message: "Product ID và comment đều là bắt buộc" },
         { status: 400 }
+      );
+    }
+
+    // Kiểm tra xem user đã mua sản phẩm chưa
+    console.log(
+      "Checking purchase for userId:",
+      userId,
+      "productId:",
+      productId
+    );
+
+    const orders = await Order.find({
+      userId,
+      "items.product": productId,
+      status: {
+        $in: [
+          "shipped",
+          "delivered",
+          "ghn_success",
+          "paid",
+          "Đang giao",
+          "Đã giao",
+        ],
+      },
+    });
+
+    console.log("Found orders:", orders.length);
+    const hasPurchased = orders.length > 0;
+
+    if (!hasPurchased) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Bạn chỉ có thể bình luận sau khi mua sản phẩm",
+        },
+        { status: 403 }
       );
     }
 
@@ -33,9 +73,9 @@ export async function POST(request) {
     }
 
     const newComment = {
-      userId: user.id,
+      userId,
       username: user.firstName || "Anonymous",
-      comment,
+      comment: comment.trim(),
       createdAt: new Date(),
     };
 

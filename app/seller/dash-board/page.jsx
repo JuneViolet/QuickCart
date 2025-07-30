@@ -33,7 +33,10 @@ const COLORS = [
 export default function DashboardPage() {
   const [summary, setSummary] = useState(null);
   const [categoryStats, setCategoryStats] = useState([]);
+  const [allCategories, setAllCategories] = useState([]); // Cho dropdown
   const [orderDistribution, setOrderDistribution] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const [dateFilter, setDateFilter] = useState({
     startDate: new Date(new Date().setMonth(new Date().getMonth() - 1))
@@ -66,7 +69,13 @@ export default function DashboardPage() {
       try {
         setDateFilter((prev) => ({ ...prev, isFiltering: true }));
 
-        const [summaryRes, categoryRes, distributionRes] = await Promise.all([
+        const [
+          summaryRes,
+          categoryRes,
+          distributionRes,
+          topProductsRes,
+          allCategoriesRes,
+        ] = await Promise.all([
           axios.get("/api/stats/summary", {
             params: {
               startDate: dateFilter.startDate,
@@ -77,9 +86,25 @@ export default function DashboardPage() {
             params: {
               startDate: dateFilter.startDate,
               endDate: dateFilter.endDate,
+              category: selectedCategory,
             },
           }),
           axios.get("/api/stats/order-distribution", {
+            params: {
+              startDate: dateFilter.startDate,
+              endDate: dateFilter.endDate,
+            },
+          }),
+          axios.get("/api/stats/top-products", {
+            params: {
+              startDate: dateFilter.startDate,
+              endDate: dateFilter.endDate,
+              category: selectedCategory,
+              limit: 10,
+            },
+          }),
+          // Lấy tất cả categories cho dropdown (không filter)
+          axios.get("/api/stats/category", {
             params: {
               startDate: dateFilter.startDate,
               endDate: dateFilter.endDate,
@@ -90,10 +115,14 @@ export default function DashboardPage() {
         console.log("Summary:", summaryRes.data);
         console.log("Category Stats:", categoryRes.data);
         console.log("Order Distribution:", distributionRes.data);
+        console.log("Top Products:", topProductsRes.data);
+        console.log("All Categories:", allCategoriesRes.data);
 
         setSummary(summaryRes.data);
         setCategoryStats(categoryRes.data || []);
+        setAllCategories(allCategoriesRes.data || []);
         setOrderDistribution(distributionRes.data || []);
+        setTopProducts(topProductsRes.data || []);
       } catch (error) {
         console.error("Lỗi khi fetch dữ liệu:", error);
       } finally {
@@ -102,7 +131,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [dateFilter.startDate, dateFilter.endDate]);
+  }, [dateFilter.startDate, dateFilter.endDate, selectedCategory]);
 
   const calculatedTotalRevenue = categoryStats.reduce(
     (sum, item) => sum + (item.totalRevenue || 0),
@@ -268,6 +297,24 @@ export default function DashboardPage() {
                   >
                     1 năm
                   </button>
+
+                  <div className="ml-4 flex items-center space-x-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Lọc danh mục:
+                    </label>
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                    >
+                      <option value="">Tất cả danh mục</option>
+                      {allCategories.map((cat) => (
+                        <option key={cat.category} value={cat.category}>
+                          {cat.category}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -359,14 +406,22 @@ export default function DashboardPage() {
           <div className="space-y-8">
             <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    Doanh thu theo loại sản phẩm
-                  </h2>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      Doanh thu theo loại sản phẩm
+                    </h2>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {selectedCategory
+                      ? `Danh mục: ${selectedCategory}`
+                      : "Tất cả danh mục"}
+                  </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
-                  Phân tích doanh thu từng danh mục (
+                  Phân tích doanh thu từng danh mục
+                  {selectedCategory ? ` (${selectedCategory})` : ""} (
                   {new Date(dateFilter.startDate).toLocaleDateString("vi-VN")} -{" "}
                   {new Date(dateFilter.endDate).toLocaleDateString("vi-VN")})
                 </p>
@@ -430,7 +485,7 @@ export default function DashboardPage() {
                       <XAxis
                         dataKey="category"
                         angle={0}
-                        textAnchor="end"
+                        textAnchor="middle"
                         interval={0}
                         tick={{ fontSize: 12 }}
                         stroke="#6b7280"
@@ -581,6 +636,142 @@ export default function DashboardPage() {
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
+              </div>
+            </div>
+
+            {/* Top Sản Phẩm Bán Chạy */}
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      Top Sản Phẩm Bán Chạy
+                    </h2>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {selectedCategory
+                      ? `Danh mục: ${selectedCategory}`
+                      : "Tất cả danh mục"}
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">
+                  Những sản phẩm có doanh số cao nhất (
+                  {new Date(dateFilter.startDate).toLocaleDateString("vi-VN")} -{" "}
+                  {new Date(dateFilter.endDate).toLocaleDateString("vi-VN")})
+                </p>
+              </div>
+              <div className="p-6 relative">
+                {dateFilter.isFiltering && (
+                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-600">
+                        Đang cập nhật dữ liệu...
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {topProducts.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>Không có dữ liệu sản phẩm trong khoảng thời gian này</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                            Thứ hạng
+                          </th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                            Sản phẩm
+                          </th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                            Danh mục
+                          </th>
+                          <th className="text-right py-3 px-4 font-semibold text-gray-700">
+                            Đã bán
+                          </th>
+                          <th className="text-right py-3 px-4 font-semibold text-gray-700">
+                            Doanh thu
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {topProducts.map((product, index) => (
+                          <tr
+                            key={product.productId}
+                            className="hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="py-4 px-4">
+                              <div className="flex items-center">
+                                <span
+                                  className={`
+                                  inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
+                                  ${
+                                    index === 0
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : index === 1
+                                      ? "bg-gray-100 text-gray-800"
+                                      : index === 2
+                                      ? "bg-orange-100 text-orange-800"
+                                      : "bg-blue-100 text-blue-800"
+                                  }
+                                `}
+                                >
+                                  {index + 1}
+                                </span>
+                                {index < 3 && (
+                                  <span className="ml-2 text-lg"></span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="flex items-center space-x-3">
+                                {product.image && (
+                                  <img
+                                    src={product.image}
+                                    alt={product.name}
+                                    className="w-12 h-12 object-cover rounded-lg border border-gray-200"
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                    }}
+                                  />
+                                )}
+                                <div>
+                                  <p className="font-medium text-gray-900 text-sm leading-tight">
+                                    {product.name}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {product.category}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <span className="font-semibold text-gray-900">
+                                {product.totalSold.toLocaleString()} sp
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <span className="font-semibold text-green-600">
+                                {product.totalRevenue.toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  maximumFractionDigits: 0,
+                                })}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -51,6 +51,8 @@ const Orders = () => {
         return "Đang giao";
       case "delivered":
         return "Giao thành công";
+      case "delivered_by_ghn":
+        return "Giao thành công (GHN xác nhận)";
       case "canceled":
         return "Đã hủy";
       case "ghn_failed":

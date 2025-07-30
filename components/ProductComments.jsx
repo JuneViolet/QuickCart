@@ -57,31 +57,43 @@ const ProductComments = ({
       toast.error("Vui lòng nhập bình luận!");
       return;
     }
-    if (rating < 1 || rating > 5) {
-      toast.error("Vui lòng chọn đánh giá từ 1 đến 5 sao!");
-      return;
-    }
 
     try {
       const token = await getToken();
 
-      // Gửi cả comment và rating cùng lúc
-      const commentData = { productId, comment, rating };
-      const res = await axios.post(
-        `/api/product/comment-with-rating`,
-        commentData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      // Nếu có rating, gửi cả comment và rating
+      if (rating > 0) {
+        const commentData = { productId, comment, rating };
+        const res = await axios.post(
+          `/api/product/comment-with-rating`,
+          commentData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-      if (res.data.success) {
-        onCommentUpdate();
-        setComment("");
-        setRating(existingRating || 0); // Reset về rating hiện tại hoặc 0
-        toast.success("Đã gửi bình luận và đánh giá thành công!");
+        if (res.data.success) {
+          onCommentUpdate();
+          setComment("");
+          setRating(existingRating || 0);
+          toast.success("Đã gửi bình luận và đánh giá thành công!");
+        } else {
+          toast.error("Gửi bình luận thất bại: " + res.data.message);
+        }
       } else {
-        toast.error("Gửi bình luận thất bại: " + res.data.message);
+        // Nếu không có rating, chỉ gửi comment
+        const commentData = { productId, comment };
+        const res = await axios.post(`/api/product/comment`, commentData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.data.success) {
+          onCommentUpdate();
+          setComment("");
+          toast.success("Đã gửi bình luận thành công!");
+        } else {
+          toast.error("Gửi bình luận thất bại: " + res.data.message);
+        }
       }
     } catch (error) {
       console.error("Comment submission error:", error);
@@ -131,7 +143,7 @@ const ProductComments = ({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Đánh giá sản phẩm:
+                Đánh giá sản phẩm (tùy chọn):
               </label>
               <div className="flex items-center gap-2">
                 {renderStars(rating, setRating)}
@@ -144,6 +156,9 @@ const ProductComments = ({
                   </span>
                 )}
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Bạn có thể chỉ bình luận hoặc vừa bình luận vừa đánh giá
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -164,7 +179,7 @@ const ProductComments = ({
             className="mt-3 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
             disabled={!hasPurchased}
           >
-            Gửi bình luận & đánh giá
+            {rating > 0 ? "Gửi bình luận & đánh giá" : "Gửi bình luận"}
           </button>
         </form>
       )}
@@ -229,7 +244,7 @@ const ProductComments = ({
                     <div className="ml-10 bg-blue-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                          TT
+                          AD
                         </div>
                         <span className="text-sm font-medium text-orange-600">
                           TechTrend

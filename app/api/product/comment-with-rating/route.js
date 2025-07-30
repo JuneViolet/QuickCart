@@ -100,13 +100,16 @@ export async function POST(request) {
     if (existingRatingIndex >= 0) {
       // Cập nhật rating hiện có
       product.ratings[existingRatingIndex].rating = rating;
-      product.ratings[existingRatingIndex].createdAt = new Date();
+      product.ratings[existingRatingIndex].username =
+        user.firstName || "Anonymous";
+      product.ratings[existingRatingIndex].updatedAt = new Date();
     } else {
       // Thêm rating mới
       product.ratings.push({
         userId,
+        username: user.firstName || "Anonymous",
         rating,
-        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     }
 
