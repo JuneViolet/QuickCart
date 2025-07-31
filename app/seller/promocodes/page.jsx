@@ -16,6 +16,7 @@ const Promocodes = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingPromo, setEditingPromo] = useState(null);
   const [promoOrdersCount, setPromoOrdersCount] = useState({}); // Thêm state để lưu số đơn hàng sử dụng mã
+  const [showError, setShowError] = useState(false);
   const [newPromoData, setNewPromoData] = useState({
     code: "",
     description: "",
@@ -38,7 +39,8 @@ const Promocodes = () => {
     minOrderValue: "0",
     maxOrderValue: "",
   });
-
+  const discountValue = parseFloat(newPromoData.discount);
+  const maxUsesValue = parseFloat(newPromoData.maxUses);
   const fetchSellerPromocodes = async () => {
     try {
       const token = await getToken();
@@ -86,6 +88,8 @@ const Promocodes = () => {
 
   const handleAddPromo = async (e) => {
     e.preventDefault();
+    setShowError(false); // Reset error state
+
     const minValue = parseFloat(newPromoData.minOrderValue);
     const maxValue = newPromoData.maxOrderValue
       ? parseFloat(newPromoData.maxOrderValue)
@@ -94,6 +98,13 @@ const Promocodes = () => {
       toast.error("Giá trị tối thiểu không được lớn hơn giá trị tối đa.");
       return;
     }
+
+    if (!newPromoData.code || newPromoData.code.trim() === "") {
+      setShowError(true);
+      toast.error("Mã giảm giá không được để trống.");
+      return;
+    }
+
     try {
       const token = await getToken();
       const payload = {
@@ -242,6 +253,7 @@ const Promocodes = () => {
 
   const handleCancelAdd = () => {
     setIsAdding(false);
+    setShowError(false);
     setNewPromoData({
       code: "",
       description: "",
@@ -366,8 +378,14 @@ const Promocodes = () => {
                               code: e.target.value,
                             })
                           }
-                          required
                         />
+                        {showError &&
+                          (!newPromoData.code ||
+                            newPromoData.code.trim() === "") && (
+                            <p className="text-sm text-red-600">
+                              Mã giảm giá không được để trống.
+                            </p>
+                          )}
                       </div>
 
                       <div>
@@ -427,8 +445,13 @@ const Promocodes = () => {
                                 discount: e.target.value,
                               })
                             }
-                            required
                           />
+                          {showError &&
+                            (isNaN(discountValue) || discountValue <= 0) && (
+                              <p className="text-red-500 text-xs mt-1">
+                                số tiền giảm giá phải lớn hơn 0
+                              </p>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -468,6 +491,12 @@ const Promocodes = () => {
                             })
                           }
                         />
+                        {showError &&
+                          (isNaN(maxUsesValue) || maxUsesValue <= 0) && (
+                            <p className="text-red-500 text-xs mt-1">
+                              Số lần sử dụng tối đa phải lớn hơn 0
+                            </p>
+                          )}
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -694,6 +723,7 @@ const Promocodes = () => {
                             })
                           }
                         />
+                        {showError && isNaN(maxOrderValue)}
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">

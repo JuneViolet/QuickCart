@@ -24,8 +24,9 @@ const ProductList = () => {
     name: "",
     description: "",
     categoryName: "",
-    price: "",
-    offerPrice: "",
+    // Bỏ price và offerPrice vì chúng nằm ở variants
+    // price: "",
+    // offerPrice: "",
     brandName: "",
     images: [],
     keywords: "",
@@ -259,13 +260,15 @@ const ProductList = () => {
       name: product.name || "",
       description: product.description || "",
       categoryName: product.category?.name || "",
-      price: product.price !== undefined ? product.price : "",
-      offerPrice: product.offerPrice !== undefined ? product.offerPrice : "",
+      // Bỏ price và offerPrice vì chúng nằm ở variants
+      // price: product.price !== undefined ? product.price : "",
+      // offerPrice: product.offerPrice !== undefined ? product.offerPrice : "",
       brandName: product.brand?.name || "Unknown",
       images: product.images || [],
       keywords: product.keywords?.join(", ") || "",
     });
-    setImagePreviews(product.images || []);
+    // Đảm bảo imagePreviews được set đúng từ đầu
+    setImagePreviews([...(product.images || [])]);
     setImageFiles([]);
   };
 
@@ -321,10 +324,19 @@ const ProductList = () => {
       formDataToSend.append("name", formData.name);
       formDataToSend.append("description", formData.description);
       formDataToSend.append("categoryName", formData.categoryName);
-      formDataToSend.append("price", formData.price || "0");
-      formDataToSend.append("offerPrice", formData.offerPrice || "0");
       formDataToSend.append("brandName", formData.brandName);
       formDataToSend.append("keywords", formData.keywords || "");
+
+      // Không cần gửi price và offerPrice nữa vì chúng nằm ở variants
+      // formDataToSend.append("price", "0");
+      // formDataToSend.append("offerPrice", "0");
+
+      // Debug: Log ra những gì đang được gửi
+      console.log("FormData being sent:");
+      for (let pair of formDataToSend.entries()) {
+        console.log(pair[0] + ": " + pair[1]);
+      }
+
       (formData.images || []).forEach((img) => {
         if (typeof img === "string")
           formDataToSend.append("existingImages", img);
@@ -378,8 +390,9 @@ const ProductList = () => {
       name: "",
       description: "",
       categoryName: "",
-      price: "",
-      offerPrice: "",
+      // Bỏ price và offerPrice
+      // price: "",
+      // offerPrice: "",
       brandName: "",
       images: [],
       keywords: "",
@@ -477,18 +490,24 @@ const ProductList = () => {
   };
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 4 - imageFiles.length);
-    if (files.length > 0) {
-      const newFiles = [...imageFiles, ...files];
-      const newPreviews = [...imagePreviews];
-      files.forEach((file) => {
+    const files = Array.from(e.target.files);
+    const maxFiles = 4 - (formData.images?.length || 0);
+    const selectedFiles = files.slice(0, maxFiles);
+
+    if (selectedFiles.length > 0) {
+      const newFiles = [...imageFiles, ...selectedFiles];
+      const newPreviews = [...(formData.images || [])]; // Bắt đầu với hình ảnh hiện có
+
+      // Xử lý file đọc bất đồng bộ
+      let processedCount = 0;
+      selectedFiles.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           newPreviews.push(reader.result);
-          if (
-            newPreviews.length ===
-            newFiles.length + (formData.images.length || 0)
-          ) {
+          processedCount++;
+
+          // Chỉ cập nhật state khi tất cả file đã được xử lý
+          if (processedCount === selectedFiles.length) {
             setImageFiles(newFiles);
             setImagePreviews(newPreviews);
           }
@@ -499,16 +518,61 @@ const ProductList = () => {
   };
 
   const handleRemoveImage = (index) => {
-    if (index < (formData.images.length || 0)) {
+    const existingImagesCount = formData.images?.length || 0;
+
+    if (index < existingImagesCount) {
+      // Xóa hình ảnh hiện có
       const newImages = formData.images.filter((_, i) => i !== index);
       setFormData({ ...formData, images: newImages });
-      setImagePreviews(newImages);
+
+      // Cập nhật previews: kết hợp hình ảnh còn lại + file mới
+      if (imageFiles.length > 0) {
+        const newFilePreviews = [];
+        let processedCount = 0;
+        imageFiles.forEach((file) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            newFilePreviews.push(reader.result);
+            processedCount++;
+            if (processedCount === imageFiles.length) {
+              setImagePreviews([...newImages, ...newFilePreviews]);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      } else {
+        // Nếu không có file mới, chỉ cập nhật với hình ảnh còn lại
+        setImagePreviews(newImages);
+      }
     } else {
-      const newIndex = index - (formData.images.length || 0);
-      const newFiles = imageFiles.filter((_, i) => i !== newIndex);
-      const newPreviews = imagePreviews.filter((_, i) => i !== index);
-      setImageFiles(newFiles);
-      setImagePreviews(newPreviews);
+      // Xóa file mới được upload
+      const newFileIndex = index - existingImagesCount;
+      const newFiles = imageFiles.filter((_, i) => i !== newFileIndex);
+
+      // Tạo lại previews
+      if (newFiles.length > 0) {
+        const newFilePreviews = [];
+        let processedCount = 0;
+        newFiles.forEach((file) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            newFilePreviews.push(reader.result);
+            processedCount++;
+
+            if (processedCount === newFiles.length) {
+              setImageFiles(newFiles);
+              setImagePreviews([
+                ...(formData.images || []),
+                ...newFilePreviews,
+              ]);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      } else {
+        setImageFiles([]);
+        setImagePreviews([...(formData.images || [])]);
+      }
     }
   };
 

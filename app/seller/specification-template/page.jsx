@@ -1,15 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const ManageSpecificationTemplates = () => {
   const [templates, setTemplates] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [specs, setSpecs] = useState([{ name: "", type: "string" }]);
-  const [error, setError] = useState("");
   const [editingTemplate, setEditingTemplate] = useState(null);
-
+  const [showError, setShowError] = useState(false);
   // Lấy danh sách danh mục
   const fetchCategories = async () => {
     try {
@@ -18,7 +18,7 @@ const ManageSpecificationTemplates = () => {
         setCategories(data.categories);
       }
     } catch (err) {
-      setError("Lỗi khi tải danh mục: " + err.message);
+      toast.error("Lỗi khi tải danh mục: " + err.message);
     }
   };
 
@@ -30,7 +30,7 @@ const ManageSpecificationTemplates = () => {
         setTemplates(data.templates);
       }
     } catch (err) {
-      setError("Lỗi khi tải templates: " + err.message);
+      toast.error("Lỗi khi tải templates: " + err.message);
     }
   };
 
@@ -57,8 +57,12 @@ const ManageSpecificationTemplates = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     try {
+      if (!categoryId || specs.some((spec) => !spec.name.trim())) {
+        setShowError(true);
+        return toast.error("Vui lòng điền đầy đủ thông tin");
+      }
+
       const payload = { categoryId, specs };
       if (editingTemplate) {
         // Cập nhật template
@@ -67,7 +71,7 @@ const ManageSpecificationTemplates = () => {
           payload
         );
         if (response.data.success) {
-          alert("Cập nhật template thành công!");
+          toast.success("Cập nhật template thành công!");
           setEditingTemplate(null);
           fetchTemplates();
           setCategoryId("");
@@ -80,14 +84,18 @@ const ManageSpecificationTemplates = () => {
           payload
         );
         if (response.data.success) {
-          alert("Thêm template thành công!");
+          toast.success("Thêm template thành công!");
           fetchTemplates();
           setCategoryId("");
           setSpecs([{ name: "", type: "string" }]);
         }
       }
     } catch (err) {
-      setError("Lỗi khi lưu template: " + err.message);
+      if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Lỗi khi lưu template: " + err.message);
+      }
     }
   };
 
@@ -104,10 +112,11 @@ const ManageSpecificationTemplates = () => {
           `/api/specification-template?categoryId=${categoryId}`
         );
         if (response.data.success) {
+          toast.success("Xóa template thành công!");
           fetchTemplates();
         }
       } catch (err) {
-        setError("Lỗi khi xóa template: " + err.message);
+        toast.error("Lỗi khi xóa template: " + err.message);
       }
     }
   };
@@ -137,12 +146,6 @@ const ManageSpecificationTemplates = () => {
         Template Thông Số
       </h1>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Form Section */}
         <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-4">
@@ -169,6 +172,11 @@ const ManageSpecificationTemplates = () => {
                   </option>
                 ))}
               </select>
+              {showError && !categoryId && (
+                <p className="text-red-500 text-xs mt-1">
+                  vui lòng chọn danh mục
+                </p>
+              )}
             </div>
 
             <div>
@@ -177,36 +185,44 @@ const ManageSpecificationTemplates = () => {
               </label>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {specs.map((spec, index) => (
-                  <div key={index} className="flex gap-1 items-center">
-                    <input
-                      type="text"
-                      value={spec.name}
-                      onChange={(e) =>
-                        handleSpecChange(index, "name", e.target.value)
-                      }
-                      placeholder="Tên thông số"
-                      className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      required
-                    />
-                    <select
-                      value={spec.type}
-                      onChange={(e) =>
-                        handleSpecChange(index, "type", e.target.value)
-                      }
-                      className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                    >
-                      <option value="string">String</option>
-                      <option value="number">Number</option>
-                      <option value="array">Array</option>
-                    </select>
-                    {specs.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSpec(index)}
-                        className="p-1 text-red-500 hover:bg-red-50 rounded-lg"
+                  <div key={index}>
+                    <div className="flex gap-1 items-center">
+                      <input
+                        type="text"
+                        value={spec.name}
+                        onChange={(e) => {
+                          handleSpecChange(index, "name", e.target.value);
+                          setShowError(false);
+                        }}
+                        placeholder="Tên thông số"
+                        className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        required
+                      />
+                      <select
+                        value={spec.type}
+                        onChange={(e) =>
+                          handleSpecChange(index, "type", e.target.value)
+                        }
+                        className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                       >
-                        ✕
-                      </button>
+                        <option value="string">String</option>
+                        <option value="number">Number</option>
+                        <option value="array">Array</option>
+                      </select>
+                      {specs.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSpec(index)}
+                          className="p-1 text-red-500 hover:bg-red-50 rounded-lg"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    {showError && !spec.name.trim() && (
+                      <p className="text-red-500 text-xs mt-1">
+                        vui lòng không để trống
+                      </p>
                     )}
                   </div>
                 ))}

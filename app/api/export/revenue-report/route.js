@@ -1,199 +1,3 @@
-// import { NextResponse } from "next/server";
-// import connectDB from "@/config/db";
-// import Order from "@/models/Order";
-// import Product from "@/models/Product";
-// import { Workbook } from "exceljs";
-
-// export async function GET(req) {
-//   try {
-//     await connectDB();
-
-//     const { searchParams } = new URL(req.url);
-//     const startDate = searchParams.get("startDate");
-//     const endDate = searchParams.get("endDate");
-
-//     const query = {
-//       status: { $in: ["paid", "shipped"] }, // Thêm "delivered" nếu có
-//     };
-
-//     if (startDate && endDate) {
-//       query.date = {
-//         $gte: new Date(startDate),
-//         $lte: new Date(endDate + "T23:59:59.999Z"),
-//       };
-//     }
-
-//     const orders = await Order.find(query)
-//       .populate("items.product")
-//       .populate("items.variantId");
-
-//     // Tổng hợp dữ liệu
-//     const categoryStats = {};
-//     for (const order of orders) {
-//       for (const item of order.items) {
-//         const product = item.product;
-//         const variant = item.variantId;
-
-//         if (!product || !product.category) continue;
-
-//         const populatedProduct = await Product.findById(product._id).populate(
-//           "category"
-//         );
-//         const categoryName = populatedProduct?.category?.name;
-//         if (!categoryName) continue;
-
-//         const quantity = item.quantity;
-//         const price = variant?.price ?? 0;
-//         const totalPrice = price * quantity;
-
-//         if (!categoryStats[categoryName]) {
-//           categoryStats[categoryName] = {
-//             totalSold: 0,
-//             totalRevenue: 0,
-//           };
-//         }
-//         categoryStats[categoryName].totalSold += quantity;
-//         categoryStats[categoryName].totalRevenue += totalPrice;
-//       }
-//     }
-
-//     // Tạo workbook và worksheet
-//     const workbook = new Workbook();
-//     const worksheet = workbook.addWorksheet("Revenue Report");
-
-//     // Thiết lập style
-//     const headerStyle = {
-//       font: { name: "Calibri", size: 12, bold: true },
-//       fill: {
-//         type: "pattern",
-//         pattern: "solid",
-//         fgColor: { argb: "FF4F81BD" },
-//       },
-//       alignment: { vertical: "middle", horizontal: "center" },
-//       border: {
-//         top: { style: "thin" },
-//         left: { style: "thin" },
-//         bottom: { style: "thin" },
-//         right: { style: "thin" },
-//       },
-//     };
-
-//     const cellStyle = {
-//       font: { name: "Calibri", size: 11 },
-//       alignment: { vertical: "middle", horizontal: "left" },
-//       border: {
-//         top: { style: "thin" },
-//         left: { style: "thin" },
-//         bottom: { style: "thin" },
-//         right: { style: "thin" },
-//       },
-//     };
-
-//     // Thêm tiêu đề
-//     worksheet.mergeCells("A1:C1");
-//     worksheet.getCell("A1").value = "BÁO CÁO DOANH THU";
-//     worksheet.getCell("A1").font = { name: "Calibri", size: 16, bold: true };
-//     worksheet.getCell("A1").alignment = {
-//       vertical: "middle",
-//       horizontal: "center",
-//     };
-//     worksheet.getCell("A1").fill = {
-//       type: "pattern",
-//       pattern: "solid",
-//       fgColor: { argb: "FFD3E0F7" },
-//     };
-
-//     // Thêm khoảng thời gian
-//     worksheet.mergeCells("A2:C2");
-//     worksheet.getCell("A2").value = `Thời gian: ${new Date(
-//       startDate
-//     ).toLocaleDateString("vi-VN")} - ${new Date(endDate).toLocaleDateString(
-//       "vi-VN"
-//     )}`;
-//     worksheet.getCell("A2").font = { name: "Calibri", size: 12, italic: true };
-//     worksheet.getCell("A2").alignment = {
-//       vertical: "middle",
-//       horizontal: "center",
-//     };
-
-//     // Thêm header bảng
-//     const headers = ["Loại sản phẩm", "Số lượng bán", "Doanh thu (VND)"];
-//     worksheet.addRow(headers);
-//     worksheet.getRow(3).eachCell((cell) => {
-//       Object.assign(cell, headerStyle);
-//     });
-
-//     // Thêm dữ liệu
-//     Object.entries(categoryStats).forEach(([category, stats], index) => {
-//       worksheet.addRow([
-//         category,
-//         stats.totalSold,
-//         stats.totalRevenue
-//           .toLocaleString("vi-VN", {
-//             style: "currency",
-//             currency: "VND",
-//             maximumFractionDigits: 0,
-//           })
-//           .replace(/₫/g, "")
-//           .trim(),
-//       ]);
-//       worksheet.getRow(index + 4).eachCell((cell) => {
-//         Object.assign(cell, cellStyle);
-//       });
-//     });
-
-//     // Thêm tổng hợp (tùy chọn)
-//     const totalRow = worksheet.addRow([
-//       "Tổng cộng",
-//       Object.values(categoryStats).reduce(
-//         (sum, item) => sum + item.totalSold,
-//         0
-//       ),
-//       Object.values(categoryStats)
-//         .reduce((sum, item) => sum + item.totalRevenue, 0)
-//         .toLocaleString("vi-VN", {
-//           style: "currency",
-//           currency: "VND",
-//           maximumFractionDigits: 0,
-//         })
-//         .replace(/₫/g, "")
-//         .trim(),
-//     ]);
-//     totalRow.eachCell((cell) => {
-//       Object.assign(cell, {
-//         ...cellStyle,
-//         font: { ...cellStyle.font, bold: true },
-//         fill: {
-//           type: "pattern",
-//           pattern: "solid",
-//           fgColor: { argb: "FFFFEB9C" },
-//         },
-//       });
-//     });
-
-//     // Điều chỉnh độ rộng cột
-//     worksheet.columns = [
-//       { header: "Loại sản phẩm", key: "category", width: 30 },
-//       { header: "Số lượng bán", key: "totalSold", width: 15 },
-//       { header: "Doanh thu (VND)", key: "totalRevenue", width: 20 },
-//     ];
-
-//     // Tạo buffer và trả về file
-//     const buffer = await workbook.xlsx.writeBuffer();
-//     const fileName = `revenue_report_${startDate}_to_${endDate}.xlsx`;
-//     return new NextResponse(buffer, {
-//       status: 200,
-//       headers: {
-//         "Content-Disposition": `attachment; filename="${fileName}"`,
-//         "Content-Type":
-//           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-//       },
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     return NextResponse.json({ error: "Server Error" }, { status: 500 });
-//   }
-// }
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Order from "@/models/Order";
@@ -208,7 +12,8 @@ export async function GET(req) {
     const endDate = searchParams.get("endDate");
 
     const matchQuery = {
-      status: { $in: ["paid", "shipped"] }, // Thêm "delivered" nếu có
+      // Sử dụng cùng trạng thái với API category để đồng bộ
+      status: { $in: ["paid", "shipped", "delivered"] },
     };
 
     if (startDate && endDate) {
@@ -218,7 +23,10 @@ export async function GET(req) {
       };
     }
 
-    const pipeline = [
+    console.log("Export API - Match query:", matchQuery);
+
+    // Pipeline để lấy dữ liệu chi tiết theo sản phẩm
+    const detailPipeline = [
       { $match: matchQuery },
       { $unwind: "$items" },
       {
@@ -250,13 +58,23 @@ export async function GET(req) {
       { $unwind: "$variantDetails" },
       {
         $group: {
-          _id: "$categoryDetails.name",
+          _id: {
+            categoryName: "$categoryDetails.name",
+            productName: "$productDetails.name",
+            productId: "$productDetails._id",
+          },
           totalSold: { $sum: "$items.quantity" },
           totalRevenue: {
             $sum: {
               $multiply: [
                 "$items.quantity",
-                { $ifNull: ["$variantDetails.offerPrice", 0] },
+                {
+                  $ifNull: [
+                    "$variantDetails.offerPrice",
+                    "$variantDetails.price",
+                    0,
+                  ],
+                },
               ],
             },
           },
@@ -264,15 +82,53 @@ export async function GET(req) {
       },
       {
         $project: {
-          category: "$_id",
+          categoryName: "$_id.categoryName",
+          productName: "$_id.productName",
+          productId: "$_id.productId",
           totalSold: 1,
           totalRevenue: 1,
           _id: 0,
         },
       },
+      { $sort: { categoryName: 1, totalRevenue: -1 } }, // Sắp xếp theo danh mục, rồi theo doanh thu
     ];
 
-    const categoryStats = await Order.aggregate(pipeline);
+    const productDetails = await Order.aggregate(detailPipeline);
+
+    console.log(
+      "Export API - Product details:",
+      productDetails.length,
+      "products"
+    );
+    console.log("Export API - Sample product:", productDetails[0]);
+
+    // Nhóm dữ liệu theo category để tạo cấu trúc phân cấp
+    const groupedData = {};
+    let grandTotalProducts = 0;
+    let grandTotalRevenue = 0;
+
+    productDetails.forEach((product) => {
+      const category = product.categoryName;
+      if (!groupedData[category]) {
+        groupedData[category] = {
+          products: [],
+          categoryTotal: { totalSold: 0, totalRevenue: 0 },
+        };
+      }
+
+      groupedData[category].products.push(product);
+      groupedData[category].categoryTotal.totalSold += product.totalSold;
+      groupedData[category].categoryTotal.totalRevenue += product.totalRevenue;
+
+      grandTotalProducts += product.totalSold;
+      grandTotalRevenue += product.totalRevenue;
+    });
+
+    console.log(
+      "Export API - Grouped categories:",
+      Object.keys(groupedData).length
+    );
+    console.log("Export API - Total products sold:", grandTotalProducts);
 
     // Tạo workbook và worksheet
     const workbook = new Workbook();
@@ -280,7 +136,12 @@ export async function GET(req) {
 
     // Thiết lập style
     const headerStyle = {
-      font: { name: "Calibri", size: 12, bold: true },
+      font: {
+        name: "Calibri",
+        size: 12,
+        bold: true,
+        color: { argb: "FFFFFFFF" },
+      },
       fill: {
         type: "pattern",
         pattern: "solid",
@@ -308,7 +169,7 @@ export async function GET(req) {
 
     // Thêm tiêu đề
     worksheet.mergeCells("A1:C1");
-    worksheet.getCell("A1").value = "BÁO CÁO DOANH THU";
+    worksheet.getCell("A1").value = "BÁO CÁO DOANH THU THEO DANH MỤC";
     worksheet.getCell("A1").font = { name: "Calibri", size: 16, bold: true };
     worksheet.getCell("A1").alignment = {
       vertical: "middle",
@@ -333,63 +194,135 @@ export async function GET(req) {
       horizontal: "center",
     };
 
+    // Thêm thông tin thống kê tổng quan
+    worksheet.mergeCells("A3:C3");
+    worksheet.getCell(
+      "A3"
+    ).value = `Tổng sản phẩm đã bán: ${grandTotalProducts} | Tổng doanh thu: ${grandTotalRevenue.toLocaleString(
+      "vi-VN",
+      {
+        style: "currency",
+        currency: "VND",
+        maximumFractionDigits: 0,
+      }
+    )}`;
+    worksheet.getCell("A3").font = { name: "Calibri", size: 11, bold: true };
+    worksheet.getCell("A3").alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+
+    // Để trống 1 dòng
+    worksheet.addRow([]);
+
     // Thêm header bảng
-    const headers = ["Loại sản phẩm", "Số lượng bán", "Doanh thu (VND)"];
+    const headers = ["Danh mục / Sản phẩm", "Số lượng bán", "Doanh thu (VND)"];
     worksheet.addRow(headers);
-    worksheet.getRow(3).eachCell((cell) => {
+    const headerRowIndex = worksheet.lastRow.number;
+    worksheet.getRow(headerRowIndex).eachCell((cell) => {
       Object.assign(cell, headerStyle);
     });
 
-    // Thêm dữ liệu
-    categoryStats.forEach((stat, index) => {
-      worksheet.addRow([
-        stat.category,
-        stat.totalSold,
-        stat.totalRevenue
-          .toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-            maximumFractionDigits: 0,
-          })
-          .replace(/₫/g, "")
-          .trim(),
-      ]);
-      worksheet.getRow(index + 4).eachCell((cell) => {
-        Object.assign(cell, cellStyle);
-      });
-    });
+    // Thêm dữ liệu chi tiết theo danh mục
+    let currentRowIndex = headerRowIndex + 1;
 
-    // Thêm tổng hợp
-    const totalRow = worksheet.addRow([
-      "Tổng cộng",
-      categoryStats.reduce((sum, item) => sum + item.totalSold, 0),
-      categoryStats
-        .reduce((sum, item) => sum + item.totalRevenue, 0)
-        .toLocaleString("vi-VN", {
-          style: "currency",
-          currency: "VND",
-          maximumFractionDigits: 0,
-        })
-        .replace(/₫/g, "")
-        .trim(),
-    ]);
-    totalRow.eachCell((cell) => {
+    Object.keys(groupedData)
+      .sort()
+      .forEach((categoryName) => {
+        const categoryData = groupedData[categoryName];
+
+        // Thêm tên danh mục (header của danh mục)
+        const categoryRow = worksheet.addRow([
+          ` ${categoryName.toUpperCase()}`,
+          "",
+          "",
+        ]);
+        categoryRow.eachCell((cell) => {
+          Object.assign(cell, {
+            ...cellStyle,
+            font: { ...cellStyle.font, bold: true, size: 12 },
+            fill: {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFE6F3FF" },
+            },
+          });
+        });
+        currentRowIndex++;
+
+        // Thêm từng sản phẩm trong danh mục
+        categoryData.products.forEach((product) => {
+          const productRow = worksheet.addRow([
+            `     ${product.productName}`,
+            product.totalSold,
+            product.totalRevenue,
+          ]);
+          productRow.eachCell((cell, colNumber) => {
+            Object.assign(cell, cellStyle);
+            if (colNumber === 3) {
+              // Cột doanh thu
+              cell.numFmt = '#,##0"₫"';
+            }
+          });
+          currentRowIndex++;
+        });
+
+        // Thêm tổng của danh mục
+        const categoryTotalRow = worksheet.addRow([
+          ` Tổng ${categoryName}`,
+          categoryData.categoryTotal.totalSold,
+          categoryData.categoryTotal.totalRevenue,
+        ]);
+        categoryTotalRow.eachCell((cell, colNumber) => {
+          Object.assign(cell, {
+            ...cellStyle,
+            font: { ...cellStyle.font, bold: true },
+            fill: {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFF0F8FF" },
+            },
+          });
+          if (colNumber === 3) {
+            // Cột doanh thu
+            cell.numFmt = '#,##0"₫"';
+          }
+        });
+        currentRowIndex++;
+
+        // Thêm dòng trống giữa các danh mục
+        worksheet.addRow([]);
+        currentRowIndex++;
+      });
+
+    // Thêm tổng hợp cuối cùng
+    const totalRowData = [
+      " TỔNG CỘNG TẤT CẢ",
+      grandTotalProducts,
+      grandTotalRevenue,
+    ];
+    const totalRow = worksheet.addRow(totalRowData);
+    totalRow.eachCell((cell, colNumber) => {
       Object.assign(cell, {
         ...cellStyle,
-        font: { ...cellStyle.font, bold: true },
+        font: { ...cellStyle.font, bold: true, size: 12 },
         fill: {
           type: "pattern",
           pattern: "solid",
           fgColor: { argb: "FFFFEB9C" },
         },
       });
+      if (colNumber === 3) {
+        // Cột doanh thu
+        cell.numFmt = '#,##0"₫"';
+      }
     });
 
     // Điều chỉnh độ rộng cột
     worksheet.columns = [
-      { header: "Loại sản phẩm", key: "category", width: 30 },
+      { header: "Danh mục / Sản phẩm", key: "category", width: 40 },
       { header: "Số lượng bán", key: "totalSold", width: 15 },
-      { header: "Doanh thu (VND)", key: "totalRevenue", width: 20 },
+      { header: "Doanh thu (VND)", key: "totalRevenue", width: 25 },
     ];
 
     // Tạo buffer và trả về file

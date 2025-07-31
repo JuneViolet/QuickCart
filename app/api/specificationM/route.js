@@ -15,6 +15,21 @@ export async function POST(request) {
       );
     }
 
+    const exitstingSpec = await Specification.findOne({
+      productId,
+      key: key.trim(),
+    });
+
+    if (exitstingSpec) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Thông số này đã tồn tại trong sản phẩm này",
+        },
+        { status: 409 }
+      );
+    }
+
     const newSpec = await Specification.create({
       productId,
       key,
@@ -28,7 +43,11 @@ export async function POST(request) {
       { new: true }
     );
 
-    return NextResponse.json({ success: true, specification: newSpec });
+    return NextResponse.json({
+      success: true,
+      Specification: newSpec,
+      message: "Thêm thông số thành công",
+    });
   } catch (error) {
     console.error("Post Specifications Error:", error.message, error.stack);
     return NextResponse.json(

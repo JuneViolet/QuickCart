@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { set } from "lodash";
 
 const EditSpecification = ({ productId, categoryId, editingSpec, onClose }) => {
   const router = useRouter();
@@ -9,7 +10,7 @@ const EditSpecification = ({ productId, categoryId, editingSpec, onClose }) => {
   const [suggestedKeys, setSuggestedKeys] = useState([]);
   const [valueType, setValueType] = useState("string");
   const [error, setError] = useState("");
-
+  const [showError, setShowError] = useState(false);
   useEffect(() => {
     if (editingSpec) {
       setFormData({ key: editingSpec.key, value: editingSpec.value });
@@ -70,6 +71,7 @@ const EditSpecification = ({ productId, categoryId, editingSpec, onClose }) => {
         valueToSubmit = Number(valueToSubmit);
         if (isNaN(valueToSubmit)) {
           setError("Giá trị phải là số.");
+          setShowError(true);
           return;
         }
       }
@@ -78,6 +80,15 @@ const EditSpecification = ({ productId, categoryId, editingSpec, onClose }) => {
         valueToSubmit = valueToSubmit.filter((v) => v.trim() !== "");
         if (!valueToSubmit.length) {
           setError("Vui lòng nhập ít nhất 1 giá trị.");
+          setShowError(true);
+          return;
+        }
+      }
+
+      if (valueType === "string") {
+        if (!valueToSubmit || valueToSubmit.trim() === "") {
+          setError("vui lòng nhập giá trị vào");
+          setShowError(true);
           return;
         }
       }
@@ -106,8 +117,7 @@ const EditSpecification = ({ productId, categoryId, editingSpec, onClose }) => {
         {/* Header */}
         <div className="px-6 py-4 border-b">
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <span className="text-yellow-500 text-xl">✏️</span> Chỉnh sửa Thông
-            Số
+            <span className="text-yellow-500 text-xl"></span> Chỉnh sửa Thông Số
           </h2>
         </div>
 
@@ -159,7 +169,7 @@ const EditSpecification = ({ productId, categoryId, editingSpec, onClose }) => {
                     onClick={handleAddArrayItem}
                     className="text-sm text-purple-600 hover:underline"
                   >
-                    ➕ Thêm giá trị
+                    Thêm giá trị
                   </button>
                 </div>
               ) : (
@@ -172,6 +182,12 @@ const EditSpecification = ({ productId, categoryId, editingSpec, onClose }) => {
                   className="w-full p-2 border rounded"
                 />
               )}
+              {showError &&
+                (!formData.value || !formData.value.trim() === "") && (
+                  <p className="text-red-500 text-xs mt-1">
+                    vui lòng không để trống
+                  </p>
+                )}
             </div>
           </div>
 

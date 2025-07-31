@@ -522,8 +522,10 @@ const OrderSummary = () => {
                 ).map((code) => (
                   <option key={code.code} value={code.code}>
                     {code.code} (
-                    {code.discountPercentage || code.discountAmount}{" "}
-                    {code.discountType === "percentage" ? "%" : "VND"})
+                    {code.discountPercentage
+                      ? `${code.discountPercentage}%`
+                      : `${code.discountAmount} VND`}
+                    )
                   </option>
                 ))}
               </select>

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "@clerk/nextjs";
+import { set } from "lodash";
 
 const ManageCategoriesBrands = () => {
   const { getToken } = useAuth();
@@ -19,7 +20,7 @@ const ManageCategoriesBrands = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [expandedBrand, setExpandedBrand] = useState(null);
-
+  const [showError, setShowError] = useState(false);
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -97,7 +98,13 @@ const ManageCategoriesBrands = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) return toast.error("Tên không được để trống");
+    setShowError(false);
+
+    if (!formData.name.trim()) {
+      setShowError(true);
+      toast.error("Tên không được để trống");
+      return;
+    }
 
     try {
       setActionLoading(true);
@@ -140,7 +147,12 @@ const ManageCategoriesBrands = () => {
         throw new Error(res.data.message);
       }
     } catch (err) {
-      toast.error(err.message || "Lỗi khi lưu");
+      // ✅ Hiển thị message từ backend validation
+      if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error(err.message || "Lỗi khi lưu");
+      }
     } finally {
       setActionLoading(false);
     }
@@ -172,8 +184,13 @@ const ManageCategoriesBrands = () => {
       } else {
         throw new Error(res.data.message);
       }
-    } catch {
-      toast.error("Lỗi khi xóa");
+    } catch (err) {
+      // ✅ Hiển thị message từ backend validation
+      if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Lỗi khi xóa");
+      }
     } finally {
       setActionLoading(false);
     }
@@ -262,7 +279,6 @@ const ManageCategoriesBrands = () => {
                 </label>
                 <input
                   type="text"
-                  required
                   placeholder={`Nhập tên ${
                     selectedType === "category"
                       ? "loại sản phẩm"
@@ -275,6 +291,11 @@ const ManageCategoriesBrands = () => {
                   }
                   disabled={actionLoading}
                 />
+                {showError && (!formData.name || !formData.name.trim()) && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Vui lòng nhập tên vào
+                  </p>
+                )}
               </div>
 
               <div>

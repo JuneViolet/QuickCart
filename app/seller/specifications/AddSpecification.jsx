@@ -94,10 +94,14 @@ const AddSpecification = ({ productId, categoryId, onClose }) => {
         setError(response.data.message || "Lỗi không xác định");
       }
     } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Lỗi khi thêm thông số: " + error.message
-      );
+      if (error.response?.status === 409) {
+        setError(error.response.data.message);
+      } else {
+        setError(
+          "Lỗi khi thêm thông số:" +
+            (error.response?.data?.message || error.message)
+        );
+      }
     }
   };
 

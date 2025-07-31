@@ -47,15 +47,41 @@ export async function POST(request) {
       categoryId,
     });
     if (existingTemplate) {
-      existingTemplate.specs = specs;
-      await existingTemplate.save();
-      return NextResponse.json({
-        success: true,
-        message: "Template updated successfully",
-        template: existingTemplate,
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Template đã tồn tại trong danh mục này",
+        },
+        { status: 409 }
+      );
     }
 
+    const specName = specs.map((spec) => spec.name.toLowerCase().trim());
+    const duplicateName = specName.filter(
+      (name, index) => specName.indexOf(name) !== index
+    );
+    if (duplicateName.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Tên thông số không được trùng lặp: ${duplicateName.join(
+            ","
+          )}`,
+        },
+        { status: 400 }
+      );
+    }
+
+    const emptyName = specs.filter((spec) => !spec.name || !spec.name.trim());
+    if (emptyName.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Tên thông được để trống",
+        },
+        { status: 400 }
+      );
+    }
     // Nếu chưa có, tạo mới
     const newTemplate = await SpecificationTemplate.create({
       categoryId,
