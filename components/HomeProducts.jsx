@@ -111,6 +111,7 @@ const HomeProducts = () => {
 
         if (data.success) {
           console.log("Products received:", data.products); // Log để kiểm tra dữ liệu
+          console.log("Sample product variants:", data.products[0]?.variants); // Log để kiểm tra variants
           setProducts(data.products || []);
           setTotalPages(data.totalPages || 1);
         } else {
@@ -548,24 +549,48 @@ const HomeProducts = () => {
             {products.slice(0, 10).map(
               (
                 product, // điều chỉnh sp
-                index // Giới hạn 8 sản phẩm
-              ) => (
-                <ProductCard
-                  key={index}
-                  product={{
-                    ...product,
-                    images:
-                      product.images && product.images.length > 0
-                        ? product.images
-                        : [assets.placeholder_image],
-                    image:
-                      product.image && product.image.length > 0
-                        ? product.image[0]
-                        : assets.placeholder_image,
-                    averageRating: product.averageRating || 0,
-                  }}
-                />
-              )
+                index // Giới hạn 10 sản phẩm
+              ) => {
+                console.log("Product data:", product); // Debug để xem cấu trúc dữ liệu
+
+                // Lấy giá từ variant đầu tiên nếu có, ngược lại dùng giá sản phẩm
+                let displayPrice = product.price || 0;
+                let displayOfferPrice = product.offerPrice;
+                let displayOriginalPrice = product.price;
+
+                if (product.variants && product.variants.length > 0) {
+                  const firstVariant = product.variants[0];
+                  displayPrice =
+                    firstVariant.offerPrice ||
+                    firstVariant.price ||
+                    product.price ||
+                    0;
+                  displayOfferPrice =
+                    firstVariant.offerPrice || product.offerPrice;
+                  displayOriginalPrice = firstVariant.price || product.price;
+                }
+
+                return (
+                  <ProductCard
+                    key={index}
+                    product={{
+                      ...product,
+                      // Gửi cả giá gốc và giá khuyến mãi
+                      price: displayOriginalPrice,
+                      offerPrice: displayOfferPrice,
+                      images:
+                        product.images && product.images.length > 0
+                          ? product.images
+                          : [assets.placeholder_image],
+                      image:
+                        product.image && product.image.length > 0
+                          ? product.image[0]
+                          : assets.placeholder_image,
+                      averageRating: product.averageRating || 0,
+                    }}
+                  />
+                );
+              }
             )}
           </div>
         ) : (

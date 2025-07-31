@@ -177,8 +177,8 @@ const AddVariantPopup = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <h3 className="text-lg font-medium mb-4">
           Thêm Biến Thể cho {product?.name || "Sản phẩm"}
         </h3>
@@ -220,8 +220,8 @@ const AddVariantPopup = ({
             ))}
           </div>
 
-          <div className="flex items-center gap-5 flex-wrap">
-            <div className="flex flex-col gap-1 w-32">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-1">
               <label className="text-base font-medium">Giá Gốc</label>
               <input
                 type="number"
@@ -239,7 +239,7 @@ const AddVariantPopup = ({
               />
             </div>
 
-            <div className="flex flex-col gap-1 w-32">
+            <div className="flex flex-col gap-1">
               <label className="text-base font-medium">Giá KM</label>
               <input
                 type="number"
@@ -258,7 +258,7 @@ const AddVariantPopup = ({
               {erroPrice && <p className="text-sm text-red-500">{erroPrice}</p>}
             </div>
 
-            <div className="flex flex-col gap-1 w-32">
+            <div className="flex flex-col gap-1">
               <label className="text-base font-medium">Số Lượng</label>
               <input
                 type="number"
@@ -273,7 +273,7 @@ const AddVariantPopup = ({
               />
             </div>
 
-            <div className="flex flex-col gap-1 w-32">
+            <div className="flex flex-col gap-1">
               <label className="text-base font-medium">SKU</label>
               <input
                 type="text"
@@ -289,7 +289,7 @@ const AddVariantPopup = ({
             </div>
           </div>
 
-          <div className="flex flex-col gap-1 w-full">
+          <div className="flex flex-col gap-1 mt-4">
             <label className="text-base font-medium">Hình ảnh (tối đa 4)</label>
             <input
               type="file"

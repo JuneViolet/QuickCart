@@ -61,9 +61,10 @@ export const createUserOrder = inngest.createFunction(
   {
     id: "create-user-order",
     batchEvents: {
-      maxSize: 5,
-      timeout: "5s",
+      maxSize: 3, // Giảm batch size để xử lý nhanh hơn
+      timeout: "3s", // Giảm timeout để responsive hơn
     },
+    retries: 3, // Thêm retry cho reliability
   },
   { event: "order/created" },
   async ({ events }) => {
@@ -184,7 +185,7 @@ export const createUserOrder = inngest.createFunction(
               Token: process.env.GHN_TOKEN,
               ShopId: process.env.GHN_SHOP_ID,
             },
-            timeout: 10000,
+            timeout: 15000, // Tăng timeout lên 15s cho GHN API
           });
 
           const ghnData = ghnRes.data;

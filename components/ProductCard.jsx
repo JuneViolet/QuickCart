@@ -149,9 +149,31 @@ const ProductCard = ({ product }) => {
       </div>
 
       <div className="flex items-end justify-between w-full mt-1">
-        <p className="text-lg font-medium truncate max-w-[60%]">
-          {formatCurrency(product.offerPrice || product.price)}
-        </p>
+        <div className="flex flex-col gap-1 max-w-[60%]">
+          {product.offerPrice && product.offerPrice !== product.price ? (
+            <>
+              <p className="text-lg font-medium text-orange-600 truncate">
+                {formatCurrency(product.offerPrice)}
+              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-gray-500 line-through truncate">
+                  {formatCurrency(product.price)}
+                </p>
+                <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">
+                  -
+                  {Math.round(
+                    ((product.price - product.offerPrice) / product.price) * 100
+                  )}
+                  %
+                </span>
+              </div>
+            </>
+          ) : (
+            <p className="text-lg font-medium truncate">
+              {formatCurrency(product.price || 0)}
+            </p>
+          )}
+        </div>
         <button
           onClick={handleBuyNow}
           className="max-sm:hidden px-3 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-sm hover:bg-slate-50 transition"

@@ -295,7 +295,7 @@ const Orders = () => {
 
                           {/* Giá tiền sản phẩm */}
                           <div className="text-right flex-shrink-0">
-                            <div className="text-sm font-semibold text-green-600">
+                            <div className="text-sm font-semibold text-gray-700">
                               {formatCurrency(
                                 (item.variantId?.offerPrice ||
                                   item.variantId?.price ||
@@ -305,7 +305,7 @@ const Orders = () => {
                                 currency
                               )}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-600">
                               {formatCurrency(
                                 item.variantId?.offerPrice ||
                                   item.variantId?.price ||
@@ -322,29 +322,36 @@ const Orders = () => {
                     </div>
                   </div>
 
-                  {/* Thông tin giao hàng - mở rộng */}
-                  <div className="flex-1 min-w-0 lg:min-w-64">
-                    <div className="text-gray-700 space-y-1">
+                  {/* Thông tin giao hàng - thu gọn */}
+                  <div className="w-auto min-w-48 max-w-64 flex-shrink-0">
+                    <div className="text-sm text-gray-600 space-y-1">
                       <div className="font-medium text-gray-900">
-                        {order.address?.fullName || "Unknown Name"}
+                        Tên Khách hàng:{" "}
+                        {order.address?.fullName || "Tên không xác định"}
                       </div>
-                      <div className="text-sm">
-                        {order.address?.area || "N/A"}
+                      <div className="font-medium text-gray-900">
+                        Địa chỉ: {order.address?.area || "N/A"}
                       </div>
-                      <div className="text-sm">
+                      <div className="font-medium text-gray-900">
                         {order.address?.city && order.address?.state
-                          ? `${order.address.city}, ${order.address.state}`
+                          ? `${order.address.city}, ${order.address.state}, `
                           : "N/A"}
+                        {order.address?.ward && order.address?.ward !== "Khác"
+                          ? `${order.address.ward}, `
+                          : ""}
                       </div>
-                      <div className="text-sm">
-                        {order.address?.phoneNumber || "N/A"}
+                      <div className="font-medium text-gray-900">
+                        SĐT: {order.address?.phoneNumber || "N/A"}
                       </div>
                     </div>
                   </div>
 
-                  {/* Tổng tiền */}
-                  <div className="flex-1 text-center lg:min-w-32">
-                    <div className="font-semibold text-lg text-green-600">
+                  {/* Tổng tiền - thu nhỏ */}
+                  <div className="w-auto text-center lg:min-w-32 xl:min-w-36 flex-shrink-0">
+                    <div className="font-semibold text-base text-gray-700">
+                      Tổng tiền
+                    </div>
+                    <div className="font-bold text-lg text-gray-900 mt-1">
                       {formatCurrency(order.amount, currency)}
                     </div>
                   </div>

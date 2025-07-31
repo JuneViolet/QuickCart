@@ -164,17 +164,20 @@ const VariantPopup = ({
   if (loading) return <p>Đang tải...</p>;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <h3 className="text-lg font-medium mb-4">
           Biến Thể của {product?.name || "Sản phẩm"}
         </h3>
         {selectedProductId && (
-          <div className="space-y-4 max-h-64 overflow-y-auto">
+          <div className="space-y-4 max-h-96 overflow-y-auto">
             {variants?.[selectedProductId] &&
             variants[selectedProductId].length > 0 ? (
               variants[selectedProductId].map((variant) => (
-                <div key={variant._id} className="border-b py-2">
+                <div
+                  key={variant._id}
+                  className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                >
                   {editingVariant === variant._id ? (
                     <form
                       onSubmit={(e) =>
@@ -231,8 +234,8 @@ const VariantPopup = ({
                           </div>
                         ))}
                       </div>
-                      <div className="flex items-center gap-5 flex-wrap">
-                        <div className="flex flex-col gap-1 w-32">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="flex flex-col gap-1">
                           <label className="text-base font-medium">
                             Giá Gốc
                           </label>
@@ -248,7 +251,7 @@ const VariantPopup = ({
                             }
                           />
                         </div>
-                        <div className="flex flex-col gap-1 w-32">
+                        <div className="flex flex-col gap-1">
                           <label className="text-base font-medium">
                             Giá Khuyến Mãi
                           </label>
@@ -264,7 +267,7 @@ const VariantPopup = ({
                             }
                           />
                         </div>
-                        <div className="flex flex-col gap-1 w-32">
+                        <div className="flex flex-col gap-1">
                           <label className="text-base font-medium">
                             Số Lượng
                           </label>
@@ -280,7 +283,7 @@ const VariantPopup = ({
                             }
                           />
                         </div>
-                        <div className="flex flex-col gap-1 w-32">
+                        <div className="flex flex-col gap-1">
                           <label className="text-base font-medium">SKU</label>
                           <input
                             type="text"
@@ -294,66 +297,61 @@ const VariantPopup = ({
                             }
                           />
                         </div>
-                        <div className="flex flex-col gap-1 w-full">
-                          <label className="text-base font-medium">
-                            Hình Ảnh (Tối đa 4)
-                          </label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-                            onChange={handleImageChange}
-                          />
-                          <div className="mt-2 flex gap-2 flex-wrap">
-                            {(editVariantData?.images || []).map(
-                              (img, index) => (
-                                <div
-                                  key={`existing-${index}`}
-                                  className="relative"
+                      </div>
+                      <div className="flex flex-col gap-1 mt-4">
+                        <label className="text-base font-medium">
+                          Hình Ảnh (Tối đa 4)
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                          onChange={handleImageChange}
+                        />
+                        <div className="mt-2 flex gap-2 flex-wrap">
+                          {(editVariantData?.images || []).map((img, index) => (
+                            <div key={`existing-${index}`} className="relative">
+                              <img
+                                src={img}
+                                alt={`Existing ${index}`}
+                                className="w-20 h-20 object-cover rounded"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveImage(index)}
+                                className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                          {imagePreviews
+                            .slice(editVariantData?.images?.length || 0)
+                            .map((img, index) => (
+                              <div key={`new-${index}`} className="relative">
+                                <img
+                                  src={img}
+                                  alt={`Preview ${index}`}
+                                  className="w-20 h-20 object-cover rounded"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleRemoveImage(
+                                      index +
+                                        (editVariantData?.images?.length || 0)
+                                    )
+                                  }
+                                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
                                 >
-                                  <img
-                                    src={img}
-                                    alt={`Existing ${index}`}
-                                    className="w-20 h-20 object-cover rounded"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveImage(index)}
-                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                              )
-                            )}
-                            {imagePreviews
-                              .slice(editVariantData?.images?.length || 0)
-                              .map((img, index) => (
-                                <div key={`new-${index}`} className="relative">
-                                  <img
-                                    src={img}
-                                    alt={`Preview ${index}`}
-                                    className="w-20 h-20 object-cover rounded"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleRemoveImage(
-                                        index +
-                                          (editVariantData?.images?.length || 0)
-                                      )
-                                    }
-                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                              ))}
-                          </div>
+                                  ×
+                                </button>
+                              </div>
+                            ))}
                         </div>
                       </div>
-                      <div className="flex gap-3">
+                      <div className="flex gap-3 mt-4">
                         <button
                           type="submit"
                           className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -372,35 +370,139 @@ const VariantPopup = ({
                     </form>
                   ) : (
                     <>
-                      <p>
-                        {product?.name || "Sản phẩm"} -{" "}
-                        {(variant.attributeRefs || [])
-                          .map((ref) =>
-                            typeof ref.value === "object"
-                              ? ref.value.text
-                              : ref.value
-                          )
-                          .join(" - ") || "Không có thuộc tính"}
-                      </p>
-                      <p>SKU: {variant.sku || "N/A"}</p>
-                      <p>Giá: {formatCurrency(variant.price)}</p>
-                      {variant.offerPrice &&
-                        variant.offerPrice < variant.price && (
-                          <p className="text-red-500">
-                            Khuyến mãi: {formatCurrency(variant.offerPrice)}
-                          </p>
-                        )}
-                      <p>Số lượng: {variant.stock || 0}</p>
-                      <div className="flex gap-2 mt-2">
+                      {/* Thông tin biến thể */}
+                      <div className="mb-4">
+                        <p className="font-medium text-gray-800 mb-2">
+                          {product?.name || "Sản phẩm"} -{" "}
+                          {(variant.attributeRefs || [])
+                            .map((ref) =>
+                              typeof ref.value === "object"
+                                ? ref.value.text
+                                : ref.value
+                            )
+                            .join(" - ") || "Không có thuộc tính"}
+                        </p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                          <div>
+                            <span className="font-medium text-gray-700">
+                              SKU
+                            </span>
+                            <br />
+                            <span>{variant.sku || "N/A"}</span>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">
+                              Giá gốc
+                            </span>
+                            <br />
+                            <span className="font-medium text-gray-700">
+                              {formatCurrency(variant.price)}
+                            </span>
+                          </div>
+                          {variant.offerPrice &&
+                            variant.offerPrice < variant.price && (
+                              <div>
+                                <span className="font-medium text-gray-700">
+                                  Khuyến mãi
+                                </span>
+                                <br />
+                                <span className="font-medium text-gray-700">
+                                  {formatCurrency(variant.offerPrice)}
+                                </span>
+                              </div>
+                            )}
+                          <div>
+                            <span className="font-medium text-gray-700">
+                              Số lượng:
+                            </span>
+                            <br />
+                            <span
+                              className={`font-medium text-gray-700 ${
+                                variant.stock > 0
+                              }`}
+                            >
+                              {variant.stock || 0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Hình ảnh biến thể - 1 hàng ngang */}
+                      <div className="mb-4">
+                        <p className="font-medium text-gray-700 mb-2 text-sm">
+                          Hình ảnh ({(variant.images || []).length}/4)
+                        </p>
+                        <div className="flex gap-2">
+                          {Array.from({ length: 4 }, (_, index) => {
+                            const img = (variant.images || [])[index];
+                            const hasImage =
+                              img && img !== null && img !== undefined;
+
+                            return (
+                              <div
+                                key={index}
+                                className="relative w-16 h-16 flex-shrink-0"
+                              >
+                                {hasImage ? (
+                                  <>
+                                    <img
+                                      src={
+                                        typeof img === "string"
+                                          ? img
+                                          : img?.url || img
+                                      }
+                                      alt={`Ảnh ${index + 1}`}
+                                      className="w-16 h-16 object-cover rounded border border-gray-200 hover:border-blue-400 transition-colors cursor-pointer shadow-sm hover:shadow-md"
+                                      onError={(e) => {
+                                        e.target.style.display = "none";
+                                        e.target.nextSibling.style.display =
+                                          "flex";
+                                      }}
+                                      onClick={() => {
+                                        const imageUrl =
+                                          typeof img === "string"
+                                            ? img
+                                            : img?.url || img;
+                                        window.open(imageUrl, "_blank");
+                                      }}
+                                    />
+                                    <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">
+                                      {index + 1}
+                                    </div>
+                                    <div className="w-16 h-16 bg-red-100 border border-dashed border-red-300 rounded flex flex-col items-center justify-center text-red-500 text-xs hidden">
+                                      <span className="text-lg"></span>
+                                      <span>Lỗi</span>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="w-16 h-16 border border-dashed border-gray-300 rounded flex flex-col items-center justify-center text-gray-400 bg-gray-50 hover:bg-gray-100 transition-colors">
+                                    <div className="text-lg"></div>
+                                    <div className="text-xs">{index + 1}</div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {/* <p className="text-xs text-gray-500 mt-2">
+                          {(variant.images || []).length > 0
+                            ? `💡 Click ảnh để xem full size • ✅ Đã có ${
+                                (variant.images || []).length
+                              } ảnh`
+                            : `⚠️ Chưa có hình ảnh nào`}
+                        </p> */}
+                      </div>
+
+                      <div className="flex gap-2 pt-3 border-t border-gray-200">
                         <button
                           onClick={() => handleEditVariant(variant)}
-                          className="px-2 py-1 bg-blue-600 text-white rounded-md text-sm"
+                          className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
                         >
                           Sửa
                         </button>
                         <button
                           onClick={() => handleDeleteVariant(variant._id)}
-                          className="px-2 py-1 bg-red-600 text-white rounded-md text-sm"
+                          className="px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors"
                         >
                           Xóa
                         </button>
