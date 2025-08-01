@@ -72,21 +72,32 @@ export async function POST(request) {
       );
     }
 
-    const newComment = {
-      userId,
-      username: user.firstName || "Anonymous",
-      comment: comment.trim(),
-      createdAt: new Date(),
-    };
+    // Kiểm tra xem user đã có comment chưa
+    const existingCommentIndex = product.comments.findIndex(
+      (c) => c.userId === userId
+    );
 
-    product.comments.push(newComment);
+    if (existingCommentIndex >= 0) {
+      // Cập nhật comment hiện có
+      product.comments[existingCommentIndex].comment = comment.trim();
+      product.comments[existingCommentIndex].updatedAt = new Date();
+    } else {
+      // Thêm comment mới
+      const newComment = {
+        userId,
+        username: user.firstName || "Anonymous",
+        comment: comment.trim(),
+        createdAt: new Date(),
+      };
+      product.comments.push(newComment);
+    }
+
     await product.save();
 
     return NextResponse.json(
       {
         success: true,
         message: "Comment added successfully",
-        comment: newComment,
       },
       { status: 200 }
     );

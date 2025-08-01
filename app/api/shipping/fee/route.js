@@ -39,8 +39,8 @@ export async function POST(request) {
       to_district_id: toDistrictId,
       to_ward_code: wardCode,
       to_address: address || "123 Nguyễn Chí Thanh",
-      weight: Math.max(weight, 50),
-      cod_amount: value,
+      weight: Math.max(Math.round(weight), 50), // Đảm bảo weight là số nguyên
+      cod_amount: Math.round(value), // Đảm bảo cod_amount cũng là số nguyên
       from_district_id: parseInt(process.env.GHN_FROM_DISTRICT_ID) || 1444,
       from_ward_code: process.env.GHN_FROM_WARD_CODE || "20308",
     };

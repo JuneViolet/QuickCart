@@ -11,7 +11,6 @@ import Loading from "@/components/Loading";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import ProductInfo from "@/components/ProductInfo";
 import ProductSpecifications from "@/components/ProductSpecifications";
-import ProductRating from "@/components/ProductRating";
 import ProductComments from "@/components/ProductComments";
 import RelatedProducts from "@/components/RelatedProducts";
 import { useAppContext } from "@/context/AppContext";
@@ -277,17 +276,9 @@ const Product = () => {
 
         {/* Rating và Comment Section */}
         <div className="mt-8 space-y-6">
-          <ProductRating
-            productId={id}
-            hasPurchased={hasPurchased}
-            existingRating={existingRating}
-            averageRating={productData?.averageRating || 0}
-            totalRatings={productData.ratings?.length}
-            onRatingUpdate={handleSubmitRating}
-          />
-
           <ProductComments
             productId={id}
+            productData={productData}
             productUserId={productData.userId}
             comments={productData.comments}
             ratings={productData.ratings}

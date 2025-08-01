@@ -72,7 +72,10 @@ const ProductRating = ({
   };
 
   return (
-    <div className="bg-gray-50 p-6 rounded-lg">
+    <div
+      className="bg-gray-50 p-6 rounded-lg"
+      style={{ maxWidth: "600px", marginRight: "0 auto" }}
+    >
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Đánh giá sản phẩm</h2>
         <div className="flex items-center gap-2">

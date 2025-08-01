@@ -69,16 +69,36 @@ const OrderSummary = () => {
             (v) => v._id.toString() === item.variantId
           );
           const specs = specifications[productId] || [];
-          let weight = 50;
+          let weight = 50; // Mặc định 50g
+
           const weightSpec = specs.find(
             (s) => s.key.toLowerCase() === "trọng lượng"
           );
+
           if (weightSpec) {
-            const weightValue = parseFloat(
-              weightSpec.value.replace(/[^0-9.]/g, "")
-            );
-            if (!isNaN(weightValue)) weight = weightValue;
+            const weightValue = weightSpec.value.toLowerCase().trim();
+
+            if (weightValue.includes("kg")) {
+              // Nếu là kg, convert sang gram
+              const kgValue = parseFloat(weightValue.replace(/[^0-9.]/g, ""));
+              if (!isNaN(kgValue)) {
+                weight = Math.round(kgValue * 1000); // Convert kg to gram
+              }
+            } else if (weightValue.includes("g")) {
+              // Nếu là gram
+              const gValue = parseFloat(weightValue.replace(/[^0-9.]/g, ""));
+              if (!isNaN(gValue)) {
+                weight = Math.round(gValue);
+              }
+            } else {
+              // Nếu chỉ là số, assume là gram
+              const numValue = parseFloat(weightValue.replace(/[^0-9.]/g, ""));
+              if (!isNaN(numValue)) {
+                weight = Math.round(numValue);
+              }
+            }
           }
+
           const quantity = item.quantity || 1;
           return sum + weight * quantity;
         }, 0);
@@ -89,9 +109,27 @@ const OrderSummary = () => {
           districtId: selectedAddress.districtId,
           wardCode: selectedAddress.wardCode,
           address: selectedAddress.area || "123 Nguyễn Chí Thanh",
-          weight: Math.max(totalWeight, 50),
-          value: totalValue,
+          weight: Math.max(Math.round(totalWeight), 50), // Đảm bảo weight là số nguyên
+          value: Math.round(totalValue), // Đảm bảo value là số nguyên
         };
+
+        console.log("Weight calculation debug:", {
+          originalTotalWeight: totalWeight,
+          roundedWeight: Math.round(totalWeight),
+          finalWeight: Math.max(Math.round(totalWeight), 50),
+          cartItems: Object.values(cartItems).map((item) => {
+            const productId = item.productId || item.key.split("_")[0];
+            const specs = specifications[productId] || [];
+            const weightSpec = specs.find(
+              (s) => s.key.toLowerCase() === "trọng lượng"
+            );
+            return {
+              productId,
+              quantity: item.quantity,
+              weightSpec: weightSpec?.value || "Not found",
+            };
+          }),
+        });
 
         console.log("Sending Shipping Fee Payload:", payload);
 

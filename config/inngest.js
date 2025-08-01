@@ -163,13 +163,13 @@ export const createUserOrder = inngest.createFunction(
           to_ward_code: order.address.wardCode,
           to_district_id: order.address.districtId,
           cod_amount: Math.round(amount),
-          weight: Math.max(totalWeight, 50),
+          weight: Math.max(Math.round(totalWeight), 50), // Đảm bảo weight là số nguyên
           service_type_id: 2,
           items: items.map((item) => ({
             name: item.sku,
             quantity: item.quantity,
-            price: item.offerPrice,
-            weight: Math.max(item.weight, 50),
+            price: Math.round(item.offerPrice), // Đảm bảo price là số nguyên
+            weight: Math.max(Math.round(item.weight), 50), // Đảm bảo item weight là số nguyên
           })),
         };
 

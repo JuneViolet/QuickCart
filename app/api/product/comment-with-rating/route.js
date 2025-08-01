@@ -97,6 +97,11 @@ export async function POST(request) {
       (r) => r.userId === userId
     );
 
+    // Kiểm tra xem user đã có comment chưa
+    const existingCommentIndex = product.comments.findIndex(
+      (c) => c.userId === userId
+    );
+
     if (existingRatingIndex >= 0) {
       // Cập nhật rating hiện có
       product.ratings[existingRatingIndex].rating = rating;
@@ -113,8 +118,21 @@ export async function POST(request) {
       });
     }
 
-    // Thêm comment mới (luôn thêm mới, không cập nhật)
-    product.comments.push(newComment);
+    if (existingCommentIndex >= 0) {
+      // Cập nhật comment hiện có
+      const oldComment = product.comments[existingCommentIndex].comment;
+      product.comments[existingCommentIndex].comment = comment.trim();
+      product.comments[existingCommentIndex].updatedAt = new Date();
+
+      // Nếu comment thay đổi đáng kể, xóa reply cũ để seller có thể phản hồi lại
+      if (oldComment !== comment.trim()) {
+        product.comments[existingCommentIndex].reply = undefined;
+        product.comments[existingCommentIndex].replyDate = undefined;
+      }
+    } else {
+      // Thêm comment mới
+      product.comments.push(newComment);
+    }
 
     // Tính toán lại average rating
     const totalRatings = product.ratings.length;
