@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { set } from "lodash";
+import { toast } from "react-hot-toast";
 
 const EditSpecification = ({ productId, categoryId, editingSpec, onClose }) => {
   const router = useRouter();
@@ -100,7 +101,7 @@ const EditSpecification = ({ productId, categoryId, editingSpec, onClose }) => {
       });
 
       if (res.data.success) {
-        alert("Cập nhật thông số thành công!");
+        toast.success("✅ Cập nhật thông số thành công!");
         onClose();
         router.refresh();
       } else {

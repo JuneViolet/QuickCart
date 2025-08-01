@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const AddSpecification = ({ productId, categoryId, onClose }) => {
   const router = useRouter();
@@ -87,7 +88,7 @@ const AddSpecification = ({ productId, categoryId, onClose }) => {
       });
 
       if (response.data.success) {
-        alert("Thêm thông số thành công!");
+        toast.success("✅ Thêm thông số thành công!");
         onClose();
         router.refresh();
       } else {

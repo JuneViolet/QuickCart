@@ -14,10 +14,12 @@ import Footer from "@/components/Footer";
 import { assets } from "@/assets/assets";
 import Image from "next/image";
 import { debounce } from "lodash";
+import { useAppContext } from "@/context/AppContext";
 
 // Component con để xử lý logic với useSearchParams
 function ProductList() {
   const searchParams = useSearchParams();
+  const { formatCurrency } = useAppContext();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState(["All"]);
   const [brands, setBrands] = useState(["All"]);
@@ -117,7 +119,6 @@ function ProductList() {
         const data = await response.json();
 
         if (data.success) {
-          console.log("Products received:", data.products); // Log để kiểm tra dữ liệu
           setProducts(data.products || []);
           setTotalPages(data.totalPages || 1);
         } else {
@@ -378,14 +379,14 @@ function ProductList() {
                   <div className="bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
                     <span className="text-sm text-gray-500">Từ</span>
                     <div className="font-bold text-orange-600 text-lg">
-                      {formatPrice(priceRange.min)} VND
+                      {formatCurrency(priceRange.min)}
                     </div>
                   </div>
                   <div className="flex-1 h-px bg-gray-300 mx-4"></div>
                   <div className="bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
                     <span className="text-sm text-gray-500">Đến</span>
                     <div className="font-bold text-orange-600 text-lg">
-                      {formatPrice(priceRange.max)} VND
+                      {formatCurrency(priceRange.max)}
                     </div>
                   </div>
                 </div>
@@ -442,7 +443,7 @@ function ProductList() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Giá tối thiểu (VND)
+                      Giá tối thiểu
                     </label>
                     <input
                       type="number"
@@ -456,7 +457,7 @@ function ProductList() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Giá tối đa (VND)
+                      Giá tối đa
                     </label>
                     <input
                       type="number"
@@ -517,8 +518,8 @@ function ProductList() {
             <div className="flex flex-wrap gap-2 mt-4">
               {(priceRange.min > 0 || priceRange.max < 100000000) && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800 border border-orange-200">
-                  {formatPrice(priceRange.min)} - {formatPrice(priceRange.max)}{" "}
-                  VND
+                  {formatCurrency(priceRange.min)} -{" "}
+                  {formatCurrency(priceRange.max)}
                 </span>
               )}
               {sortOrder && (

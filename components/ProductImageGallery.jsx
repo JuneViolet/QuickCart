@@ -17,6 +17,7 @@ const ProductImageGallery = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [imageViewMode, setImageViewMode] = useState("cover"); // "cover" or "contain"
   const imageRef = useRef(null);
 
   const scrollLeft = () => {
@@ -109,11 +110,11 @@ const ProductImageGallery = ({
   return (
     <>
       <div className="px-5 lg:px-16 xl:px-20">
-        {/* Hình ảnh chính - Kích thước khớp với 4 thumbnail bên dưới, tỷ lệ 1:1 */}
+        {/* Hình ảnh chính - Responsive với tỷ lệ linh hoạt */}
         <div className="rounded-lg overflow-hidden bg-gray-500/10 mb-4 relative cursor-pointer group">
           <div
             ref={imageRef}
-            className="relative w-full h-0 pb-[100%] overflow-hidden" // 1:1 aspect ratio (square)
+            className="relative w-full h-auto aspect-square overflow-hidden" // Dynamic aspect ratio
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -122,20 +123,43 @@ const ProductImageGallery = ({
             <Image
               src={currentMainImage}
               alt={productName}
-              className={`absolute inset-0 w-full h-full object-contain mix-blend-multiply transition-transform duration-300 ${
+              className={`absolute inset-0 w-full h-full mix-blend-multiply transition-transform duration-300 ${
                 isZoomed ? "scale-150" : "scale-100"
               }`}
               width={1280}
               height={1280}
               style={{
-                objectFit: "contain",
+                objectFit: imageViewMode, // Dynamic object-fit
                 transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
               }}
             />
 
+            {/* Toggle view mode button */}
+            <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setImageViewMode(
+                    imageViewMode === "cover" ? "contain" : "cover"
+                  );
+                }}
+                className="flex items-center gap-1 hover:text-blue-300"
+              >
+                {imageViewMode === "cover" ? "📏" : "🖼️"}
+                {imageViewMode === "cover" ? "Fit toàn bộ" : "Cắt vừa khung"}
+              </button>
+            </div>
+
             {/* Zoom indicator */}
             <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
               🔍 Click để xem lớn
+            </div>
+
+            {/* View mode explanation */}
+            <div className="absolute bottom-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+              {imageViewMode === "cover"
+                ? "Chế độ: Lấp đầy (có thể cắt ảnh)"
+                : "Chế độ: Hiện toàn bộ (có khoảng trống)"}
             </div>
 
             {/* Navigation arrows on main image */}
@@ -192,13 +216,13 @@ const ProductImageGallery = ({
                       : "hover:scale-105"
                   }`}
                 >
-                  <div className="w-full h-0 pb-[100%] relative">
+                  <div className="w-full h-auto aspect-square relative">
                     {" "}
                     {/* 1:1 aspect ratio (square) */}
                     <Image
                       src={image}
                       alt={`${productName} thumbnail ${index + 1}`}
-                      className="absolute inset-0 w-full h-full object-contain mix-blend-multiply hover:object-cover transition-all duration-300"
+                      className="absolute inset-0 w-full h-full object-cover mix-blend-multiply hover:scale-105 transition-all duration-300"
                       width={300}
                       height={300}
                     />
@@ -225,13 +249,13 @@ const ProductImageGallery = ({
                           : "hover:scale-105"
                       }`}
                     >
-                      <div className="w-full h-0 pb-[100%] relative">
+                      <div className="w-full h-auto aspect-square relative">
                         {" "}
                         {/* 1:1 aspect ratio (square) */}
                         <Image
                           src={image}
                           alt={`${productName} thumbnail ${index + 5}`}
-                          className="absolute inset-0 w-full h-full object-contain mix-blend-multiply hover:object-cover transition-all duration-300"
+                          className="absolute inset-0 w-full h-full object-cover mix-blend-multiply hover:scale-105 transition-all duration-300"
                           width={300}
                           height={300}
                         />

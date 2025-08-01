@@ -381,7 +381,7 @@ const ProductList = () => {
   };
 
   const handleCancelEdit = () => {
-    toast.info("Đã hủy chỉnh sửa sản phẩm", {
+    toast("Đã hủy chỉnh sửa sản phẩm", {
       duration: 2000,
     });
 

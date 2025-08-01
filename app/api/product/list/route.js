@@ -137,8 +137,10 @@ export async function GET(request) {
     }
 
     // ==== Price filter ====
+    // Lưu ý: Vì giá có thể nằm trong variants, ta sẽ filter sau khi populate
+    let priceFilter = null;
     if (minPrice > 0 || maxPrice < 100000000) {
-      filters.offerPrice = { $gte: minPrice, $lte: maxPrice };
+      priceFilter = { min: minPrice, max: maxPrice };
     }
 
     // ==== Query builder ====
@@ -184,10 +186,53 @@ export async function GET(request) {
       .populate("category", "name")
       .populate("brand", "name")
       .populate("variants", "name price offerPrice images")
-      .sort(sortOption)
       .skip(skip)
       .limit(limit)
       .lean();
+
+    // Sắp xếp sau khi populate để có thể sử dụng giá từ variants
+    if (sort === "low-to-high" || sort === "high-to-low") {
+      products.sort((a, b) => {
+        const getPriceForSort = (product) => {
+          // Ưu tiên offerPrice của product, nếu không có thì lấy từ variant đầu tiên
+          if (product.offerPrice && product.offerPrice > 0)
+            return product.offerPrice;
+          if (product.price && product.price > 0) return product.price;
+          if (product.variants && product.variants.length > 0) {
+            const firstVariant = product.variants[0];
+            return firstVariant.offerPrice || firstVariant.price || 0;
+          }
+          return 0;
+        };
+
+        const priceA = getPriceForSort(a);
+        const priceB = getPriceForSort(b);
+
+        return sort === "low-to-high" ? priceA - priceB : priceB - priceA;
+      });
+    }
+
+    // Filter theo giá sau khi populate và có thể lấy giá từ variants
+    let filteredProducts = products;
+    if (priceFilter) {
+      filteredProducts = products.filter((product) => {
+        const getProductPrice = (product) => {
+          if (product.offerPrice && product.offerPrice > 0)
+            return product.offerPrice;
+          if (product.price && product.price > 0) return product.price;
+          if (product.variants && product.variants.length > 0) {
+            const firstVariant = product.variants[0];
+            return firstVariant.offerPrice || firstVariant.price || 0;
+          }
+          return 0;
+        };
+
+        const productPrice = getProductPrice(product);
+        return (
+          productPrice >= priceFilter.min && productPrice <= priceFilter.max
+        );
+      });
+    }
 
     // Debug dữ liệu populate
     products.forEach((product) => {
@@ -201,7 +246,7 @@ export async function GET(request) {
 
     const totalProducts = await Product.countDocuments(mongoQuery);
 
-    const productsWithRating = products.map((product) => {
+    const productsWithRating = filteredProducts.map((product) => {
       const averageRating = product.ratings?.length
         ? (
             product.ratings.reduce((sum, r) => sum + r.rating, 0) /

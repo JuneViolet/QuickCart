@@ -4,9 +4,12 @@ import axios from "axios";
 import AddSpecification from "./AddSpecification";
 import EditSpecification from "./EditSpecification";
 import { useRouter } from "next/navigation";
+import { useAppContext } from "@/context/AppContext";
+import { toast } from "react-hot-toast";
 
 const ManageSpecifications = () => {
   const router = useRouter();
+  const { user } = useAppContext();
   const [specifications, setSpecifications] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -29,10 +32,10 @@ const ManageSpecifications = () => {
   };
 
   const fetchProducts = async (categoryId, pageNum = 1) => {
-    if (categoryId) {
+    if (categoryId && user?.id) {
       try {
         const { data } = await axios.get(
-          `/api/product/list?categoryId=${categoryId}&page=${pageNum}&limit=50`
+          `/api/product/list?categoryId=${categoryId}&page=${pageNum}&limit=50&userId=${user.id}`
         );
         console.log("Products fetched for categoryId", categoryId, data);
         if (data.success) {
@@ -90,12 +93,12 @@ const ManageSpecifications = () => {
 
   useEffect(() => {
     setPage(1);
-    if (selectedCategory) {
+    if (selectedCategory && user?.id) {
       fetchProducts(selectedCategory, 1);
     } else {
       setProducts([]);
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, user]);
 
   useEffect(() => {
     if (selectedProduct) {
@@ -138,13 +141,14 @@ const ManageSpecifications = () => {
           }
         );
         if (response.data.success) {
+          toast.success("✅ Xóa thông số thành công!");
           fetchSpecs(selectedProduct);
         } else {
-          alert("Xóa thất bại: " + response.data.message);
+          toast.error("❌ Xóa thất bại: " + response.data.message);
         }
       } catch (error) {
         console.error("Delete Error:", error.response?.data || error.message);
-        alert("Lỗi khi xóa thông số: " + error.message);
+        toast.error("❌ Lỗi khi xóa thông số: " + error.message);
       }
     }
   };
@@ -158,6 +162,13 @@ const ManageSpecifications = () => {
         <p className="text-gray-600">
           Thêm, sửa, xóa thông số kỹ thuật cho các sản phẩm
         </p>
+        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-700">
+            <strong>💡 Lưu ý:</strong> Bạn có thể chỉnh sửa thông số kỹ thuật
+            cho cả sản phẩm đang hoạt động và tạm dừng hoạt động. Điều này giúp
+            bạn chuẩn bị sản phẩm hoàn chỉnh trước khi kích hoạt lại.
+          </p>
+        </div>
       </div>
 
       {error && (
@@ -203,7 +214,8 @@ const ManageSpecifications = () => {
               <option value="">-- Chọn sản phẩm --</option>
               {products.map((prod) => (
                 <option key={prod._id} value={prod._id}>
-                  {prod.name}
+                  {prod.name}{" "}
+                  {prod.isActive === false ? "(Tạm dừng)" : "(Hoạt động)"}
                 </option>
               ))}
             </select>
@@ -233,6 +245,26 @@ const ManageSpecifications = () => {
               </span>
             )}
           </h3>
+          {selectedProduct && (
+            <div className="mt-2">
+              {(() => {
+                const product = products.find((p) => p._id === selectedProduct);
+                return product ? (
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                      product.isActive === false
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    {product.isActive === false
+                      ? "⏸️ Tạm dừng hoạt động"
+                      : "✅ Đang hoạt động"}
+                  </span>
+                ) : null;
+              })()}
+            </div>
+          )}
         </div>
 
         {specifications.length > 0 ? (

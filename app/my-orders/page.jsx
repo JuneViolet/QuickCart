@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { assets } from "@/assets/assets";
 import Image from "next/image";
 import { useAppContext } from "@/context/AppContext";
@@ -15,6 +15,23 @@ const MyOrders = () => {
   const { isLoaded, isSignedIn } = useUser();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Navigate to product detail function
+  const navigateToProduct = useCallback(
+    (productId) => {
+      if (!productId) {
+        toast.error("Không tìm thấy thông tin sản phẩm");
+        return;
+      }
+      try {
+        router.push(`/product/${productId}`);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (error) {
+        toast.error("Không thể chuyển đến trang sản phẩm");
+      }
+    },
+    [router]
+  );
 
   const fetchOrders = async () => {
     try {
@@ -40,7 +57,6 @@ const MyOrders = () => {
         }
       }
     } catch (error) {
-      console.error("Lỗi khi lấy đơn hàng:", error);
       if (error.response?.status === 401) {
         toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
         router.push("/sign-in");
@@ -53,9 +69,7 @@ const MyOrders = () => {
   };
 
   const fetchTrackingStatus = async () => {
-    // Chỉ update tracking status nếu có orders
     if (orders.length === 0) {
-      console.log("No orders to update tracking status");
       return;
     }
 
@@ -74,7 +88,6 @@ const MyOrders = () => {
                 ghnStatusText: ghnData.data?.status_name || order.status,
               };
             } catch (error) {
-              console.warn(`Track Order Error for ${tracking}:`, error.message);
               return { ...order, ghnStatus: null, ghnStatusText: order.status };
             }
           }
@@ -83,7 +96,7 @@ const MyOrders = () => {
       );
       setOrders(updatedOrders);
     } catch (error) {
-      console.error("Error updating tracking status:", error);
+      // Silent error handling for tracking status
     }
   };
 
@@ -93,11 +106,9 @@ const MyOrders = () => {
       !variant.attributeRefs ||
       variant.attributeRefs.length === 0
     ) {
-      console.log("No attributeRefs found for variant:", variant);
       return "";
     }
     if (typeof variant === "string" || !variant._id) {
-      console.log("Invalid variant format:", variant);
       return "";
     }
     const variantDetails = variant.attributeRefs
@@ -148,15 +159,14 @@ const MyOrders = () => {
 
   useEffect(() => {
     if (!isLoaded) {
-      console.log("Đang đợi Clerk tải dữ liệu người dùng...");
       return;
     }
     if (user && isSignedIn) {
-      fetchOrders(); // Lấy danh sách đơn hàng một lần khi load
+      fetchOrders();
     } else {
       router.push("/sign-in");
     }
-  }, [isLoaded, isSignedIn]); // Loại bỏ user khỏi dependency để tránh re-run
+  }, [isLoaded, isSignedIn]);
 
   // Separate useEffect cho tracking interval
   useEffect(() => {
@@ -210,7 +220,12 @@ const MyOrders = () => {
                             {order.items.map((item, index) => (
                               <div
                                 key={index}
-                                className="flex gap-3 items-center p-2 bg-gray-50 rounded-lg"
+                                className="flex gap-3 items-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  navigateToProduct(item.product?._id);
+                                }}
                               >
                                 {/* Hình ảnh sản phẩm */}
                                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -233,18 +248,18 @@ const MyOrders = () => {
                                     />
                                   ) : (
                                     <Image
-                                      className="w-full h-full object-cover rounded-lg"
+                                      className="w-6 h-6 object-contain"
                                       src={assets.box_icon}
                                       alt="order icon"
-                                      width={48}
-                                      height={48}
+                                      width={24}
+                                      height={24}
                                     />
                                   )}
                                 </div>
 
                                 {/* Thông tin sản phẩm */}
                                 <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-gray-900 text-sm line-clamp-2">
+                                  <div className="font-medium text-gray-900 text-sm line-clamp-2 hover:text-orange-600 transition-colors">
                                     {item.product?.name ||
                                       "Sản phẩm không xác định"}
                                     {item.variantId?.attributeRefs &&
@@ -267,8 +282,8 @@ const MyOrders = () => {
                                 </div>
 
                                 {/* Giá tiền sản phẩm */}
-                                <div className="text-right flex-shrink-0">
-                                  <div className="text-sm font-semibold text-green-600">
+                                <div className="text-right flex-shrink-0 min-w-[120px]">
+                                  <div className="text-sm font-semibold text-green-600 whitespace-nowrap">
                                     {formatCurrency(
                                       (item.variantId?.offerPrice ||
                                         item.variantId?.price ||
@@ -277,7 +292,7 @@ const MyOrders = () => {
                                         0) * item.quantity
                                     )}
                                   </div>
-                                  <div className="text-xs text-gray-500">
+                                  <div className="text-xs text-gray-500 whitespace-nowrap">
                                     {formatCurrency(
                                       item.variantId?.offerPrice ||
                                         item.variantId?.price ||

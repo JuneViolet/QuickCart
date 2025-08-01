@@ -146,7 +146,6 @@ const VariantPopup = ({
           images: [],
         });
         setEditingVariant(null);
-        toast.success("Cập nhật biến thể thành công!");
       } else {
         toast.error(response.data.message || "Thất bại!");
       }

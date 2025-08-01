@@ -69,6 +69,31 @@ const ProductCard = ({ product }) => {
     return <div>Product data is missing</div>;
   }
 
+  // Lấy giá từ variants nếu product không có giá
+  const getProductPrice = () => {
+    // Nếu product có giá trực tiếp, sử dụng giá đó
+    if (product.price && product.price > 0) {
+      return {
+        price: product.price,
+        offerPrice: product.offerPrice || product.price,
+      };
+    }
+
+    // Nếu không có giá, lấy từ variant đầu tiên
+    if (product.variants && product.variants.length > 0) {
+      const firstVariant = product.variants[0];
+      return {
+        price: firstVariant.price || 0,
+        offerPrice: firstVariant.offerPrice || firstVariant.price || 0,
+      };
+    }
+
+    // Nếu không có gì, trả về 0
+    return { price: 0, offerPrice: 0 };
+  };
+
+  const { price, offerPrice } = getProductPrice();
+
   // Lấy danh sách ảnh, sử dụng placeholder nếu không có
   const images =
     product.images && product.images.length > 0
@@ -148,38 +173,34 @@ const ProductCard = ({ product }) => {
         {renderStars(product.averageRating)}
       </div>
 
-      <div className="flex items-end justify-between w-full mt-1">
-        <div className="flex flex-col gap-1 max-w-[60%]">
-          {product.offerPrice && product.offerPrice !== product.price ? (
+      <div className="flex flex-col w-full mt-1 gap-2">
+        <div className="flex flex-col gap-1">
+          {offerPrice && offerPrice !== price ? (
             <>
-              <p className="text-lg font-medium text-orange-600 truncate">
-                {formatCurrency(product.offerPrice)}
+              <p className="text-lg font-medium text-orange-600 truncate whitespace-nowrap">
+                {formatCurrency(offerPrice)}
               </p>
               <div className="flex items-center gap-2">
-                <p className="text-sm text-gray-500 line-through truncate">
-                  {formatCurrency(product.price)}
+                <p className="text-sm text-gray-500 line-through truncate whitespace-nowrap">
+                  {formatCurrency(price)}
                 </p>
                 <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">
-                  -
-                  {Math.round(
-                    ((product.price - product.offerPrice) / product.price) * 100
-                  )}
-                  %
+                  -{Math.round(((price - offerPrice) / price) * 100)}%
                 </span>
               </div>
             </>
           ) : (
-            <p className="text-lg font-medium truncate">
-              {formatCurrency(product.price || 0)}
+            <p className="text-lg font-medium truncate whitespace-nowrap">
+              {formatCurrency(price || 0)}
             </p>
           )}
         </div>
         <button
           onClick={handleBuyNow}
-          className="max-sm:hidden px-3 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-sm hover:bg-slate-50 transition"
+          className="w-full py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-200"
           disabled={product.stock <= 0}
         >
-          Mua Ngay
+          {product.stock <= 0 ? "Hết hàng" : "Mua ngay"}
         </button>
       </div>
     </div>

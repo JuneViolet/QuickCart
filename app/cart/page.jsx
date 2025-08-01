@@ -13,10 +13,11 @@ import toast from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
 import mongoose from "mongoose";
 import { debounce } from "lodash"; // Đảm bảo cài đặt: npm install lodash
+import { useRouter } from "next/navigation"; // Add Next.js router
 
 const Cart = () => {
   const {
-    router,
+    router: contextRouter,
     cartItems,
     setCartItems,
     addToCart,
@@ -25,6 +26,7 @@ const Cart = () => {
     formatCurrency,
     getToken,
   } = useAppContext();
+  const nextRouter = useRouter(); // Next.js router as backup
   const { isSignedIn } = useUser();
   const [shippingFee, setShippingFee] = useState(null);
   const [defaultAddress, setDefaultAddress] = useState(null);
@@ -32,7 +34,32 @@ const Cart = () => {
   const [variants, setVariants] = useState({});
   const [isDataReady, setIsDataReady] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [shippingLoading, setShippingLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Navigate to product detail function
+  const navigateToProduct = useCallback(
+    (productId) => {
+      if (!productId) return;
+
+      try {
+        if (nextRouter && nextRouter.push) {
+          nextRouter.push(`/product/${productId}`);
+        } else if (contextRouter && contextRouter.push) {
+          contextRouter.push(`/product/${productId}`);
+        } else {
+          window.location.href = `/product/${productId}`;
+        }
+
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }, 100);
+      } catch (error) {
+        window.location.href = `/product/${productId}`;
+      }
+    },
+    [contextRouter, nextRouter]
+  );
 
   // Fetch default address
   const fetchDefaultAddress = useCallback(async () => {
@@ -46,13 +73,12 @@ const Cart = () => {
         setDefaultAddress(defaultAddr);
       } else {
         toast.error("Bạn chưa có địa chỉ giao hàng. Vui lòng thêm địa chỉ!");
-        router.push("/add-address");
+        contextRouter.push("/add-address");
       }
     } catch (error) {
-      console.error("Fetch Default Address Error:", error.message);
       toast.error("Không thể lấy địa chỉ mặc định. Vui lòng thử lại!");
     }
-  }, [getToken, router]);
+  }, [getToken, contextRouter]);
 
   // Fetch specifications and variants
   const fetchSpecificationsAndVariants = useCallback(async () => {
@@ -71,7 +97,6 @@ const Cart = () => {
           mongoose.Types.ObjectId.isValid(id)
         );
         if (validProductIds.length === 0) {
-          console.warn("No valid product IDs found in cartItems:", itemIds);
           setSpecifications({});
           setVariants({});
           return;
@@ -105,14 +130,6 @@ const Cart = () => {
         );
         break;
       } catch (error) {
-        console.error(
-          `Fetch Specifications/Variants Error (Attempt ${attempt}/${maxRetries}):`,
-          {
-            message: error.message,
-            response: error.response?.data,
-            status: error.response?.status,
-          }
-        );
         if (attempt === maxRetries) {
           toast.error(
             "Không thể lấy thông số kỹ thuật hoặc biến thể sau nhiều lần thử!"
@@ -127,7 +144,6 @@ const Cart = () => {
   // Initial data fetch
   useEffect(() => {
     if (!isSignedIn) {
-      console.log("User not signed in, skipping cart page");
       return;
     }
 
@@ -154,15 +170,11 @@ const Cart = () => {
       !defaultAddress.area ||
       Object.keys(cartItems).length === 0
     ) {
-      console.log("Skipping shipping fee calculation: Invalid data", {
-        defaultAddress,
-        cartItems,
-      });
       setShippingFee(0);
       return;
     }
 
-    setLoading(true);
+    setShippingLoading(true);
     try {
       const totalWeight = Object.values(cartItems).reduce((sum, item) => {
         const productId = item.productId || item.key.split("_")[0];
@@ -209,11 +221,6 @@ const Cart = () => {
         value: totalValue,
       };
 
-      console.log(
-        "Payload sent to /api/shipping/fee:",
-        JSON.stringify(payload, null, 2)
-      );
-
       const token = await getToken();
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.post("/api/shipping/fee", payload, {
@@ -222,18 +229,16 @@ const Cart = () => {
 
       if (response.data.success) {
         setShippingFee(response.data.data.fee || 0);
-        console.log("Shipping Fee Calculated:", response.data.data.fee);
       } else {
         throw new Error(
           response.data.message || "Failed to calculate shipping fee"
         );
       }
     } catch (error) {
-      console.error("Calculate Shipping Fee Error:", error.message);
       setShippingFee(0);
       toast.error("Không thể tính phí vận chuyển: " + error.message);
     } finally {
-      setLoading(false);
+      setShippingLoading(false);
     }
   }, [
     isDataReady,
@@ -294,16 +299,15 @@ const Cart = () => {
           if (response.data.success) {
             toast.success("Đặt hàng thành công!");
             setCartItems({});
-            router.push("/order-success");
+            contextRouter.push("/order-success");
           } else {
             toast.error(response.data.message || "Đặt hàng thất bại!");
           }
         } catch (error) {
-          console.error("Checkout Error:", error.message, error.response?.data);
           toast.error("Lỗi khi đặt hàng: " + error.message);
         }
-      }, 2000), // 2 giây debounce
-    [defaultAddress, cartItems, getToken, router]
+      }, 2000),
+    [defaultAddress, cartItems, getToken, contextRouter]
   );
 
   // Handle checkout with single API call
@@ -311,16 +315,19 @@ const Cart = () => {
     if (
       !defaultAddress ||
       Object.keys(cartItems).length === 0 ||
-      loading ||
-      (shippingFee === null && !loading) ||
+      shippingLoading ||
+      (shippingFee === null && !shippingLoading) ||
       checkoutLoading
     ) {
       if (!defaultAddress) {
         toast.error("Vui lòng thêm địa chỉ giao hàng trước khi thanh toán!");
-        router.push("/add-address");
+        contextRouter.push("/add-address");
       } else if (Object.keys(cartItems).length === 0) {
         toast.error("Giỏ hàng trống, vui lòng thêm sản phẩm!");
-      } else if (loading || (shippingFee === null && !loading)) {
+      } else if (
+        shippingLoading ||
+        (shippingFee === null && !shippingLoading)
+      ) {
         toast.error("Vui lòng đợi tính phí vận chuyển trước khi thanh toán!");
       }
       return;
@@ -347,20 +354,17 @@ const Cart = () => {
 
       if (response.data.success) {
         const { trackingCode } = response.data.order;
-        // Kiểm tra trạng thái trước khi chuyển hướng
         if (response.data.order.status === "pending") {
           toast.success("Đặt hàng thành công!");
           setCartItems({});
-          router.push("/order-success");
+          contextRouter.push("/order-success");
         } else {
-          console.warn("Trạng thái không hợp lệ:", response.data.order.status);
           toast.error("Đặt hàng thất bại do trạng thái không hợp lệ!");
         }
       } else {
         toast.error(response.data.message || "Đặt hàng thất bại!");
       }
     } catch (error) {
-      console.error("Checkout Error:", error.message, error.response?.data);
       toast.error("Lỗi khi đặt hàng: " + error.message);
     } finally {
       setCheckoutLoading(false);
@@ -392,20 +396,30 @@ const Cart = () => {
           <tr key={itemKey}>
             <td className="flex items-center gap-4 py-4 md:px-4 px-1">
               <div>
-                <div className="rounded-lg overflow-hidden bg-gray-500/10 p-2">
+                <div
+                  className="w-16 h-16 rounded-lg overflow-hidden bg-gray-500/10 p-2 cursor-pointer hover:bg-gray-500/20 transition-colors group relative flex items-center justify-center"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigateToProduct(productId);
+                  }}
+                >
                   {(variant?.images && variant.images[0]) || item.image ? (
                     <Image
                       src={(variant?.images && variant.images[0]) || item.image}
                       alt={item.name}
-                      className="w-16 h-auto object-cover mix-blend-multiply"
-                      width={1280}
-                      height={720}
+                      className="w-full h-full object-cover pointer-events-none"
+                      width={64}
+                      height={64}
                     />
                   ) : (
-                    <div className="w-16 h-16 bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-500">No Image</span>
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center pointer-events-none">
+                      <span className="text-gray-500 text-xs">No Image</span>
                     </div>
                   )}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <span className="text-white text-xs">👁️ Xem</span>
+                  </div>
                 </div>
                 <button
                   className="md:hidden text-xs text-orange-600 mt-1"
@@ -415,10 +429,17 @@ const Cart = () => {
                 </button>
               </div>
               <div className="text-sm hidden md:block">
-                <p className="text-gray-800">
+                <div
+                  className="text-gray-800 cursor-pointer hover:text-orange-600 transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigateToProduct(productId);
+                  }}
+                >
                   {item.name} {color && `(${color}`}
                   {storage && `/${storage})`}
-                </p>
+                </div>
                 <button
                   className="text-xs text-orange-600 mt-1"
                   onClick={() => updateCartQuantity(itemKey, 0)}
@@ -427,11 +448,13 @@ const Cart = () => {
                 </button>
               </div>
             </td>
-            <td className="py-4 md:px-4 px-1 text-gray-600">
-              {formatCurrency(price)}
+            <td className="py-4 md:px-4 px-1 min-w-[120px]">
+              <div className="text-gray-600 flex items-center whitespace-nowrap">
+                <span>{formatCurrency(price)}</span>
+              </div>
             </td>
-            <td className="py-4 md:px-4 px-1">
-              <div className="flex items-center md:gap-2 gap-1">
+            <td className="py-4 md:px-4 px-1 text-center">
+              <div className="flex items-center justify-center md:gap-2 gap-1">
                 <button
                   onClick={() =>
                     updateCartQuantity(itemKey, Math.max(1, item.quantity - 1))
@@ -477,13 +500,15 @@ const Cart = () => {
                 </button>
               </div>
             </td>
-            <td className="py-4 md:px-4 px-1 text-gray-600">
-              {formatCurrency(price * item.quantity)}
+            <td className="py-4 md:px-4 px-1 min-w-[120px]">
+              <div className="text-gray-600 flex items-center whitespace-nowrap">
+                <span>{formatCurrency(price * item.quantity)}</span>
+              </div>
             </td>
           </tr>
         );
       }),
-    [cartItems, variants, updateCartQuantity]
+    [cartItems, variants, updateCartQuantity, navigateToProduct, formatCurrency]
   );
 
   return (
@@ -506,13 +531,13 @@ const Cart = () => {
                   <th className="text-nowrap pb-6 md:px-4 px-1 text-gray-600 font-medium">
                     Chi Tiết Sản Phẩm
                   </th>
-                  <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium">
+                  <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium min-w-[120px]">
                     Giá
                   </th>
-                  <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium">
+                  <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium text-center">
                     Số Lượng
                   </th>
-                  <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium">
+                  <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium min-w-[120px]">
                     Tổng Cộng
                   </th>
                 </tr>
@@ -521,7 +546,7 @@ const Cart = () => {
             </table>
           </div>
           <button
-            onClick={() => router.push("/all-products")}
+            onClick={() => contextRouter.push("/all-products")}
             className="group flex items-center mt-6 gap-2 text-orange-600"
           >
             <Image
@@ -533,14 +558,18 @@ const Cart = () => {
           </button>
         </div>
         <div>
-          {loading ? (
-            <div className="w-full h-64 flex items-center justify-center">
-              <p className="text-gray-600">Đang tính phí vận chuyển...</p>
-            </div>
-          ) : (
-            memoizedOrderSummary
-          )}
-          {/* <button
+          <div className="relative">
+            {shippingLoading && (
+              <div className="absolute top-0 left-0 right-0 bg-white/80 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center p-4">
+                <div className="flex items-center gap-2 text-orange-600">
+                  <div className="w-4 h-4 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">Đang tính phí...</span>
+                </div>
+              </div>
+            )}
+            {memoizedOrderSummary}
+          </div>
+          <button
             onClick={handleCheckout}
             disabled={checkoutLoading}
             className={`mt-6 w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition ${
@@ -548,7 +577,7 @@ const Cart = () => {
             }`}
           >
             {checkoutLoading ? "Đang xử lý..." : "Thanh toán"}
-          </button> */}
+          </button>
         </div>
       </div>
     </>
