@@ -30,6 +30,10 @@ const orderSchema = new mongoose.Schema({
     ref: "Address",
     required: true,
   },
+  // Thông tin mã giảm giá được áp dụng
+  promoCode: { type: String },
+  promoDiscount: { type: Number, default: 0 },
+  promoType: { type: String, enum: ["percentage", "fixed"] },
   trackingCode: {
     type: String,
     unique: true,

@@ -41,13 +41,16 @@ export async function GET(request) {
       })),
     }));
 
-    // console.log(
-    //   "📋 Fetched orders with details:",
-    //   validOrders.map((o) => ({
-    //     _id: o._id,
-    //     trackingCode: o.trackingCode,
-    //     status: o.status,
-    //     paymentMethod: o.paymentMethod,
+    console.log(
+      "📋 Fetched orders with promo details:",
+      validOrders.map((o) => ({
+        _id: o._id,
+        trackingCode: o.trackingCode,
+        promoCode: o.promoCode,
+        promoDiscount: o.promoDiscount,
+        promoType: o.promoType,
+      }))
+    );
     //   }))
     // );
 

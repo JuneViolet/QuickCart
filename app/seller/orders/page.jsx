@@ -295,7 +295,7 @@ const Orders = () => {
 
                           {/* Giá tiền sản phẩm */}
                           <div className="text-right flex-shrink-0">
-                            <div className="text-sm font-semibold text-gray-700">
+                            <div className="text-sm font-semibold text-green-600">
                               {formatCurrency(
                                 (item.variantId?.offerPrice ||
                                   item.variantId?.price ||
@@ -351,9 +351,21 @@ const Orders = () => {
                     <div className="font-semibold text-base text-gray-700">
                       Tổng tiền
                     </div>
-                    <div className="font-bold text-lg text-gray-900 mt-1">
+                    <div className="font-bold text-lg text-green-600 mt-1">
                       {formatCurrency(order.amount, currency)}
                     </div>
+                    {/* Hiển thị thông tin mã giảm giá nếu có */}
+                    {order.promoCode && (
+                      <div className="mt-2 text-xs">
+                        <div className="text-gray-500">Mã giảm giá:</div>
+                        <div className="font-medium text-blue-600">
+                          {order.promoCode}
+                        </div>
+                        <div className="text-red-500 font-medium">
+                          -{formatCurrency(order.promoDiscount, currency)}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Trạng thái và hành động - mở rộng */}

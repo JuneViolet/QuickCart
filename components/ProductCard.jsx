@@ -15,13 +15,14 @@ const ProductCard = ({ product }) => {
   const renderStars = (ratingValue) => {
     const numericRating = parseFloat(ratingValue) || 0;
     const fullStars = Math.floor(numericRating);
-    const hasHalfStar = numericRating % 1 >= 0.25 && numericRating % 1 < 0.75;
+    const hasHalfStar = numericRating % 1 >= 0.5;
     const ratingCount = product.ratings?.length || 0;
 
     return (
       <div className="flex items-center gap-0.5">
         {[...Array(5)].map((_, index) => {
           if (index < fullStars) {
+            // Sao đầy
             return (
               <Image
                 key={index}
@@ -31,21 +32,23 @@ const ProductCard = ({ product }) => {
               />
             );
           } else if (index === fullStars && hasHalfStar) {
+            // Sao nửa
             return (
               <Image
                 key={index}
                 className="h-3 w-3"
-                src={assets.haf_star} // Giả sử bạn có assets.star_half_icon
+                src={assets.haf_star}
                 alt="star_half_icon"
               />
             );
           } else {
+            // Sao rỗng
             return (
               <Image
                 key={index}
                 className="h-3 w-3"
                 src={assets.star_dull_icon}
-                alt="star_icon"
+                alt="star_dull_icon"
               />
             );
           }
@@ -153,9 +156,9 @@ const ProductCard = ({ product }) => {
           width={800}
           height={800}
         />
-        <button className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md">
+        {/* <button className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md">
           <Image className="h-3 w-3" src={assets.heart_icon} alt="heart_icon" />
-        </button>
+        </button> */}
       </div>
 
       <p className="md:text-base font-medium pt-2 w-full truncate">
@@ -177,7 +180,7 @@ const ProductCard = ({ product }) => {
         <div className="flex flex-col gap-1">
           {offerPrice && offerPrice !== price ? (
             <>
-              <p className="text-lg font-medium text-orange-600 truncate whitespace-nowrap">
+              <p className="text-lg font-medium text-red-700 truncate whitespace-nowrap">
                 {formatCurrency(offerPrice)}
               </p>
               <div className="flex items-center gap-2">

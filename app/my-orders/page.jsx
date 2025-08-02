@@ -344,6 +344,22 @@ const MyOrders = () => {
                           <div className="text-2xl font-bold text-green-600">
                             {formatCurrency(order.amount)}
                           </div>
+                          {/* Hiển thị thông tin mã giảm giá nếu có */}
+                          {order.promoCode && (
+                            <div className="mt-2 text-sm">
+                              <div className="flex items-center justify-center lg:justify-end gap-1">
+                                <span className="text-gray-500">
+                                  Mã giảm giá:
+                                </span>
+                                <span className="font-medium text-blue-600">
+                                  {order.promoCode}
+                                </span>
+                              </div>
+                              <div className="text-red-500 font-medium">
+                                -{formatCurrency(order.promoDiscount)}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 

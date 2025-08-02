@@ -15,7 +15,6 @@ const Promocodes = () => {
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [editingPromo, setEditingPromo] = useState(null);
-  const [promoOrdersCount, setPromoOrdersCount] = useState({}); // Thêm state để lưu số đơn hàng sử dụng mã
   const [showError, setShowError] = useState(false);
   const [newPromoData, setNewPromoData] = useState({
     code: "",
@@ -64,25 +63,6 @@ const Promocodes = () => {
       toast.error("Lỗi server. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Kiểm tra số đơn hàng sử dụng mã giảm giá
-  const checkPromoOrdersCount = async () => {
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      const { data } = await axios.get("/api/promos/check-orders", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (data.success) {
-        setPromoOrdersCount(data.promoOrdersCount || {});
-      }
-    } catch (error) {
-      console.error("Lỗi khi kiểm tra đơn hàng sử dụng mã:", error);
-      // Không hiển thị lỗi để tránh làm phiền user
     }
   };
 
@@ -203,13 +183,14 @@ const Promocodes = () => {
   };
 
   const handleDeletePromo = async (code) => {
-    // Kiểm tra xem mã giảm giá có được sử dụng trong đơn hàng hay không
-    const orderCount = promoOrdersCount[code] || 0;
+    // Tìm mã giảm giá để kiểm tra số lần đã sử dụng
+    const promoToDelete = promocodes.find((p) => p.code === code);
+    const usedCount = promoToDelete?.usedCount || 0;
 
-    if (orderCount > 0) {
+    if (usedCount > 0) {
       toast.error(
         ` Không thể xóa mã giảm giá này!\n\n` +
-          `Mã "${code}" đã được sử dụng trong ${orderCount} đơn hàng.\n\n` +
+          `Mã "${code}" đã được sử dụng ${usedCount} lần.\n\n` +
           `Gợi ý: Bạn có thể tắt mã giảm giá thay vì xóa để khách hàng không thể sử dụng mã mới.`,
         {
           duration: 8000,
@@ -239,7 +220,6 @@ const Promocodes = () => {
             "✅ " + (data.message || "Đã xóa mã giảm giá thành công!")
           );
           fetchSellerPromocodes();
-          checkPromoOrdersCount(); // Cập nhật lại số đơn hàng
         } else {
           toast.error("❌ " + (data.message || "Xóa mã giảm giá thất bại"));
         }
@@ -284,10 +264,7 @@ const Promocodes = () => {
 
   useEffect(() => {
     if (isLoaded) {
-      const fetchData = async () => {
-        await Promise.all([fetchSellerPromocodes(), checkPromoOrdersCount()]);
-      };
-      fetchData();
+      fetchSellerPromocodes();
     }
   }, [isLoaded]);
 
@@ -895,6 +872,20 @@ const Promocodes = () => {
                             >
                               {promocode.isActive ? "Đang hoạt động" : "Đã tắt"}
                             </span>
+                            {/* Hiển thị trạng thái hết lượt */}
+                            {promocode.maxUses &&
+                              promocode.usedCount >= promocode.maxUses && (
+                                <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
+                                  Hết lượt sử dụng
+                                </span>
+                              )}
+                            {/* Hiển thị trạng thái hết hạn */}
+                            {promocode.expiresAt &&
+                              new Date() > new Date(promocode.expiresAt) && (
+                                <span className="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                  Đã hết hạn
+                                </span>
+                              )}
                           </div>
 
                           <p className="text-gray-600 mb-3">
@@ -908,6 +899,16 @@ const Promocodes = () => {
                                 {promocode.discountType === "percentage"
                                   ? `${promocode.discount}%`
                                   : `${formatCurrency(promocode.discount)}`}
+                              </span>
+                            </div>
+
+                            <div>
+                              <span className="text-gray-500">Đã sử dụng:</span>{" "}
+                              <span className="font-medium text-blue-600">
+                                {promocode.usedCount || 0}
+                                {promocode.maxUses
+                                  ? ` / ${promocode.maxUses}`
+                                  : " / ∞"}
                               </span>
                             </div>
 
@@ -959,17 +960,15 @@ const Promocodes = () => {
 
                         <button
                           onClick={() => handleDeletePromo(promocode.code)}
-                          disabled={promoOrdersCount[promocode.code] > 0}
+                          disabled={promocode.usedCount > 0}
                           className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-colors relative group ${
-                            promoOrdersCount[promocode.code] > 0
+                            promocode.usedCount > 0
                               ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
                               : "bg-red-50 text-red-700 hover:bg-red-100"
                           }`}
                           title={
-                            promoOrdersCount[promocode.code] > 0
-                              ? `Không thể xóa - Mã đã được sử dụng trong ${
-                                  promoOrdersCount[promocode.code]
-                                } đơn hàng`
+                            promocode.usedCount > 0
+                              ? `Không thể xóa - Mã đã được sử dụng ${promocode.usedCount} lần`
                               : " Xóa mã giảm giá"
                           }
                         >
@@ -986,15 +985,12 @@ const Promocodes = () => {
                             />
                           </svg>
                           <span>
-                            {promoOrdersCount[promocode.code] > 0
-                              ? "Đã sử dụng"
-                              : "Xóa"}
+                            {promocode.usedCount > 0 ? "Đã sử dụng" : "Xóa"}
                           </span>
                           {/* Tooltip cho mobile */}
-                          {promoOrdersCount[promocode.code] > 0 && (
+                          {promocode.usedCount > 0 && (
                             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap pointer-events-none">
-                              Đã dùng trong {promoOrdersCount[promocode.code]}{" "}
-                              đơn
+                              Đã sử dụng {promocode.usedCount} lần
                               <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
                             </div>
                           )}

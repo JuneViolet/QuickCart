@@ -145,19 +145,33 @@ export async function POST(request) {
     console.log("Debug updatedItems:", updatedItems);
 
     let calculatedDiscount = 0;
-    if (promoCode) {
+    let promoInfo = null;
+
+    console.log("🎯 Received promoCode:", {
+      promoCode,
+      type: typeof promoCode,
+    });
+
+    if (promoCode && promoCode.trim() !== "") {
+      console.log("🔍 Looking for promo:", promoCode.toUpperCase());
+
       const promo = await Promo.findOne({
         code: promoCode.toUpperCase(),
         isActive: true,
       });
+
+      console.log("📦 Found promo:", promo);
+
       if (
         !promo ||
-        (promo.expiresAt && new Date(promo.expiresAt) < new Date())
+        (promo.expiresAt && new Date(promo.expiresAt) < new Date()) ||
+        (promo.maxUses && promo.usedCount >= promo.maxUses)
       ) {
         return NextResponse.json(
           {
             success: false,
-            message: "Mã giảm giá không hợp lệ hoặc đã hết hạn",
+            message:
+              "Mã giảm giá không hợp lệ, đã hết hạn hoặc đã hết lượt sử dụng",
           },
           { status: 400 }
         );
@@ -167,6 +181,15 @@ export async function POST(request) {
           ? (subtotal * promo.discount) / 100
           : promo.discount;
       calculatedDiscount = Math.min(calculatedDiscount, subtotal);
+
+      // Lưu thông tin promo để thêm vào order
+      promoInfo = {
+        code: promo.code,
+        discount: calculatedDiscount,
+        type: promo.discountType,
+      };
+
+      console.log("✅ PromoInfo created:", promoInfo);
     }
 
     const tax = Math.floor(subtotal * 0.02);
@@ -175,6 +198,12 @@ export async function POST(request) {
 
     const orderDate = new Date();
     const tempTrackingCode = generateTrackingCode();
+
+    console.log("🎯 Creating order with promo info:", {
+      promoCode,
+      promoInfo,
+      calculatedDiscount,
+    });
 
     const order = await Order.create({
       userId,
@@ -186,58 +215,121 @@ export async function POST(request) {
       status: "pending", // Đặt hàng ban đầu là pending
       paymentMethod: paymentMethod || "COD",
       date: orderDate,
+      // Thêm thông tin promo nếu có
+      ...(promoInfo && {
+        promoCode: promoInfo.code,
+        promoDiscount: promoInfo.discount,
+        promoType: promoInfo.type,
+      }),
     });
+
+    console.log("✅ Order created with data:", {
+      orderId: order._id,
+      promoCode: order.promoCode,
+      promoDiscount: order.promoDiscount,
+      promoType: order.promoType,
+    });
+
+    // Tăng usedCount của promo NGAY SAU KHI TẠO ORDER THÀNH CÔNG
+    if (promoCode && promoInfo) {
+      await Promo.findOneAndUpdate(
+        { code: promoCode.toUpperCase() },
+        { $inc: { usedCount: 1 } },
+        { new: true }
+      );
+      console.log(`📊 Increased usedCount for promo: ${promoCode}`);
+    }
 
     const orderId = order._id;
 
-    // Sử dụng helper để gửi Inngest event với fallback
-    const fallbackCallback =
-      paymentMethod === "cod"
-        ? async () => {
-            try {
-              await processGHNOrder(
-                orderId,
-                tempTrackingCode,
-                updatedItems,
-                fullAddress,
-                finalAmount
-              );
-            } catch (error) {
-              console.error("Fallback GHN processing failed:", error.message);
-              await Order.findByIdAndUpdate(orderId, {
-                status: "ghn_failed",
-                ghnError: error.message,
-              });
-            }
-          }
-        : null;
+    // Xử lý khác nhau cho COD và VNPay
+    if (paymentMethod === "cod") {
+      // Với COD: đợi Inngest hoàn thành hoặc fallback thành công
+      const fallbackCallback = async () => {
+        try {
+          await processGHNOrder(
+            orderId,
+            tempTrackingCode,
+            updatedItems,
+            fullAddress,
+            finalAmount
+          );
+          console.log("✅ Fallback GHN processing successful");
+        } catch (error) {
+          console.error("❌ Fallback GHN processing failed:", error.message);
+          await Order.findByIdAndUpdate(orderId, {
+            status: "ghn_failed",
+            ghnError: error.message,
+          });
+          throw new Error(`GHN processing failed: ${error.message}`);
+        }
+      };
 
-    await sendInngestEvent(
-      "order/created",
-      `order-created-${orderId}`,
-      {
-        orderId,
-        userId,
-        address,
-        items: updatedItems,
-        subtotal,
-        tax,
-        discount: calculatedDiscount,
-        amount: finalAmount,
-        shippingFee: shippingFee || 0,
-        trackingCode: tempTrackingCode,
-        date: orderDate,
-        paymentMethod,
-      },
-      {
-        maxRetries: 2,
-        timeout: 3000,
-        fallbackCallback,
+      const inngestResult = await sendInngestEvent(
+        "order/created",
+        `order-created-${orderId}`,
+        {
+          orderId,
+          userId,
+          address,
+          items: updatedItems,
+          subtotal,
+          tax,
+          discount: calculatedDiscount,
+          amount: finalAmount,
+          shippingFee: shippingFee || 0,
+          trackingCode: tempTrackingCode,
+          date: orderDate,
+          paymentMethod,
+        },
+        {
+          maxRetries: 2,
+          timeout: 3000,
+          fallbackCallback,
+        }
+      );
+
+      // Nếu cả Inngest và fallback đều fail thì throw error
+      if (!inngestResult.success) {
+        throw new Error("Không thể xử lý đơn hàng. Vui lòng thử lại.");
       }
-    );
 
-    let vnpayUrl = null;
-    if (paymentMethod === "vnpay") {
+      // COD success - trả về response
+      return NextResponse.json({
+        success: true,
+        message: "Đơn hàng đã được tạo thành công",
+        id: order._id,
+        amount: finalAmount,
+        trackingCode: tempTrackingCode,
+      });
+    } else {
+      // Với VNPay: gửi Inngest async, không đợi
+      sendInngestEvent(
+        "order/created",
+        `order-created-${orderId}`,
+        {
+          orderId,
+          userId,
+          address,
+          items: updatedItems,
+          subtotal,
+          tax,
+          discount: calculatedDiscount,
+          amount: finalAmount,
+          shippingFee: shippingFee || 0,
+          trackingCode: tempTrackingCode,
+          date: orderDate,
+          paymentMethod,
+        },
+        {
+          maxRetries: 2,
+          timeout: 3000,
+        }
+      ).catch((error) => {
+        console.error("❌ VNPay Inngest failed, but continuing:", error);
+      });
+
+      // VNPay: tạo URL thanh toán
       const vnp_TmnCode = process.env.VNP_TMN_CODE;
       const vnp_HashSecret = process.env.VNP_HASH_SECRET;
       const vnp_Url = process.env.VNP_URL;
@@ -285,22 +377,21 @@ export async function POST(request) {
         .digest("hex");
       vnp_Params.vnp_SecureHash = secureHash;
 
-      vnpayUrl = `${vnp_Url}?${sortedKeys
+      const vnpayUrl = `${vnp_Url}?${sortedKeys
         .map((key) => `${encode(key)}=${encode(vnp_Params[key])}`)
         .join("&")}&vnp_SecureHash=${secureHash}`;
-    }
 
-    // Trả về response ban đầu
-    return NextResponse.json({
-      success: true,
-      message: "Đặt hàng thành công",
-      order: {
-        id: order._id,
-        amount: finalAmount,
-        trackingCode: tempTrackingCode,
-        vnpayUrl,
-      },
-    });
+      return NextResponse.json({
+        success: true,
+        message: "Đặt hàng thành công",
+        order: {
+          id: order._id,
+          amount: finalAmount,
+          trackingCode: tempTrackingCode,
+          vnpayUrl,
+        },
+      });
+    }
   } catch (error) {
     console.error("❌ Order creation error:", error.message, error.stack);
     return NextResponse.json(

@@ -339,6 +339,15 @@ const OrderSummary = () => {
         const shippingFeeValue = shippingFee || 0;
         const total = subtotal + tax + shippingFeeValue - discount;
 
+        console.log("🚀 Sending order data:", {
+          address: selectedAddress._id,
+          items: cartItemsArray,
+          promoCode: promoCode || null,
+          paymentMethod,
+          amount: total,
+          shippingFee: shippingFeeValue,
+        });
+
         const response = await axios.post(
           "/api/order/create",
           {

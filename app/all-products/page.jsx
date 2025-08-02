@@ -104,7 +104,7 @@ function ProductList() {
         const categoryParam = category !== "All" ? category : "";
         const brandParam = brand !== "All" ? brand : "";
 
-        url = `/api/product/list?page=${page}&limit=12${
+        url = `/api/product/list?page=${page}&limit=100${
           normalizedQuery ? `&query=${encodeURIComponent(normalizedQuery)}` : ""
         }${
           categoryParam ? `&category=${encodeURIComponent(categoryParam)}` : ""
