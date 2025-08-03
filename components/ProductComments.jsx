@@ -22,6 +22,7 @@ const ProductComments = ({
   const [rating, setRating] = useState(existingRating || 0);
   const [currentPage, setCurrentPage] = useState(1);
   const [commentsPerPage] = useState(6); // 6 bình luận mỗi trang để hiển thị 2x3
+  const [showAllComments, setShowAllComments] = useState(false); // 🔥 State để kiểm soát hiển thị
   const [replyText, setReplyText] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
   const [editingReply, setEditingReply] = useState(null);
@@ -36,14 +37,16 @@ const ProductComments = ({
         )
       : 0;
 
-  // Tính toán pagination
+  // Tính toán pagination (phải khai báo trước khi sử dụng)
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
-  const currentComments = comments.slice(
-    indexOfFirstComment,
-    indexOfLastComment
-  );
   const totalPages = Math.ceil(comments.length / commentsPerPage);
+
+  // 🎯 Tính toán hiển thị bình luận với giới hạn
+  const INITIAL_COMMENTS_COUNT = 4; // Hiển thị 4 bình luận đầu tiên
+  const displayedComments = showAllComments
+    ? comments.slice(indexOfFirstComment, indexOfLastComment) // Hiển thị theo pagination
+    : comments.slice(0, INITIAL_COMMENTS_COUNT); // Chỉ hiển thị 4 bình luận đầu
 
   const renderStars = (ratingValue, onClick = null) => {
     return (
@@ -383,7 +386,7 @@ const ProductComments = ({
           <>
             {/* Grid layout cho bình luận */}
             <div className="space-y-4">
-              {currentComments.map((commentItem, index) => (
+              {displayedComments.map((commentItem, index) => (
                 <div
                   key={commentItem._id || index}
                   className="border-b border-gray-100 pb-4 last:border-b-0"
@@ -629,51 +632,73 @@ const ProductComments = ({
               ))}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-2 mt-8">
+            {/* 🎯 Nút Xem thêm hoặc Pagination */}
+            {!showAllComments && comments.length > INITIAL_COMMENTS_COUNT ? (
+              // Hiển thị nút "Xem thêm" khi chưa mở rộng
+              <div className="flex justify-center mt-6">
                 <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  onClick={() => setShowAllComments(true)}
+                  className="px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
                 >
-                  Trước
-                </button>
-
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`px-4 py-2 text-sm rounded-lg transition-colors ${
-                      currentPage === i + 1
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Sau
+                  Xem thêm đánh giá ({comments.length - INITIAL_COMMENTS_COUNT}{" "}
+                  đánh giá khác)
                 </button>
               </div>
-            )}
+            ) : showAllComments ? (
+              // Hiển thị pagination khi đã mở rộng
+              <>
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center space-x-2 mt-8">
+                    <button
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Trước
+                    </button>
 
-            {/* View more button */}
-            <div className="flex justify-center mt-6">
-              <button className="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-                Xem {comments.length} đánh giá
-              </button>
-            </div>
+                    {[...Array(totalPages)].map((_, i) => (
+                      <button
+                        key={i + 1}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+                          currentPage === i + 1
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Sau
+                    </button>
+                  </div>
+                )}
+
+                {/* Nút Thu gọn */}
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={() => {
+                      setShowAllComments(false);
+                      setCurrentPage(1); // Reset về trang đầu
+                    }}
+                    className="px-6 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                  >
+                    ↑ Thu gọn đánh giá
+                  </button>
+                </div>
+              </>
+            ) : null}
           </>
         ) : (
           <div className="text-center py-12 bg-gray-50 rounded-lg">

@@ -43,6 +43,27 @@ const OrderSummary = () => {
     }
   }, [user, isLoaded]);
 
+  // 🔄 Riêng biệt: Luôn fetch promo codes khi cartAmount thay đổi
+  useEffect(() => {
+    if (user && isLoaded) {
+      fetchAvailablePromoCodes();
+    }
+  }, [getCartAmount()]); // Fetch lại khi giỏ hàng thay đổi
+
+  // 🚀 Đảm bảo fetch promo codes ngay khi component mount (fix refresh issue)
+  useEffect(() => {
+    const initializePromoCodes = async () => {
+      if (user && isLoaded && getCartAmount() > 0) {
+        console.log("🔄 Initializing promo codes after mount...");
+        await fetchAvailablePromoCodes();
+      }
+    };
+
+    // Delay một chút để đảm bảo tất cả state đã ready
+    const timer = setTimeout(initializePromoCodes, 500);
+    return () => clearTimeout(timer);
+  }, []); // Chỉ chạy một lần khi component mount
+
   const debouncedCalculateShippingFee = useCallback(
     debounce(async () => {
       if (
@@ -217,24 +238,41 @@ const OrderSummary = () => {
 
   const fetchAvailablePromoCodes = async () => {
     try {
+      console.log("🎯 Fetching promo codes...");
       const token = await getToken();
       const totalAmount = getCartAmount() || 0;
+
+      if (totalAmount <= 0) {
+        console.log("⚠️ Cart amount is 0, skipping promo codes fetch");
+        setAvailablePromoCodes([]);
+        return;
+      }
+
       const { data } = await axios.get(
         `/api/promo/list?cartAmount=${totalAmount}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log("Promo Codes Response:", data); // Log để debug
+      console.log(" Promo Codes Response:", data); // Log để debug
       if (data.success) {
         setAvailablePromoCodes(data.promoCodes || []);
+        console.log(` Loaded ${data.promoCodes?.length || 0} promo codes`);
       } else {
-        console.warn("Không thể tải danh sách mã khuyến mãi:", data.message);
+        console.warn(" Không thể tải danh sách mã khuyến mãi:", data.message);
         setAvailablePromoCodes([]);
       }
     } catch (error) {
-      console.error("Lỗi khi tải mã khuyến mãi:", error);
+      console.error(" Lỗi khi tải mã khuyến mãi:", error);
       setAvailablePromoCodes([]);
+
+      // Retry sau 2 giây nếu lỗi
+      setTimeout(() => {
+        if (getCartAmount() > 0) {
+          console.log("🔄 Retrying promo codes fetch...");
+          fetchAvailablePromoCodes();
+        }
+      }, 2000);
     }
   };
 
@@ -339,7 +377,7 @@ const OrderSummary = () => {
         const shippingFeeValue = shippingFee || 0;
         const total = subtotal + tax + shippingFeeValue - discount;
 
-        console.log("🚀 Sending order data:", {
+        console.log(" Sending order data:", {
           address: selectedAddress._id,
           items: cartItemsArray,
           promoCode: promoCode || null,
@@ -557,28 +595,41 @@ const OrderSummary = () => {
           </label>
           <div className="flex flex-col gap-3">
             <div className="relative inline-block w-full">
-              <select
-                value={promoCode}
-                onChange={(e) => handlePromoCodeSelect(e.target.value)}
-                className="w-full p-2.5 border text-gray-600 appearance-none"
-              >
-                <option value="">Chọn mã khuyến mãi</option>
-                {filterValidPromoCodes(
-                  availablePromoCodes,
-                  getCartAmount()
-                ).map((code) => (
-                  <option key={code.code} value={code.code}>
-                    {code.code} (
-                    {code.discountPercentage
-                      ? `${code.discountPercentage}%`
-                      : `${code.discountAmount} VND`}
-                    )
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center gap-2 mb-2">
+                <select
+                  value={promoCode}
+                  onChange={(e) => handlePromoCodeSelect(e.target.value)}
+                  className="flex-1 p-2.5 border text-gray-600 appearance-none"
+                >
+                  <option value="">Chọn mã khuyến mãi</option>
+                  {filterValidPromoCodes(
+                    availablePromoCodes,
+                    getCartAmount()
+                  ).map((code) => (
+                    <option key={code.code} value={code.code}>
+                      {code.code} (
+                      {code.discountPercentage
+                        ? `${code.discountPercentage}%`
+                        : `${code.discountAmount} VND`}
+                      )
+                    </option>
+                  ))}
+                </select>
+                {/* 🔄 Nút refresh promo codes */}
+                {/* <button
+                  onClick={() => {
+                    console.log("🔄 Manual refresh promo codes");
+                    fetchAvailablePromoCodes();
+                  }}
+                  className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm"
+                  title="Làm mới danh sách mã khuyến mãi"
+                >
+                  🔄
+                </button> */}
+              </div>
               <input
                 type="text"
-                className="w-full p-2.5 border text-gray-600 mt-2"
+                className="w-full p-2.5 border text-gray-600"
                 placeholder="Hoặc nhập mã thủ công"
                 value={promoCode}
                 onChange={(e) => {

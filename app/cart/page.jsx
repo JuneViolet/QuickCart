@@ -417,9 +417,6 @@ const Cart = () => {
                       <span className="text-gray-500 text-xs">No Image</span>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                    <span className="text-white text-xs">👁️ Xem</span>
-                  </div>
                 </div>
                 <button
                   className="md:hidden text-xs text-orange-600 mt-1"
@@ -440,6 +437,20 @@ const Cart = () => {
                   {item.name} {color && `(${color}`}
                   {storage && `/${storage})`}
                 </div>
+                {/* Hiển thị stock còn lại */}
+                {variant?.stock && (
+                  <div
+                    className={`text-xs mt-1 ${
+                      variant.stock > 10
+                        ? "text-green-600"
+                        : variant.stock > 0
+                        ? "text-yellow-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    Còn {variant.stock} sản phẩm
+                  </div>
+                )}
                 <button
                   className="text-xs text-orange-600 mt-1"
                   onClick={() => updateCartQuantity(itemKey, 0)}
@@ -475,16 +486,34 @@ const Cart = () => {
 
                 <input
                   onChange={(e) => {
-                    const newQuantity = Math.max(1, Number(e.target.value));
+                    const inputValue = Number(e.target.value);
+                    //  Giới hạn quantity theo stock
+                    let newQuantity = Math.max(1, inputValue);
+                    if (variant?.stock && newQuantity > variant.stock) {
+                      newQuantity = variant.stock;
+                      toast.error(
+                        `Chỉ còn ${variant.stock} sản phẩm trong kho!`
+                      );
+                    }
                     updateCartQuantity(itemKey, newQuantity);
                   }}
                   type="number"
                   value={item.quantity}
                   className="w-8 border text-center appearance-none"
                   min="1"
+                  max={variant?.stock || 999}
                 />
                 <button
-                  onClick={() => updateCartQuantity(itemKey, item.quantity + 1)}
+                  onClick={() => {
+                    const newQuantity = item.quantity + 1;
+                    if (variant?.stock && newQuantity > variant.stock) {
+                      toast.error(
+                        `Chỉ còn ${variant.stock} sản phẩm trong kho!`
+                      );
+                      return;
+                    }
+                    updateCartQuantity(itemKey, newQuantity);
+                  }}
                   disabled={variant?.stock && item.quantity >= variant?.stock}
                   className={`w-8 h-8 flex items-center justify-center rounded ${
                     variant?.stock && item.quantity >= variant?.stock
@@ -569,7 +598,7 @@ const Cart = () => {
             )}
             {memoizedOrderSummary}
           </div>
-          <button
+          {/* <button
             onClick={handleCheckout}
             disabled={checkoutLoading}
             className={`mt-6 w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition ${
@@ -577,7 +606,7 @@ const Cart = () => {
             }`}
           >
             {checkoutLoading ? "Đang xử lý..." : "Thanh toán"}
-          </button>
+          </button> */}
         </div>
       </div>
     </>

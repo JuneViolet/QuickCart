@@ -162,13 +162,6 @@ const ManageSpecifications = () => {
         <p className="text-gray-600">
           Thêm, sửa, xóa thông số kỹ thuật cho các sản phẩm
         </p>
-        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-700">
-            <strong>💡 Lưu ý:</strong> Bạn có thể chỉnh sửa thông số kỹ thuật
-            cho cả sản phẩm đang hoạt động và tạm dừng hoạt động. Điều này giúp
-            bạn chuẩn bị sản phẩm hoàn chỉnh trước khi kích hoạt lại.
-          </p>
-        </div>
       </div>
 
       {error && (

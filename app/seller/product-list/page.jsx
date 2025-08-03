@@ -58,6 +58,7 @@ const ProductList = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState(""); // Thêm state cho brand filter
   const [productOrders, setProductOrders] = useState({}); // Lưu thông tin đơn hàng của sản phẩm
   const [togglingProduct, setTogglingProduct] = useState(null); // State cho việc toggle active
 
@@ -70,7 +71,7 @@ const ProductList = () => {
         const products = data.products || [];
         setProducts(products);
         if (products.length === 0) {
-          toast("Không có sản phẩm nào.", { icon: "ℹ️" });
+          toast("Không có sản phẩm nào.");
         }
       } else {
         toast.error(data?.message || "Failed to fetch products");
@@ -89,13 +90,14 @@ const ProductList = () => {
   };
 
   // Fetch search products
-  const fetchSearchProducts = async (query, category) => {
+  const fetchSearchProducts = async (query, category, brand) => {
     try {
       setLoading(true);
       const { data } = await axios.get("/api/product/list", {
         params: {
           query: query || "",
           category: category || "",
+          brand: brand || "", // Thêm brand parameter
           userId: user.id, // Lọc sản phẩm của seller
           limit: 10000, // Hiển thị tất cả sản phẩm (limit rất lớn)
         },
@@ -104,7 +106,7 @@ const ProductList = () => {
         const products = data.products || [];
         setProducts(products);
         if (products.length === 0) {
-          toast("Không tìm thấy sản phẩm nào.", { icon: "ℹ️" });
+          toast("Không tìm thấy sản phẩm nào.");
         }
       } else {
         toast.error(data?.message || "Failed to fetch products");
@@ -124,7 +126,7 @@ const ProductList = () => {
 
   // Handle search button click
   const handleSearch = () => {
-    fetchSearchProducts(searchQuery, selectedCategory);
+    fetchSearchProducts(searchQuery, selectedCategory, selectedBrand);
   };
 
   // Handle search input change
@@ -132,18 +134,32 @@ const ProductList = () => {
     setSearchQuery(e.target.value);
   };
 
+  // Handle search on Enter key press
+  const handleSearchKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   // Handle category change without reload
-  const handleCategoryChange = async (e) => {
-    e.preventDefault();
+  const handleCategoryChange = (e) => {
     const category = e.target.value;
     setSelectedCategory(category);
-    await fetchSearchProducts(searchQuery, category);
+    // Không gọi fetchSearchProducts ở đây nữa - chỉ update state
+  };
+
+  // Handle brand change without reload
+  const handleBrandChange = (e) => {
+    const brand = e.target.value;
+    setSelectedBrand(brand);
+    // Không gọi fetchSearchProducts ở đây nữa - chỉ update state
   };
 
   // Reset to all products
   const handleReset = () => {
     setSearchQuery("");
     setSelectedCategory("");
+    setSelectedBrand(""); // Reset brand filter
     fetchSellerProduct();
   };
 
@@ -614,10 +630,6 @@ const ProductList = () => {
             <h2 className="pb-2 text-xl font-semibold text-gray-800">
               Tất Cả Sản Phẩm
             </h2>
-            <p className="text-sm text-gray-600">
-              <strong>Lưu ý:</strong> Sản phẩm đã có đơn hàng sẽ không thể xóa
-              được. Bạn có thể tạm dừng hoạt động thay vì xóa.
-            </p>
           </div>
           <div className="flex flex-col gap-4 max-w-6xl w-full overflow-hidden rounded-md bg-white border border-gray-600/20">
             {/* Search and Filter */}
@@ -627,12 +639,15 @@ const ProductList = () => {
                 placeholder="Tìm kiếm sản phẩm..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-full md:w-1/2 p-2 border rounded"
+                onKeyPress={handleSearchKeyPress}
+                className="w-full md:w-2/5 p-2 border rounded"
               />
               <select
                 value={selectedCategory}
                 onChange={handleCategoryChange}
-                className="w-full md:w-1/4 p-2 border rounded"
+                className={`w-full md:w-1/5 p-2 border rounded ${
+                  selectedCategory ? "border-blue-500 bg-blue-50" : ""
+                }`}
               >
                 <option value="">Tất cả danh mục</option>
                 {categories.map((category) => (
@@ -641,19 +656,57 @@ const ProductList = () => {
                   </option>
                 ))}
               </select>
+              <select
+                value={selectedBrand}
+                onChange={handleBrandChange}
+                className={`w-full md:w-1/5 p-2 border rounded ${
+                  selectedBrand ? "border-blue-500 bg-blue-50" : ""
+                }`}
+              >
+                <option value="">Tất cả hãng</option>
+                {brands.map((brand) => (
+                  <option key={brand._id} value={brand.name}>
+                    {brand.name}
+                  </option>
+                ))}
+              </select>
               <button
                 onClick={handleSearch}
-                className="w-full md:w-1/6 p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="w-full md:w-auto md:px-6 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
                 Tìm
               </button>
               <button
                 onClick={handleReset}
-                className="w-full md:w-1/6 p-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                className="w-full md:w-auto md:px-6 p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
               >
                 Reset
               </button>
             </div>
+
+            {/* Filter Status */}
+            {(searchQuery || selectedCategory || selectedBrand) && (
+              <div className="px-4 pb-2">
+                <div className="flex flex-wrap gap-2 items-center text-sm">
+                  <span className="text-gray-600">Bộ lọc hiện tại:</span>
+                  {searchQuery && (
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                      "{searchQuery}"
+                    </span>
+                  )}
+                  {selectedCategory && (
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                      {selectedCategory}
+                    </span>
+                  )}
+                  {selectedBrand && (
+                    <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full">
+                      {selectedBrand}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
             {products.length === 0 ? (
               <p className="p-4 text-gray-500">Không có sản phẩm nào.</p>
             ) : (

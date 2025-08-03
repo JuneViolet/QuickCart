@@ -10,7 +10,7 @@ export async function POST(request) {
 
     if (!productId || !key || !value || !categoryId) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields" },
+        { success: false, message: "Thông số không được để trống" },
         { status: 400 }
       );
     }

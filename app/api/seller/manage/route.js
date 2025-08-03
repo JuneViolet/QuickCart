@@ -2,12 +2,20 @@ import connectDB from "@/config/db";
 import Category from "@/models/Category";
 import Brand from "@/models/Brand";
 import BrandCategory from "@/models/BrandCategory";
-import { getAuth } from "@clerk/nextjs/server";
+import { getAuth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import authSeller from "@/lib/authSeller";
 import slugify from "slugify";
 import { uploadImageToCloudinary } from "@/lib/cloudinary";
 import { readFile } from "fs/promises";
+
+// Helper function để check quyền admin hoặc seller
+const checkAccess = async (userId) => {
+  const isSeller = await authSeller(userId);
+  const user = await currentUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
+  return isSeller || isAdmin;
+};
 
 // Không sử dụng bodyParser để hỗ trợ form-data (upload hình)
 export const config = {
@@ -50,8 +58,10 @@ export async function GET(req) {
       );
     }
 
-    const isSeller = await authSeller(userId);
-    if (!isSeller) {
+    // Kiểm tra quyền admin hoặc seller
+    const hasAccess = await checkAccess(userId);
+
+    if (!hasAccess) {
       return NextResponse.json(
         { success: false, message: "Not authorized" },
         { status: 403 }
@@ -106,8 +116,8 @@ export async function POST(req) {
         { status: 401 }
       );
 
-    const isSeller = await authSeller(userId);
-    if (!isSeller)
+    const hasAccess = await checkAccess(userId);
+    if (!hasAccess)
       return NextResponse.json(
         { success: false, message: "Not authorized" },
         { status: 403 }
@@ -184,8 +194,8 @@ export async function PUT(req) {
         { status: 401 }
       );
 
-    const isSeller = await authSeller(userId);
-    if (!isSeller)
+    const hasAccess = await checkAccess(userId);
+    if (!hasAccess)
       return NextResponse.json(
         { success: false, message: "Not authorized" },
         { status: 403 }
@@ -283,8 +293,8 @@ export async function DELETE(req) {
         { status: 401 }
       );
 
-    const isSeller = await authSeller(userId);
-    if (!isSeller)
+    const hasAccess = await checkAccess(userId);
+    if (!hasAccess)
       return NextResponse.json(
         { success: false, message: "Not authorized" },
         { status: 403 }

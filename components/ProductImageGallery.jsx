@@ -144,22 +144,7 @@ const ProductImageGallery = ({
                   );
                 }}
                 className="flex items-center gap-1 hover:text-blue-300"
-              >
-                {imageViewMode === "cover" ? "📏" : "🖼️"}
-                {imageViewMode === "cover" ? "Fit toàn bộ" : "Cắt vừa khung"}
-              </button>
-            </div>
-
-            {/* Zoom indicator */}
-            <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-              🔍 Click để xem lớn
-            </div>
-
-            {/* View mode explanation */}
-            <div className="absolute bottom-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-              {imageViewMode === "cover"
-                ? "Chế độ: Lấp đầy (có thể cắt ảnh)"
-                : "Chế độ: Hiện toàn bộ (có khoảng trống)"}
+              ></button>
             </div>
 
             {/* Navigation arrows on main image */}
@@ -190,12 +175,6 @@ const ProductImageGallery = ({
 
         {/* Thumbnails - Improved responsive design */}
         <div className="relative">
-          <button
-            onClick={scrollLeft}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 opacity-50 text-white p-1.5 rounded-full z-10 text-sm hover:opacity-75"
-          >
-            ←
-          </button>
           <div
             ref={imageContainerRef}
             className="grid grid-cols-4 gap-2 pb-4"
@@ -265,12 +244,6 @@ const ProductImageGallery = ({
               </div>
             )}
           </div>
-          <button
-            onClick={scrollRight}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-800 opacity-50 text-white p-1.5 rounded-full z-10 text-sm hover:opacity-75"
-          >
-            →
-          </button>
         </div>
       </div>
 
@@ -338,7 +311,6 @@ const ProductImageGallery = ({
             {/* Keyboard hints */}
             <div className="absolute bottom-4 right-4 bg-black/50 text-white text-xs p-2 rounded">
               <div>← → : Chuyển ảnh</div>
-              <div>ESC : Đóng</div>
             </div>
           </div>
         </div>

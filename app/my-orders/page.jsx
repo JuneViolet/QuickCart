@@ -214,7 +214,7 @@ const MyOrders = () => {
                   >
                     <div className="p-6">
                       <div className="flex flex-col lg:flex-row gap-6">
-                        {/* Sản phẩm - hiển thị dọc từng sản phẩm */}
+                        {/* Sản phẩm - hiển thị dọc từng sản phẩm lg:max-w-lg*/}
                         <div className="flex-1 min-w-0">
                           <div className="space-y-3">
                             {order.items.map((item, index) => (

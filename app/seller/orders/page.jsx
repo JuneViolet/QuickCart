@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { assets } from "@/assets/assets";
 import Image from "next/image";
 import { useAppContext } from "@/context/AppContext";
@@ -9,12 +9,29 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 const Orders = () => {
-  const { currency, getToken, user, formatCurrency } = useAppContext();
+  const { currency, getToken, user, formatCurrency, router } = useAppContext();
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // Navigate to product detail function - giống my-orders
+  const navigateToProduct = useCallback(
+    (productId) => {
+      if (!productId) {
+        toast.error("Không tìm thấy thông tin sản phẩm");
+        return;
+      }
+      try {
+        router.push(`/product/${productId}`);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (error) {
+        toast.error("Không thể chuyển đến trang sản phẩm");
+      }
+    },
+    [router]
+  );
 
   const fetchSellerOrders = async () => {
     try {
@@ -241,7 +258,12 @@ const Orders = () => {
                       {order.items.map((item, index) => (
                         <div
                           key={index}
-                          className="flex gap-3 items-center p-2 bg-gray-50 rounded-lg"
+                          className="flex gap-3 items-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            navigateToProduct(item.product?._id);
+                          }}
                         >
                           {/* Hình ảnh sản phẩm */}
                           <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -273,7 +295,7 @@ const Orders = () => {
 
                           {/* Thông tin sản phẩm */}
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-gray-900 text-sm line-clamp-2">
+                            <div className="font-medium text-gray-900 text-sm line-clamp-2 group-hover:text-orange-600 transition-colors">
                               {item.product?.name || "Unknown Product"}
                               {item.variantId?.attributeRefs &&
                                 item.variantId.attributeRefs.length > 0 && (
