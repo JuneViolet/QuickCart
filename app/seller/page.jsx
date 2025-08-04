@@ -255,7 +255,7 @@ const AddProduct = () => {
                       setErroName("");
                     }}
                     value={name}
-                    required
+                    // required
                   />
                 </div>
 
@@ -331,7 +331,7 @@ const AddProduct = () => {
                   placeholder="Mô tả chi tiết về sản phẩm, tính năng nổi bật, chất liệu, kích thước..."
                   onChange={(e) => setDescription(e.target.value)}
                   value={description}
-                  required
+                  // required
                 />
               </div>
 

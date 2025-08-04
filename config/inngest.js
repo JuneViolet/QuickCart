@@ -133,7 +133,7 @@ export const createUserOrder = inngest.createFunction(
       }
 
       // Xử lý GHN nếu là COD
-      if (paymentMethod === "cod" && order.status === "pending") {
+      if (paymentMethod === "cod") {
         if (!order.address) {
           console.error("❌ Address not populated for order:", orderId);
           await Order.findByIdAndUpdate(orderId, {
@@ -193,13 +193,19 @@ export const createUserOrder = inngest.createFunction(
 
           if (ghnData.code === 200) {
             const newTrackingCode = ghnData.data.order_code;
-            await Order.findByIdAndUpdate(orderId, {
-              status: "Chờ lấy hàng",
-              ghnOrderId: ghnData.data.order_id,
-              trackingCode: newTrackingCode,
-            });
+            const updateResult = await Order.findByIdAndUpdate(
+              orderId,
+              {
+                status: "Chờ lấy hàng",
+                ghnOrderId: ghnData.data.order_id,
+                trackingCode: newTrackingCode,
+              },
+              { new: true }
+            );
             console.log(
-              "✅ GHN createOrder success, updated trackingCode:",
+              "✅ GHN createOrder success, updated order:",
+              updateResult?.status,
+              "trackingCode:",
               newTrackingCode
             );
           } else {

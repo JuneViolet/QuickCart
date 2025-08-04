@@ -419,11 +419,8 @@ const OrderSummary = () => {
           setCartItems({});
           setPromoCode("");
           setDiscount(0);
-          router.push(
-            `/order-placed?trackingCode=${
-              ghnTrackingCode || data.order.trackingCode
-            }`
-          );
+          // Chuyển đến trang my-orders thay vì order-placed
+          router.push("/my-orders");
         }
       } catch (error) {
         console.error("Đặt hàng lỗi:", error);

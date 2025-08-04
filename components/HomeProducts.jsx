@@ -95,7 +95,19 @@ const HomeProducts = () => {
         const categoryParam = category !== "All" ? category : "";
         const brandParam = brand !== "All" ? brand : "";
 
-        url = `/api/product/list?page=${page}&limit=10${
+        // Kiểm tra xem có bộ lọc nào được áp dụng không
+        const hasFilters =
+          minPrice > 0 ||
+          maxPrice < 100000000 ||
+          categoryParam ||
+          brandParam ||
+          normalizedQuery;
+
+        // Nếu có bộ lọc thì hiển thị tất cả, không có thì phân trang
+        const limitParam = hasFilters ? "" : `&limit=10`;
+        const pageParam = hasFilters ? "" : `page=${page}&`;
+
+        url = `/api/product/list?${pageParam}${limitParam}${
           normalizedQuery ? `&query=${encodeURIComponent(normalizedQuery)}` : ""
         }${
           categoryParam ? `&category=${encodeURIComponent(categoryParam)}` : ""
@@ -106,6 +118,7 @@ const HomeProducts = () => {
         }`;
 
         console.log("Fetching URL:", url); // Log để debug
+        console.log("Has filters:", hasFilters); // Log để debug
         const response = await fetch(url);
         const data = await response.json();
 
@@ -356,8 +369,8 @@ const HomeProducts = () => {
           </div>
 
           {/* Price Filter Panel */}
-          {showPriceFilter && (
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-2 border border-gray-200 shadow-sm">
+          {showPriceFilter && ( //
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-2 border border-gray-200 shadow-sm max-w-10xl">
               <h3 className="text-lg font-semibold mb-6 text-gray-800 flex items-center gap-2">
                 <span className="text-xl"></span>
                 Khoảng giá mong muốn
@@ -546,10 +559,10 @@ const HomeProducts = () => {
           </div>
         ) : products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6 pb-14 w-full">
-            {products.slice(0, 10).map(
+            {products.map(
               (
-                product, // điều chỉnh sp
-                index // Giới hạn 10 sản phẩm
+                product, // Hiển thị tất cả sản phẩm khi có bộ lọc
+                index
               ) => {
                 console.log("Product data:", product); // Debug để xem cấu trúc dữ liệu
 
@@ -606,36 +619,50 @@ const HomeProducts = () => {
         )}
       </div>
 
-      {/* Pagination */}
-      <div className="flex gap-4 mt-8">
-        {totalPages > 1 && (
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              disabled={page === 1}
-              className="flex items-center justify-center w-10 h-10 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Image
-                src={assets.arrow_left1}
-                alt="Previous"
-                className="w-4 h-4"
-              />
-            </button>
+      {/* Pagination - chỉ hiển thị khi không có bộ lọc */}
+      {!(
+        priceRange.min > 0 ||
+        priceRange.max < 100000000 ||
+        selectedCategory !== "All" ||
+        selectedBrand !== "All" ||
+        searchTerm
+      ) && (
+        <div className="flex gap-4 mt-8">
+          {totalPages > 1 && (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={page === 1}
+                className="flex items-center justify-center w-10 h-10 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Image
+                  src={assets.arrow_left1}
+                  alt="Previous"
+                  className="w-4 h-4"
+                />
+              </button>
 
-            <span className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg">
-              Trang {page} / {totalPages}
-            </span>
+              <span className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg">
+                Trang {page} / {totalPages}
+              </span>
 
-            <button
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={page === totalPages}
-              className="flex items-center justify-center w-10 h-10 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Image src={assets.arrow_right1} alt="Next" className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-      </div>
+              <button
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={page === totalPages}
+                className="flex items-center justify-center w-10 h-10 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Image
+                  src={assets.arrow_right1}
+                  alt="Next"
+                  className="w-4 h-4"
+                />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Custom Styles */}
       <style jsx>{`

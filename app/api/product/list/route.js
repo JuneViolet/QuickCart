@@ -5,7 +5,7 @@ import Brand from "@/models/Brand";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
-// Chuẩn hóa chuỗi (GIỮ NGUYÊN khoảng cách để khớp với database)
+// Chuẩn hóa chuỗi (GIỮ NGUYÊN khoảng cách để khớp với database, loại bỏ ký tự lặp)
 const normalizeString = (str) =>
   str
     .toLowerCase()
@@ -13,13 +13,24 @@ const normalizeString = (str) =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
     .replace(/[^a-z0-9\s]/g, "")
+    .replace(/(.)\1{2,}/g, "$1") // Loại bỏ ký tự lặp lại nhiều lần (vd: oiiii -> oi)
     .trim();
 
-// Tách từ khóa và loại bỏ khoảng cách dư thừa
+// Chuẩn hóa và loại bỏ ký tự lặp cho từng từ
+const normalizeWord = (word) =>
+  word
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]/g, "")
+    .replace(/(.)\1{2,}/g, "$1");
+
+// Tách từ khóa, chuẩn hóa và loại bỏ ký tự lặp dư thừa
 const splitSearchTerms = (query) =>
   query
-    .split(/\s+/) // Tách bởi bất kỳ khoảng trắng nào
-    .map((term) => term.trim()) // Giữ nguyên từ, chỉ trim khoảng cách đầu cuối
+    .split(/\s+/)
+    .map((term) => normalizeWord(term.trim()))
     .filter((term) => term.length > 0);
 
 export async function GET(request) {
@@ -28,8 +39,9 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page")) || 1;
-    const limit = parseInt(searchParams.get("limit")) || 10;
-    const skip = (page - 1) * limit;
+    const limitParam = searchParams.get("limit");
+    const limit = limitParam ? parseInt(limitParam) : null; // null nghĩa là không giới hạn
+    const skip = limit ? (page - 1) * limit : 0;
 
     const categoryName = searchParams.get("category");
     const categoryId = searchParams.get("categoryId");
@@ -51,6 +63,8 @@ export async function GET(request) {
       minPrice,
       maxPrice,
       sort,
+      page,
+      limit: limit || "unlimited", // Log để debug
     });
 
     // ==== Category filter ====
@@ -148,20 +162,28 @@ export async function GET(request) {
     console.log("Initial filters:", filters);
 
     if (searchQuery) {
-      const searchTerms = splitSearchTerms(searchQuery); // Tách và chuẩn hóa từ khóa
-      console.log("Search terms:", searchTerms); // Debug các từ khóa tách ra
-
+      // Nếu query chỉ toàn ký tự đặc biệt hoặc rỗng sau normalize thì trả về mảng rỗng
+      const normalized = normalizeString(searchQuery);
+      if (!normalized || !/[a-z0-9]/.test(normalized)) {
+        return NextResponse.json({
+          success: true,
+          products: [],
+          totalPages: 1,
+        });
+      }
+      const searchTerms = splitSearchTerms(searchQuery);
+      console.log("Search terms:", searchTerms);
+      // Tìm kiếm thông minh: tất cả các từ phải xuất hiện trong name, keywords, category hoặc brand (dạng normalize)
       mongoQuery = {
         $and: [
-          {
-            $or: searchTerms.flatMap((term) => [
+          ...searchTerms.map((term) => ({
+            $or: [
               { name: { $regex: term, $options: "i" } },
-              { description: { $regex: term, $options: "i" } },
               { keywords: { $regex: term, $options: "i" } },
               { "category.name": { $regex: term, $options: "i" } },
               { "brand.name": { $regex: term, $options: "i" } },
-            ]),
-          },
+            ],
+          })),
           filters,
         ],
       };
@@ -179,16 +201,19 @@ export async function GET(request) {
     else if (sort === "high-to-low") sortOption.offerPrice = -1;
     else sortOption.createdAt = -1;
 
-    const products = await Product.find(mongoQuery)
+    const productsQuery = Product.find(mongoQuery)
       .select(
         "name description price offerPrice images category stock brand ratings comments keywords variants"
       )
       .populate("category", "name")
       .populate("brand", "name")
       .populate("variants", "name price offerPrice images")
-      .skip(skip)
-      .limit(limit)
-      .lean();
+      .skip(skip);
+
+    // Chỉ áp dụng limit nếu có
+    const products = limit
+      ? await productsQuery.limit(limit).lean()
+      : await productsQuery.lean();
 
     // Sắp xếp sau khi populate để có thể sử dụng giá từ variants
     if (sort === "low-to-high" || sort === "high-to-low") {
@@ -264,9 +289,9 @@ export async function GET(request) {
     return NextResponse.json({
       success: true,
       products: productsWithRating,
-      totalProducts,
+      totalProducts: filteredProducts.length, // Số sản phẩm thực tế sau khi filter
       currentPage: page,
-      totalPages: Math.ceil(totalProducts / limit),
+      totalPages: limit ? Math.ceil(totalProducts / limit) : 1, // Nếu không có limit thì chỉ có 1 trang
     });
   } catch (error) {
     console.error("Get Products Error:", error);

@@ -299,7 +299,8 @@ const Cart = () => {
           if (response.data.success) {
             toast.success("Đặt hàng thành công!");
             setCartItems({});
-            contextRouter.push("/order-success");
+            // Chuyển đến trang my-orders để xem đơn hàng vừa tạo
+            contextRouter.push("/my-orders");
           } else {
             toast.error(response.data.message || "Đặt hàng thất bại!");
           }
@@ -357,7 +358,8 @@ const Cart = () => {
         if (response.data.order.status === "pending") {
           toast.success("Đặt hàng thành công!");
           setCartItems({});
-          contextRouter.push("/order-success");
+          // Chuyển đến trang my-orders để xem đơn hàng vừa tạo
+          contextRouter.push("/my-orders");
         } else {
           toast.error("Đặt hàng thất bại do trạng thái không hợp lệ!");
         }

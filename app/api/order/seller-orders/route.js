@@ -152,6 +152,8 @@ export async function GET(request) {
 
     const updatedOrders = await Promise.all(
       ordersFromDB.map(async (order) => {
+        if (!order) return null; // Bảo vệ chống undefined
+
         let orderData = order.toObject();
         if (order.trackingCode && !order.trackingCode.startsWith("TEMP-")) {
           try {
@@ -178,7 +180,7 @@ export async function GET(request) {
           orderData.ghnStatusText || getStatusText(order.status);
         return orderData;
       })
-    );
+    ).then((orders) => orders.filter((order) => order !== null)); // Loại bỏ null values
 
     // Loại bỏ logic Map nếu không cần thiết (mỗi order._id đã duy nhất)
     console.log("Updated Orders:", updatedOrders);

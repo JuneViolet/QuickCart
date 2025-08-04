@@ -3,9 +3,10 @@ import Link from "next/link";
 import { assets } from "../../assets/assets";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-
+import { useAppContext } from "@/context/AppContext";
 const SideBar = () => {
   const pathname = usePathname();
+
   const menuItems = [
     {
       name: "DashBoard",

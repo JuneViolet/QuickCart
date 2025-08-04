@@ -298,9 +298,12 @@ export async function POST(request) {
       return NextResponse.json({
         success: true,
         message: "Đơn hàng đã được tạo thành công",
-        id: order._id,
-        amount: finalAmount,
-        trackingCode: tempTrackingCode,
+        order: {
+          id: order._id,
+          orderId: order._id,
+          amount: finalAmount,
+          trackingCode: tempTrackingCode,
+        },
       });
     } else {
       // Với VNPay: gửi Inngest async, không đợi
