@@ -58,10 +58,29 @@ export async function GET(req) {
         return NextResponse.json({ success: true, data: ghnData.data });
       }
 
-      if (ghnStatus === "ready_to_pick") updatedStatus = "Chờ lấy hàng";
-      else if (ghnStatus === "delivering") updatedStatus = "Đang giao";
-      else if (ghnStatus === "delivered") updatedStatus = "Đã giao";
-      else if (ghnStatus === "cancel") updatedStatus = "Đã hủy";
+      // Không cho phép ghi đè status thanh toán đã thành công, chỉ cập nhật shipping status
+      if (order.status === "ghn_success" || order.status === "paid") {
+        // Chỉ cập nhật nếu GHN status cho biết đang giao hoặc đã giao
+        if (ghnStatus === "delivering") {
+          updatedStatus = "Đang giao";
+        } else if (ghnStatus === "delivered") {
+          updatedStatus = "Đã giao";
+        } else if (ghnStatus === "cancel") {
+          updatedStatus = "Đã hủy";
+        } else {
+          // Giữ nguyên status hiện tại cho các trạng thái khác
+          console.log(
+            `⚠️ Order ${order._id} payment completed (${order.status}), keeping current status for GHN status: ${ghnStatus}`
+          );
+          return NextResponse.json({ success: true, data: ghnData.data });
+        }
+      } else {
+        // Logic cũ cho các đơn hàng chưa thanh toán
+        if (ghnStatus === "ready_to_pick") updatedStatus = "Chờ lấy hàng";
+        else if (ghnStatus === "delivering") updatedStatus = "Đang giao";
+        else if (ghnStatus === "delivered") updatedStatus = "Đã giao";
+        else if (ghnStatus === "cancel") updatedStatus = "Đã hủy";
+      }
 
       if (updatedStatus !== order.status) {
         await Order.findByIdAndUpdate(order._id, { status: updatedStatus });
