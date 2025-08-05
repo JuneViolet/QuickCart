@@ -62,6 +62,8 @@ const Orders = () => {
         return "Chờ xác nhận";
       case "paid":
         return "Đã thanh toán";
+      case "ghn_success":
+        return "Đã thanh toán - Chờ lấy hàng";
       case "confirmed":
         return "Đã xác nhận";
       case "shipped":
@@ -72,6 +74,8 @@ const Orders = () => {
         return "Giao thành công (GHN xác nhận)";
       case "canceled":
         return "Đã hủy";
+      case "failed":
+        return "Thanh toán thất bại";
       case "ghn_failed":
         return "Lỗi tạo đơn GHN";
       case "Chờ lấy hàng":

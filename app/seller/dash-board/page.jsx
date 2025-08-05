@@ -51,10 +51,12 @@ export default function DashboardPage() {
     const statusMap = {
       pending: "Chờ xác nhận",
       paid: "Đã thanh toán",
+      ghn_success: "Đã thanh toán - Chờ lấy hàng",
       confirmed: "Đã xác nhận",
       shipped: "Đang giao",
       delivered: "Giao thành công",
       canceled: "Đã hủy",
+      failed: "Thanh toán thất bại",
       ghn_failed: "Lỗi GHN",
       "Chờ lấy hàng": "Chờ lấy hàng",
       "Đang giao": "Đang giao",
